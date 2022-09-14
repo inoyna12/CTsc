@@ -57,7 +57,7 @@ def qiandao(cook,num):
         result += resu + '\n'
         if resu == '您的抽奖次数已用完!':
             break
-    sendMessage(str(num) + result)
+#    sendMessage(str(num) + result)
     print(str(num) + result)
     send('话费购',str(num) + result)
 
