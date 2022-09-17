@@ -1,15 +1,14 @@
 // @grant require
 /*
-中青看点 看看赚
-会跑比较久，3小时以上
+中青看点 自动阅读
 
 需要zqkdCookie，自己捉包填写，多账号@隔开，格式：
 uid=12345678&zqkey=xxxxxx&zqkey_id=yyyyyyy@uid=87654321&zqkey=zzzzzzzz&zqkey_id=aaaaaa
 
-cron: 2 3,16 * * *
-const $ = new Env('中青看点-看看赚');
+cron: 4-59/22 11-18 * * *
+const $ = new Env('中青看点-自动阅读');
 */
-const jsname = '中青看点看看赚'
+const jsname = '中青看点文章视频'
 const $ = Env(jsname)
 const notifyFlag = 1; //0为关闭通知，1为打开通知,默认为1
 const logDebug = 0
@@ -26,27 +25,21 @@ let userCookieArr = []
 let bodyArr = []
 
 let userIdx = 0
-let allCompFlag = 0
-let restNum = 0
 
-let idStart = 2900
-let idEnd = 5000
-let idRunList = []
+let artCatid = 0
+let videoCatid = 1453
 
-let extraList = [1182,2111]
-
-let validList = []
-let validStr = ''
+let readLength = 0
+let maxReadLength = 16
 let rewardCount = []
-let boxList = []
+let userArtList = []
 
-let preBody = 'p=ecTMBiVxDAfc%3D'
-
-let bodyTemplate = 'app_name=zqkd_app&app_version=3.9.8&carrier=%E4%B8%AD%E5%9B%BD%E7%94%B5%E4%BF%A1&channel=c1031&device_brand=OPPO&device_id=56805603&device_model=OPPO+R9tm&device_platform=android&device_type=android&dpi=480&inner_version=202108181534&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&openudid=8cd3b52d8fd6dd9b&os_api=22&os_version=R9tm_11_A.53_191217&request_time=1637250670&resolution=1080x1920&rom_version=R9tm_11_A.53_191217&s_ad=O2JgR8oZr6IU%3DC_rQb0PVGILJXAXRqCK-8mMH6bi0gkt_&s_im=BYFg4QJ5A6eY%3DNy7jQqHtxpkJHJ7qLLev8g%3D%3D&sm_device_id=202111182157042fe759e829fd55d80ca5b5be0858ba1001d4f22d5ae158d7&storage=54.84&'
-
-let fakeSign = '&sign=afec36be979753f62c4dbd4943472fca'
+let artPreBody = 'p=swNMsLAQgw3E%3D'
+let timePreBody = 'p=swNMsLAQgw3E%3D'
 
 let key = '6HPjSZFH'
+
+let fixStr = 'jdvylqchJZrfw0o2DgAbsmCGUapF1YChc'
 ///////////////////////////////////////////////////////////////////
 
 !(async () => {
@@ -62,8 +55,9 @@ let key = '6HPjSZFH'
         }
         
         await initAccountInfo()
-        await runLookStart()
-        await getBox()
+        await userDouble()
+        await userGetList()
+        await userReads()
         await getStat()
     }
   
@@ -97,22 +91,8 @@ async function checkEnv() {
         return false
     }
     
-    for(let i=0; i<extraList.length; i++) {
-        idRunList.push(extraList[i])
-    }
-    for(let i=idStart; i<idEnd; i++) {
-        idRunList.push(i)
-    }
-    
-    console.log(`共找到${userCookieArr.length}个用户，本次运行将查询${idRunList.length}个看看赚任务ID`)
+    console.log(`共找到${userCookieArr.length}个用户`)
     return true
-}
-
-async function initAccountInfo() {
-    for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-        rewardCount.push(0)
-        boxList.push([])
-    }
 }
 
 function replaceCookie(userCookieItem) {
@@ -133,9 +113,16 @@ function replaceCookie(userCookieItem) {
         uid = userCookieItem.match(/uid=([\w-]+)/)[1]
     }
     
-    replaceItem = `uid=${uid}&version_code=63&zqkey=${zqkey}&zqkey_id=${zqkey_id}`
+    replaceItem = `uid=${uid}&zqkey=${zqkey}&zqkey_id=${zqkey_id}`
     
     return replaceItem
+}
+
+async function initAccountInfo() {
+    for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+        rewardCount.push(0)
+        userArtList.push([])
+    }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -158,187 +145,256 @@ async function decodeUserBody() {
     }
 }*/
 
-async function encodeUserBody(idx,task_id) {
-    replacedStr = bodyTemplate + `&task_id=${task_id}&` + userCookieArr[idx] + fakeSign
-    encodeBody = EncFunc(replacedStr)
+function encodeMD5Str(encStr) {
+    replacedStr = decodeURIComponent(encStr)
+    replacedStr = replacedStr.replace(/\&/g,'')
+    replacedStr = replacedStr.replace(/\+/g,' ')
+    replacedStr += fixStr
+    md5Str = CryptoJS.MD5(replacedStr).toString()
+    return md5Str
+}
+
+function encodeUserBody(prebody,inputStr) {
+    encodeBody = EncFunc(inputStr)
     hexBody = CryptoJS.enc.Hex.parse(encodeBody)
     base64Body = CryptoJS.enc.Base64.stringify(hexBody)
     replaceBody3 = base64Body.replace(/\+/g,'-')
     replaceBody4 = replaceBody3.replace(/\//g,'_')
     finalBody = encodeURIComponent(replaceBody4)
-    finalBody = preBody + finalBody + randomString(1)
+    finalBody = prebody + finalBody + '=='
     return finalBody
 }
 
-async function runLookStart() {
-    for(let i=0; i<idRunList.length; i++) {
-        let id = idRunList[i]
-        if(i%20 == 0) console.log(`正在查询任务，请耐心等待...`)
-        allCompFlag = 1
-        restNum = 0
-        bodyArr = []
-        compArr = []
-        for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-            let body = await encodeUserBody(userIdx,id)
-            adlickstart(body,id,userIdx)
-            await $.wait(60)
-        }
-        await $.wait(1000)
-        if(allCompFlag == 1) continue
-        console.log(`所有用户开始一起做看看赚任务[id:${id}]，阅读${restNum}次`)
-        for(let i=0; i<restNum; i++) {
-            for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-                if(compArr[userIdx] == 1) {
-                    readLookStartArt(bodyArr[userIdx],i,userIdx)
-                    await $.wait(60)
-                }
-            }
-            let waitTime = Math.floor(Math.random()*2000)+5000
-            console.log(`--完成第${i+1}轮阅读，随机等待${waitTime}ms`)
-            await $.wait(waitTime)
-        }
-        for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-            if(compArr[userIdx] == 1) {
-                adlickend(bodyArr[userIdx],userIdx)
-                await $.wait(60)
-            }
-        }
-    }
-}
-
 async function getStat() {
-    console.log(`============================`)
+    console.log(`\n============================`)
     for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
         console.log(`账号${userIdx+1}本轮共获得了${rewardCount[userIdx]}金币`)
     }
-    console.log(`============================`)
-    for(let i=0; i<validList.length; i++) {
-        validStr += `${validList[i]} `
-    }
-    console.log(`查询到${validList.length}个有效看看赚任务`)
-    console.log(validStr)
 }
 
-//看看赚任务
-async function adlickstart(body,id,idx) {
-    let caller = printCaller()
-    let url = 'https://kandian.wkandian.com/v5/nameless/adlickstart.json'
-    let urlObject = populatePostUrl(url,body)
-    await httpPost(urlObject,caller)
-    let result = httpResult;
-    if(!result) {
-        compArr.push(0)
-        if(idx == 0) allCompFlag = 1
-        return false
-    }
-    
-    if(result.success == true) {
-        if(result.items.comtele_state == 0) {
-            allCompFlag = 0
-            compArr.push(1)
-            let readNum = result.items.see_num - result.items.read_num
-            if(readNum==0) readNum=1
-            restNum = (readNum>restNum) ? readNum : restNum
-            console.log(`用户${idx+1}未完成看看赚[id:${id}]，还需阅读${readNum}次`)
-        } else  {
-            compArr.push(0)
-            console.log(`用户${idx+1}已完成看看赚[id:${id}]`)
-        }
-        if(idx == 0) validList.push(id)
-        bodyArr.push(body)
-    } else {
-        compArr.push(0)
-        if(idx == 0) allCompFlag = 1
-        if(result.error_code == 200001) console.log(`非法请求，请检查用户${idx+1}的ck`)
-        return false
-    }
-    
-    return true
-}
-
-//阅读看看赚文章
-async function readLookStartArt(body,idx) {
-    let caller = printCaller()
-    let url = 'https://kandian.wkandian.com/v5/nameless/bannerstatus.json'
-    let urlObject = populatePostUrl(url,body)
-    await httpPost(urlObject,caller)
-    let result = httpResult;
-    if(!result) return
-    
-    if(result.success != true) {
-        console.log(`--用户${idx+1}阅读看看赚文章失败：${result.message}`)
-    }
-}
-
-//看看赚任务完成
-async function adlickend(body,idx) {
-    let caller = printCaller()
-    let url = 'https://kandian.wkandian.com/v5/nameless/adlickend.json'
-    let urlObject = populatePostUrl(url,body)
-    await httpPost(urlObject,caller)
-    let result = httpResult;
-    if(!result) return
-    
-    if(result.success == true) {
-        console.log(`用户${idx+1}完成看看赚[id:${result.items.banner_id}]任务，获得${result.items.score}金币`)
-        rewardCount[idx] += parseInt(result.items.score)
-    } else {
-        console.log(`用户${idx+1}完成看看赚任务失败：${result.message}`)
-    }
-}
-
-async function getBox() {
-    let maxBoxNum = 0
-    console.log(`========================================================`)
+//并发阅读
+async function userGetList() {
+    console.log(`\n读取推荐文章视频列表...`)
     for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-        await getBoxRewardConf()
-        maxBoxNum = getMax(maxBoxNum,boxList[userIdx].length)
+        ListArts(artCatid,videoCatid,userIdx)
+        await $.wait(60)
     }
-    for(let i=0; i<maxBoxNum; i++) {
+    for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+        ListArts(videoCatid,artCatid,userIdx)
+        await $.wait(60)
+    }
+    await $.wait(3000)
+}
+
+//文章列表
+async function ListArts(catid,vcatid,idx) {
+    let caller = printCaller()
+    let rndtime1 = Math.floor(new Date().getTime())
+    let rndtime2 = Math.floor(new Date().getTime()/1000)
+    let op = Math.floor(Math.random()*4)
+    let paraList = userCookieArr[idx].split('&')
+    let md5Para = `access=WIFI&app_name=zqkd_app&app_version=3.9.8&behot_time=0&carrier=CHINA%20MOBILE&catid=${catid}&channel=c1031&device_brand=Android&device_id=56971302&device_model=MI%209&device_platform=android&device_type=android&dpi=240&inner_version=202108181534&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&oid=0&op=${op}&openudid=a6066063b6fbed67&os_api=22&os_version=MI%209-user%205.1.1%20NMF26X%20500211025%20release-keys&phone_sim=1&request_time=${rndtime2}&resolution=720x1280&rom_version=MI%209-user%205.1.1%20NMF26X%20500211025%20release-keys&s_ad=7wNMsLAQgw3E%3DsFCZYRlUUiSfaqjzozPOmj1DJGsQ0-KRmn&s_im=9FbVGOYyXwIo%3DZjZvSuQeb_qdBallAGaXUg%3D%3D8&sm_device_id=20211112123533c490f279d26a934ca445950324c9601a01419a1241729573&storage=61.39&${paraList[0]}&version_code=63&video_catid=${vcatid}&${paraList[1]}&${paraList[2]}`
+    let sign = encodeMD5Str(md5Para,paraList)
+    let url = `https://kandian.wkandian.com/v3/article/lists.json?catid=${catid}&op=${op}&behot_time=0&oid=0&video_catid=${vcatid}&access=WIFI&app_name=zqkd_app&app_version=3.9.8&carrier=CHINA%20MOBILE&channel=c1031&device_brand=Android&device_id=56971302&device_model=MI%209&device_platform=android&device_type=android&dpi=240&inner_version=202108181534&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&openudid=a6066063b6fbed67&os_api=22&os_version=MI%209-user%205.1.1%20NMF26X%20500211025%20release-keys&phone_sim=1&request_time=${rndtime2}&resolution=720x1280&rom_version=MI%209-user%205.1.1%20NMF26X%20500211025%20release-keys&s_ad=7wNMsLAQgw3E%3DsFCZYRlUUiSfaqjzozPOmj1DJGsQ0-KRmn&s_im=9FbVGOYyXwIo%3DZjZvSuQeb_qdBallAGaXUg%3D%3D8&sm_device_id=20211112123533c490f279d26a934ca445950324c9601a01419a1241729573&storage=61.39&${paraList[0]}&version_code=63&${paraList[1]}&${paraList[2]}&sign=${sign}`
+    
+    let urlObject = populateGetUrl(url)
+    await httpGet(urlObject,caller)
+    let result = httpResult;
+    if(!result) return
+    
+    let typeStr = ''
+    if(catid == 0) typeStr = '文章'
+    else if(catid == 1453) typeStr = '视频'
+    
+    if(result.success == true) {
+        for(let i=0; i<result.items.length-3; i++) {
+            let artItem = result.items[i]
+            let ctype = artItem.ctype ? artItem.ctype : ''
+            if(ctype == 0 || ctype == 3) {
+                userArtList[idx].push(artItem)
+            }
+        }
+        console.log(`账号${idx+1}获取${typeStr}列表成功[catid=${catid}]`)
+    } else {
+        console.log(`账号${idx+1}获取${typeStr}列表失败：${result.message}`)
+    }
+}
+
+//并发阅读
+async function userReads() {
+    for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+        readLength = getMax(readLength,userArtList[userIdx].length)
+    }
+    readLength = getMin(readLength,maxReadLength)
+    console.log(`\n本次运行将会阅读最多${readLength}篇文章视频`)
+    for(let i=0; i<readLength; i++) {
+        console.log(`\n======== 开始第${i+1}轮阅读 ========`)
         for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
-            if(i<boxList[userIdx].length) await getBoxReward(boxList[userIdx][i])
+            if(i<userArtList[userIdx].length) {
+                GetArtsInfo(userArtList[userIdx][i],userIdx)
+                await $.wait(60)
+            }
         }
-        if(i<maxBoxNum-1) await $.wait(Math.floor(Math.random()*1000)+1000)
+        await $.wait(1000)
+        if(i==0) {
+            for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+                if(i<userArtList[userIdx].length) {
+                    CompleteArt(userArtList[userIdx][i].id,1,userIdx)
+                    await $.wait(60)
+                }
+            }
+        }
+        let waitTime = 31000 + Math.floor(Math.random()*4000)
+        console.log(`随机等待${waitTime/1000}秒...`)
+        await $.wait(waitTime)
+        
+        for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+            if(i<userArtList[userIdx].length) {
+                CompleteArt(userArtList[userIdx][i].id,0,userIdx)
+                await $.wait(60)
+            }
+        }
+        if(i%3 == 2) {
+            for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+                let stayTime = 80 + Math.floor(Math.random()*10)
+                if(i<userArtList[userIdx].length) {
+                    UpdateStayTime(stayTime,userIdx)
+                    await $.wait(60)
+                }
+            }
+        }
     }
 }
 
-//看看赚宝箱状态
-async function getBoxRewardConf() {
+//阅读文章，观看视频
+async function GetArtsInfo(artItem,idx) {
     let caller = printCaller()
-    let reqCk = 'device_type=android&' + userCookieArr[userIdx]
-    let url = 'http://kandian.wkandian.com/WebApi/Nameless/getBoxRewardConf?' + reqCk
+    let rndtime = Math.floor(new Date().getTime()/1000)
+    let paraList = userCookieArr[idx].split('&')
+    let md5Para = `app_name=zqkd_app&app_version=3.9.8&carrier=CHINA+MOBILE&catid=${artItem.catid}&channel=c1031&device_brand=Android&device_id=56971302&device_model=MI+9&device_platform=android&device_type=android&dpi=240&id=${artItem.id}&inner_version=202108181534&is_push=0&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&openudid=a6066063b6fbed67&os_api=22&os_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&request_time=${rndtime}&resolution=720x1280&rom_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&s_ad=E2JgR8oZr6IU%3DPE0cx099D1kf6lH6CywmGZt1WpGEHC6k&s_im=XYdVi_XPUOzA%3D7RAdU6ohamNZSaVJf3_tqA%3D%3DZB&sm_device_id=20211112123533c490f279d26a934ca445950324c9601a01419a1241729573&storage=61.39&${paraList[0]}&version_code=63&${paraList[1]}&${paraList[2]}`
+    let sign = encodeMD5Str(md5Para)
+    let desEnc = md5Para + '&sign=' + sign
+    let desStr = encodeUserBody(artPreBody,desEnc)
+    let urlPattern = ''
+    let readType = ''
+    if(artItem.ctype == 0) {
+        urlPattern = 'info'
+        readType = '阅读文章'
+    } else if(artItem.ctype == 3) {
+        urlPattern = 'detail'
+        readType = '观看视频'
+    }
+    let url = `https://kandian.wkandian.com/v5/article/${urlPattern}.json?` + desStr
+    
     let urlObject = populateGetUrl(url)
-    urlObject.headers.Referer = 'http://kandian.wkandian.com/h5/20190527watchMoney/?' + reqCk
     await httpGet(urlObject,caller)
     let result = httpResult;
     if(!result) return
     
-    if(result.status == 1) {
-        for(let boxItem of result.data.list) {
-            boxList[userIdx].push(boxItem.id)
+    if(result.success == true) {
+        console.log(`账号${idx+1}开始${readType}：${artItem.title}`)
+    } else {
+        console.log(`账号${idx+1}${readType}失败：${result.message}`)
+    }
+    
+}
+
+//阅读完成奖励
+async function CompleteArt(id,type,idx) {
+    let caller = printCaller()
+    let str = (type==0) ? '阅读' : '推送'
+    let rndtime = Math.floor(new Date().getTime()/1000)
+    let paraList = userCookieArr[idx].split('&')
+    let md5Para = `app_name=zqkd_app&app_version=3.9.8&carrier=CHINA+MOBILE&channel=c1031&device_brand=Android&device_id=56971302&device_model=MI+9&device_platform=android&device_type=android&dpi=240&id=${id}&inner_version=202108181534&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&openudid=a6066063b6fbed67&os_api=22&os_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&read_type=${type}&request_time=${rndtime}&resolution=720x1280&rom_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&s_ad=8YFg4QJ5A6eY%3DV7HSxw3xQPoqyBklmolHheSGzQ_tFjm0&s_im=NYdVi_XPUOzA%3D7RAdU6ohamNZSaVJf3_tqA%3D%3DlK&sm_device_id=20211112123533c490f279d26a934ca445950324c9601a01419a1241729573&storage=61.39&${paraList[0]}&version_code=63&${paraList[1]}&${paraList[2]}`
+    let sign = encodeMD5Str(md5Para)
+    let desEnc = md5Para + '&sign=' + sign
+    let desStr = encodeUserBody(artPreBody,desEnc)
+    let url = 'https://kandian.wkandian.com/v5/article/complete.json'
+    
+    let urlObject = populatePostUrl(url,desStr)
+    await httpPost(urlObject,caller)
+    let result = httpResult;
+    if(!result) return
+    
+    if(result.success == true) {
+        if(result.items && result.items.read_score) {
+            rewardCount[idx] += parseInt(result.items.read_score)
+            console.log(`账号${idx+1}领取${str}奖励：获得${result.items.read_score}金币`)
+        } else {
+            if(result.items && result.items.max_notice) {
+                console.log(`账号${idx+1}没有领取到${str}奖励：${result.items.max_notice}`)
+            } else {
+                console.log(`账号${idx+1}没有领取到${str}奖励`)
+            }
         }
     } else {
-        console.log(`用户${userIdx+1}获取看看赚宝箱状态失败：${result.message}`)
+        console.log(`账号${idx+1}领取${str}奖励失败：${result.message}`)
+    }
+    
+}
+
+//更新时长
+async function UpdateStayTime(tsceond,idx) {
+    let caller = printCaller()
+    let rndtime = Math.floor(new Date().getTime()/1000)
+    let paraList = userCookieArr[idx].split('&')
+    let md5Para = `app_name=zqkd_app&app_version=3.9.8&carrier=CHINA+MOBILE&channel=c1031&device_brand=Android&device_id=56971302&device_model=MI+9&device_platform=android&device_type=android&dpi=240&inner_version=202108181534&language=zh-CN&memory=3&mi=0&mobile_type=1&net_type=1&network_type=WIFI&oaid=9bdf7bff-f3fe-2b18-5fff-3b3f3fd6873d&openudid=a6066063b6fbed67&os_api=22&os_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&request_time=1637953113&resolution=720x1280&rom_version=MI+9-user+5.1.1+NMF26X+500211025+release-keys&s_ad=c2JgR8oZr6IU%3DPE0cx099D1kf6lH6CywmGZt1WpGEHC6k&second=${tsceond}&sm_device_id=20211112123533c490f279d26a934ca445950324c9601a01419a1241729573&storage=61.39&${paraList[0]}&version_code=63&${paraList[1]}&${paraList[2]}`
+    let sign = encodeMD5Str(md5Para)
+    let desEnc = md5Para + '&sign=' + sign
+    let desStr = encodeUserBody(timePreBody,desEnc)
+    let url = 'https://kandian.wkandian.com/v5/user/stay.json'
+    
+    let urlObject = populatePostUrl(url,desStr)
+    await httpPost(urlObject,caller)
+    let result = httpResult;
+    if(!result) return
+    
+    if(result.success == true) {
+        console.log(`账号${idx+1}更新时长${tsceond}秒成功，今日阅读时长：${result.time}秒`)
+    } else {
+        console.log(`账号${idx+1}更新时长失败：${result.message}`)
+    }
+    
+}
+
+//用户阅读翻倍
+async function userDouble() {
+    console.log(`\n查询账户阅读翻倍状态中...`)
+    for(userIdx=0; userIdx<userCookieArr.length; userIdx++) {
+        GetTaskList(userIdx)
+        await $.wait(100)
     }
 }
 
-//看看赚宝箱领取
-async function getBoxReward(id) {
+//翻倍状态
+async function GetTaskList(idx) {
     let caller = printCaller()
-    let reqCk = 'device_type=android&app_version=3.9.8&' + userCookieArr[userIdx]
-    reqCk = reqCk.replace(/\&zqkey/g,'&cookie')
-    let url = `http://kandian.wkandian.com/WebApi/Nameless/getBoxReward?id=${id}&${reqCk}`
+    let url = 'https://kandian.wkandian.com/v17/NewTask/getTaskList.json?app_version=3.9.8&' + userCookieArr[idx]
     let urlObject = populateGetUrl(url)
-    urlObject.headers.Referer = 'http://kandian.wkandian.com/h5/20190527watchMoney/?' + reqCk
     await httpGet(urlObject,caller)
     let result = httpResult;
     if(!result) return
     
-    if(result.status == 1) {
-        console.log(`用户${userIdx+1}打开第${id+1}个看看赚宝箱获得：${result.data}金币`)
-        rewardCount[userIdx] += parseInt(result.data)
+    if(result.success == true) {
+        if(result.items && result.items.task_promotion && result.items.task_promotion.is_double==0) await GetReadDouble(idx)
     } else {
-        console.log(`用户${userIdx+1}领取第${id+1}个看看赚宝箱失败：${result.msg}`)
+        console.log(`账号${idx+1}查询阅读翻倍状态失败：${result.message}`)
+    }
+}
+
+//阅读翻倍
+async function GetReadDouble(idx) {
+    let caller = printCaller()
+    let url = 'https://kandian.wkandian.com/v17/NewTask/setJoinTaskPromotion.json?' + userCookieArr[idx]
+    let urlObject = populateGetUrl(url)
+    await httpGet(urlObject,caller)
+    let result = httpResult;
+    if(!result) return
+    
+    if(result.success == true) {
+        console.log(`账号${idx+1}本周阅读翻倍成功`)
+    } else {
+        console.log(`账号${idx+1}阅读翻倍失败：${result.message}`)
     }
 }
 ////////////////////////////////////////////////////////////////////
@@ -426,7 +482,7 @@ function safeGet(data,caller) {
         if (typeof JSON.parse(data) == "object") {
             return true;
         } else {
-            console.log(`Function ${caller}: 未知错误`);
+            console.log(`Function ${caller}: 未知失败`);
             console.log(data)
         }
     } catch (e) {
@@ -436,16 +492,16 @@ function safeGet(data,caller) {
     }
 }
 
-function printCaller(){
-    return (new Error()).stack.split("\n")[2].trim().split(" ")[1]
-}
-
 function getMin(a,b){
     return ((a<b) ? a : b)
 }
 
 function getMax(a,b){
     return ((a<b) ? b : a)
+}
+
+function printCaller(){
+    return (new Error()).stack.split("\n")[2].trim().split(" ")[1]
 }
 
 function EncFunc(message) {
