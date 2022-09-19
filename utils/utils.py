@@ -28,7 +28,7 @@ def get_data() -> dict:
             print(f"错误：环境变量 CHECK_CONFIG 指定的配置文件 {check_config} 不存在！")
             exit(1)
     else:
-        check_config = utils_env.get_file_path("check.toml")
+        check_config = utils.utils_env.get_file_path("check.toml")
         if not check_config:
             print("错误：未检查到签到配置文件，请在指定位置创建文件或设置 CHECK_CONFIG 指定你的文件。")
             exit(1)
