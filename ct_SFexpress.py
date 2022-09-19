@@ -7,8 +7,8 @@ https://raw.githubusercontent.com/Pwolf-Lin/checkin/main/SFexpress.py
 import requests
 import time
 
-from notify_mtr import send
-from utils import get_data
+from utils.notify_mtr import send
+from utils.utils import get_data
 
 requests.packages.urllib3.disable_warnings()
 
