@@ -14,7 +14,7 @@ import urllib.parse
 import requests
 import tomli
 
-from utils_env import get_file_path
+from utils.utils_env import get_file_path
 
 link_reg = re.compile(r"<a href=['|\"](.+)['|\"]>(.+)<\s?/a>")
 bold_reg = re.compile(r"<b>\s*(.+)\s*<\s?/b>")
