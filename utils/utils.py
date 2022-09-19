@@ -5,8 +5,8 @@ import traceback
 
 import tomli
 
-import utils_env
-from utils_ver import print_ver
+import utils.utils_env
+from utils.utils_ver import print_ver
 
 # 缓存全局的环境
 DATA = {}
