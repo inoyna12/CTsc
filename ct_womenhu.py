@@ -12,14 +12,9 @@ PUSH_PLUS_TOKEN = os.environ["PUSH_PLUS_TOKEN"]
 # 多账号配置
 # mobile 手机号
 # authToken 签到页面抓到的请求头Authentication
-config_list = []
-# 获取环境变量
-env_dist = os.environ
-wmhcks = env_dist.get("wmhcks")
-cookies = wmhcks.split("\n")
-for index, ck in enumerate(cookies):
-    tempList = ck.split("&")
-    config_list.append({"mobile": tempList[0],"authToken": tempList[1]})
+config_list = [
+    {"mobile": "13291164580", "authToken": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzI5MTE2NDU4MCIsInBob25lIjoiMTMyOTExNjQ1ODAiLCJjcmVhdGVkIjoxNjYzODQwNTYxODk0LCJleHAiOjE2NzE2MTY1NjEsInVzZXJJZCI6IlUyMDIyMDkyMjE3NTYwMTU5MDAzMTFiTGM4ME4ifQ.twYvb7PhFImJrToexHcPnHYtlpM_PpASbO6079hRAqXW4N8A1Z63Q0nR5EehJp8E0s8krBdBKhQwX49DqRLO9A"},
+]
 
 
 ################################ 配置区结束 ################################
