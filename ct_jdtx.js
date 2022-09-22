@@ -10,7 +10,7 @@ https://raw.githubusercontent.com/liuqi6968/-/main/jettatx.js
 
  [task_local]
  #捷达每月提现
- 10 12,18 * * *  
+ 10 12,18 * * * ct_jdtz.js 
 
 */
 const $ = new Env('捷达每月提现');

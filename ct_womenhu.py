@@ -1,3 +1,6 @@
+# cron: 6 7 * * * ct_womenhu.py
+# new Env('沃门户签到');
+
 import requests
 import time
 import datetime
