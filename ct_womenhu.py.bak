@@ -6,14 +6,17 @@ import re
 
 ################################ 配置区开始 ################################
 # 使用 www.pushplus.plus 进行消息推送
-PUSH_PLUS_TOKEN = '01558469ed7a41fb9d1c28fc97eae71f'
+PUSH_PLUS_TOKEN = os.environ['PUSH_PLUS_TOKEN']
+# PUSH_PLUS_TOKEN = '01558469ed7a41fb9d1c28fc97eae71f'
 
 # 多账号配置
 # mobile 手机号
 # authToken 签到页面抓到的请求头Authentication
-config_list = [
-    {"mobile": "1111111111", "authToken": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzI1OTk1ODk0OCIsInBob25lIjoiMTMyNTk5NTg5NDgiLCJjcmVhdGVkIjoxNjUwNzA3OTYwNDk2LCJleHAiOjE2NTg0ODM5NjAsInVzZXJJZCI6IlUyMDIyMDIwNzAyNTQxMDkyNDIwMT1111hid2hKR0YifQ.ttxKylPSuo9we_NDz8O_gpylsD5o2IX7ogFmYC7-jZpGDPm38eDcXtXtPqFT6eTRlLS14cOZm90LzG0ig63i2Q"},
-]
+config_list = os.environ["wmhCookie"].split("@")
+
+# config_list = [
+#    {"mobile": "1111111111", "authToken": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMzI1OTk1ODk0OCIsInBob25lIjoiMTMyNTk5NTg5NDgiLCJjcmVhdGVkIjoxNjUwNzA3OTYwNDk2LCJleHAiOjE2NTg0ODM5NjAsInVzZXJJZCI6IlUyMDIyMDIwNzAyNTQxMDkyNDIwMT1111hid2hKR0YifQ.ttxKylPSuo9we_NDz8O_gpylsD5o2IX7ogFmYC7-jZpGDPm38eDcXtXtPqFT6eTRlLS14cOZm90LzG0ig63i2Q"},
+#]
 
 ################################ 配置区结束 ################################
 
