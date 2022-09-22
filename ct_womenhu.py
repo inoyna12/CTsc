@@ -7,7 +7,7 @@ import execjs
 import os
 ################################ 配置区开始 ################################
 # 使用 www.pushplus.plus 进行消息推送
-PUSH_PLUS_TOKEN = os.environ['PUSH_PLUS_TOKEN']
+PUSH_PLUS_TOKEN = os.environ["PUSH_PLUS_TOKEN"]
 
 # 多账号配置
 # mobile 手机号
