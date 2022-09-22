@@ -9,8 +9,8 @@ https://raw.githubusercontent.com/liuqi6968/-/main/jettatx.js
 
 
  [task_local]
- #捷达每月提现
- 10 12,18 * * * ct_jdtz.js 
+ # 捷达每月提现
+# cron: 10 11,20 18 * * ct_jdtz.js 
 
 */
 const $ = new Env('捷达每月提现');
