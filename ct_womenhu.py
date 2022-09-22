@@ -23,7 +23,7 @@ config_list = []
 # 获取环境变量
 env_dist = os.environ
 wmhcks = env_dist.get("wmhcks")
-cookies = wmhcks.split('\n')
+cookies = wmhcks.split("\n")
 for index, ck in enumerate(cookies):
     tempList = ck.split("&")
     config_list.append({"mobile": tempList[0],"authToken": tempList[1]})
