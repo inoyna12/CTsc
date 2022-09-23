@@ -4,12 +4,8 @@
 抓微信service-yy.jconnect.faw-vw.com 中的token
 变量名 jettatiken
 
-
-https://raw.githubusercontent.com/liuqi6968/-/main/jettatx.js
-
-
  [task_local]
- # 捷达每月提现
+# 捷达每月提现
 # cron: 10 11,20 18 * * ct_jdtz.js 
 
 */
