@@ -6,7 +6,7 @@
 
  [task_local]
 捷达每月提现
-cron: 10 11 18 * * ct_jdtz.js 
+cron: 10 11 18 * * ct_jdtx.js 
 
 */
 const $ = new Env('捷达每月提现');
