@@ -7,8 +7,6 @@ import requests
 
 url = "https://act.10010.com/SigninApp/signin/daySign"
 
-import requests
-
 headers = {
     'Host': 'act.10010.com',
     'content-length': '0',
