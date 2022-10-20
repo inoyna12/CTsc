@@ -33,7 +33,10 @@ params = {
 }
 response = requests.post(url=url, params=params, headers=headers).json()
 rep = response['giod']
-send('线报酷签到', rep)
 print("当前积分:", rep)
+title = "GlaDOS签到通知"
+content = "GlaDOS签到通知"
+send(title,content)
+
 
 # print(response.text)
