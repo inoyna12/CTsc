@@ -30,6 +30,6 @@ params = {
 }
 response = requests.post(url=url, params=params, headers=headers).json()
 rep = response['giod']
-print(rep)
+print("当前积分", rep)
 
 # print(response.text)
