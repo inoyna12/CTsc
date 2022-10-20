@@ -7,6 +7,9 @@ new Env('线报酷签到');
 import requests
 import os
 
+from sendNotify import send
+from os import environ
+
 cookie = os.environ["xbkcookie"]
 url = "https://v1.xianbao.fun/zb_users/plugin/mochu_us/cmd.php"
 headers = {
@@ -29,7 +32,8 @@ params = {
     'act': 'qiandao',
 }
 response = requests.post(url=url, params=params, headers=headers).json()
-rep = response['giod']
-print("当前积分:", rep)
+content = response['giod']
+send('线报酷签到', content)
+print("当前积分:", content)
 
 # print(response.text)
