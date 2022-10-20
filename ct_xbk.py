@@ -28,5 +28,8 @@ headers = {
 params = {
     'act': 'qiandao',
 }
-response = requests.post(url=url, params=params, headers=headers)
-print(response.text)
+response = requests.post(url=url, params=params, headers=headers).json()
+rep = response['giod']
+print(rep)
+
+# print(response.text)
