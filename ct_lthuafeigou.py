@@ -17,7 +17,7 @@ requests.packages.urllib3.disable_warnings()
 
 try:
     from utils.hfgCookie import get_cookies
-    from shufflewzc_faker3_main.sendNotify import send
+    from sendNotify import send
 except:
     send = None
 
