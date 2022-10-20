@@ -35,7 +35,7 @@ response = requests.post(url=url, params=params, headers=headers).json()
 rep = response['giod']
 print("当前积分:", rep)
 title = "线报酷签到通知"
-content = "当前积分:", rep
+content = '当前积分:', rep
 send(title,content)
 
 
