@@ -2,7 +2,7 @@ import requests
 
 headers = {
     'Host': 'api.hellobike.com',
-    # 'content-length': '147',
+    'content-length': '147',
     'accept': 'application/json, text/plain, */*',
     'origin': 'https://m.hellobike.com',
     'sec-fetch-dest': 'empty',
@@ -13,15 +13,10 @@ headers = {
     'sec-fetch-site': 'same-site',
     'sec-fetch-mode': 'cors',
     'referer': 'https://m.hellobike.com/AppPlatformH5/latest/pr_index_bounty.html',
-    # 'accept-encoding': 'gzip, deflate',
+    'accept-encoding': 'gzip, deflate',
     'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
-params = {
-    'common.welfare.signAndRecommend': '',
-}
-
 data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
-
-response = requests.post('https://api.hellobike.com/api', params=params, headers=headers, data=data)
+requests.post('https://api.hellobike.com/api?common.welfare.signAndRecommend=', headers = headers, data = data)
 print(response.text)
