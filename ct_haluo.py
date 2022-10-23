@@ -19,4 +19,4 @@ headers = {
 
 data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
 requests.post('https://api.hellobike.com/api?common.welfare.signAndRecommend=', headers = headers, data = data)
-print(response.text)
+print(response.post.text)
