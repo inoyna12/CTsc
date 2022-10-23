@@ -30,9 +30,9 @@ headers = {
     'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
-data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
+# data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
 
-response = requests.post(url=url, headers=headers, data=data)
+response = requests.post(url=url, headers=headers)
 print(response.text)
 #rep = response['data']['bountyCountToday']
 #print("获得奖励金:", rep)
