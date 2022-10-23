@@ -17,6 +17,6 @@ headers = {
     'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
-data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
+data = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"common.welfare.signAndRecommend","token":"cfb4950b8c4141bcba6c0c2a0144f0af"}'
 response = requests.post('https://api.hellobike.com/api?common.welfare.signAndRecommend=', headers = headers, data = data)
 print(response.text)
