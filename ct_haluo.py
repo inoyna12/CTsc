@@ -5,13 +5,13 @@ new Env('哈啰签到');
 
 '''
 import requests
-import os
+#import os
 
-from sendNotify import send
-from os import environ
+# from sendNotify import send
+# from os import environ
 
 # cookie = os.environ["xbkcookie"]
-url = "https://api.hellobike.com/api?common.welfare.signAndRecommend"
+url = "https://api.hellobike.com/api"
 
 headers = {
     'Host': 'api.hellobike.com',
@@ -30,12 +30,16 @@ headers = {
     'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
+params = {
+    'common.welfare.signAndRecommend': ,
+}
+
 data = '{from:h5,systemCode:62,platform:4,version:6.25.0,action:common.welfare.signAndRecommend,token:cfb4950b8c4141bcba6c0c2a0144f0af}'
 
-response = requests.post(url=url, headers=headers, data=data).json()
-print(response.txt)
-rep = response['data']['bountyCountToday']
-print("获得奖励金:", rep)
-title = "哈啰签到"
-content = "获得奖励金: " + rep
-send(title,content)
+response = requests.post(url=url, params=params, headers=headers, data=data)
+print(response.text)
+#rep = response['data']['bountyCountToday']
+#print("获得奖励金:", rep)
+#title = "哈啰签到"
+#content = "获得奖励金: " + rep
+#send(title,content)
