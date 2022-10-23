@@ -38,7 +38,7 @@ data = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"c
 
 response = requests.post(url=url, headers = headers, data = data).json()
 # 使用post请求执行并把内容赋值给response变量
-print(response.text)
+# print(response.text)
 # 打印响应参数Text全部内容
 rep = response['data']['bountyCountToday']
 print("获得奖励金:", rep)
