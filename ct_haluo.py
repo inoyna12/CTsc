@@ -43,5 +43,5 @@ response = requests.post(url=url, headers = headers, data = data).json()
 rep = response['data']['bountyCountToday']
 print("获得奖励金:", rep)
 title = "哈啰签到通知"
-content = "获得奖励金: " + rep + '\n', "获得奖励金: " + rep
+content = "获得奖励金: " + rep
 send(title,content)
