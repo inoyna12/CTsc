@@ -12,10 +12,12 @@ import os
 from sendNotify import send
 from os import environ
 
-url = "https://api.hellobike.com/api?common.welfare.signAndRecommend="
+url_qd = "https://api.hellobike.com/api?common.welfare.signAndRecommend="
+url_xx = "https://api.hellobike.com/api?user.taurus.pointInfo="
 # URL+参数,参数值为空
 
-headers = {
+
+headers_qd = {
     'Host': 'api.hellobike.com',
     'content-length': '147',
     'accept': 'application/json, text/plain, */*',
@@ -33,15 +35,34 @@ headers = {
 }
 # 请求体headers参数
 
-data = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"common.welfare.signAndRecommend","token":"cfb4950b8c4141bcba6c0c2a0144f0af"}'
+headers_xx = {
+    'Host': 'api.hellobike.com',
+    'content-length': '147',
+    'accept': 'application/json, text/plain, */*',
+    'origin': 'https://m.hellobike.com',
+    'sec-fetch-dest': 'empty',
+    'content-type': 'application/json',
+    'user-agent': 'Mozilla/5.0 (Linux; Android 10; Redmi K20 Pro Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.99 Mobile Safari/537.36; app=easybike; version=6.25.0',
+    'requestid': '3D2OQcPj8xeIl2c',
+    'x-requested-with': 'com.jingyao.easybike',
+    'sec-fetch-site': 'same-site',
+    'sec-fetch-mode': 'cors',
+    'referer': 'https://m.hellobike.com/AppPlatformH5/latest/index.html',
+    'accept-encoding': 'gzip, deflate',
+    'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+}
+
+data_qd = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"common.welfare.signAndRecommend","token":"cfb4950b8c4141bcba6c0c2a0144f0af"}'
 # 请求体Text内容，'全部内容'
 
-response = requests.post(url=url, headers = headers, data = data).json()
+data_xx = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"user.taurus.pointInfo","token":"cfb4950b8c4141bcba6c0c2a0144f0af","pointType":1}'
+
+haluo_qd = requests.post(url=url_qd, headers = headers_qd, data = data_qd).json()
+haluo_xx = requests.post(url=url_xx, headers = headers_xx, data = data_xx).json()
 # 使用post请求执行并把内容赋值给response变量
-# print(response.text)
-# 打印响应参数Text全部内容
-rep = response['data']['bountyCountToday']
-print("获得奖励金:", rep)
-title = "哈啰签到通知"
-content = "获得奖励金: " + rep
+qd = haluo_qd['data']['bountyCountToday']
+xx = str(haluo_xx['data']['points'])
+print("获得: " + qd + "奖励金" + '\n' + "当前: " + xx + "奖励金")
+title = "哈啰"
+content = "获得: " + qd + "奖励金" + '\n' + "当前: " + xx + "奖励金"
 send(title,content)
