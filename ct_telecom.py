@@ -1,313 +1,330 @@
-# -*- coding: utf-8 -*-
-import re
-import time
-import base64
-import requests
-import datetime
-import threading
-import urllib.parse
-import xml.dom.minidom as xmldom
+#!/usr/bin/python3
+# -- coding: utf-8 --
+# -------------------------------
+# @Author : github@limoruirui https://github.com/limoruirui
+# @Time : 2022/9/12 16:10
+# -------------------------------
+# cron "1 12 * * *"
+# const $ = new Env('电信签到');
+"""
+1. 电信签到 不需要抓包 脚本仅供学习交流使用, 请在下载后24h内删除
+2. 环境变量说明:
+    必须  TELECOM_PHONE : 电信手机号
+    选填  TELECOM_PASSWORD : 电信服务密码 填写后会执行更多任务
+    选填  TELECOM_FOOD  : 给宠物喂食次数 默认为0 不喂食 根据用户在网时长 每天可以喂食5-9次
+3. 必须登录过 电信营业厅 app的账号才能正常运行
+"""
+"""
+update:
+    2022.10.25 参考大佬 github@QGCliveDavis https://github.com/QGCliveDavis 的 loginAuthCipherAsymmertric 参数解密 新增app登录获取token 完成星播客系列任务 感谢大佬
+"""
+from datetime import date, datetime
+from json import dumps
+from random import shuffle, randint
+from time import sleep
+from re import findall
+from requests import get, post
+from base64 import b64encode
 
-from sendNotify import send
-from os import environ, system
+from tools.aes_encrypt import AES_Ctypt
+from tools.rsa_encrypt import RSA_Encrypt
+from tools.tool import timestamp, get_environ, print_now
+from tools.send_msg import push
+from login.telecom_login import TelecomLogin
 
-#--------------以下为配置区需自行填写--------------#
-
-# 参数说明
-# mobile    手机号
-# password  服务密码 (为空时不执行需登录才能完成的任务)
-# food      喂食开关 (开启填 True, 关闭填 False)
-
-config_list = [
-
-]
-
-peizhi = environ.get('dianxin')
-if peizhi:
-    peizhi_arr = peizhi.split("&")
-    for i,val in enumerate(peizhi_arr):
-        print(val.split('@')[0])
-        config_list.append({"mobile": val.split('@')[0], "password": val.split('@')[1], "food": True})
-
-#--------------配置区结束------------#
-app_headers = {"User-Agent": "Xiaomi MI 9/9.2.0"}
-msg_list = []
-host = 'http://120.79.66.8:6987'
+phone = get_environ("TELECOM_PHONE")
+password = get_environ("TELECOM_PASSWORD")
+foods = int(float(get_environ("TELECOM_FOOD", 0, False)))
+if phone == "":
+    exit(0)
+if password == "":
+    print_now("电信服务密码未提供 只执行部分任务")
 
 
-def telecom_task(config):
-    msg = []
-    mobile = config['mobile']
-    password = config['password']
-    msg.append(mobile + " 开始执行任务...")
-    print(mobile + " 开始执行任务...")
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    h5_headers = get_h5_headers(mobile)
-    # 获取用户中心
-    home_info_body = requests.get(url="{}/telecom/getHomeInfoSign".format(host), params={"mobile": mobile}).json()
-    home_info_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/api/home/homeInfo", json=home_info_body, headers=h5_headers).json()
-    if home_info_ret['resoultMsg'] != "成功":
-        msg.append(home_info_ret['resoultMsg'])
-        print(home_info_ret['resoultMsg'])
-        return
-    old_coin = home_info_ret['data']['userInfo']['totalCoin']
+class ChinaTelecom:
+    def __init__(self, account, pwd):
+        self.phone = account
+        self.ticket = ""
+        if pwd != "":
+            self.ticket = TelecomLogin(account, pwd).main()
+
+    def init(self):
+        self.msg = ""
+        self.ua = f"CtClient;9.6.1;Android;12;SM-G9860;{b64encode(self.phone[5:11].encode()).decode().strip('=+')}!#!{b64encode(self.phone[0:5].encode()).decode().strip('=+')}"
+        self.headers = {
+            "Host": "wapside.189.cn:9001",
+            "Referer": "https://wapside.189.cn:9001/resources/dist/signInActivity.html",
+            "User-Agent": self.ua
+        }
+        self.key = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+ugG5A8cZ3FqUKDwM57GM4io6\nJGcStivT8UdGt67PEOihLZTw3P7371+N47PrmsCpnTRzbTgcupKtUv8ImZalYk65\ndU8rjC/ridwhw9ffW2LBwvkEnDkkKKRi2liWIItDftJVBiWOh17o6gfbPoNrWORc\nAdcbpk2L+udld5kZNwIDAQAB\n-----END PUBLIC KEY-----"
+
+    def req(self, url, method, data=None):
+        if method == "GET":
+            data = get(url, headers=self.headers).json()
+            return data
+        elif method.upper() == "POST":
+            data = post(url, headers=self.headers, json=data).json()
+            return data
+        else:
+            print_now("您当前使用的请求方式有误,请检查")
+
+    # 长明文分段rsa加密
+    def telecom_encrypt(self, text):
+        if len(text) <= 32:
+            return RSA_Encrypt(self.key).encrypt(text)
+        else:
+            encrypt_text = ""
+            for i in range(int(len(text) / 32) + 1):
+                split_text = text[(32 * i):(32 * (i + 1))]
+                encrypt_text += RSA_Encrypt(self.key).encrypt(split_text)
+            return encrypt_text
 
     # 签到
-    #print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    sign_body = requests.get(url="{}/telecom/getSign".format(host), params={"mobile": mobile}).json()
-    sign_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/api/home/sign", json=sign_body,
-                             headers=h5_headers).json()
-    if sign_ret['data']['code'] == 1:
-        msg.append("签到成功, 本次签到获得 " + str(sign_ret['data']['coin']) + " 豆")
-        print("签到成功, 本次签到获得 " + str(sign_ret['data']['coin']) + " 豆")
-    else:
-        msg.append(sign_ret['data']['msg'])
-        print(sign_ret['data']['msg'])
-
-    # 登录任务
-
-    if password != '':
-        ticket = get_ticket(mobile, password, msg)
-        if ticket != '':
-            xbk_live(ticket, mobile, msg)
-            xbk_video(ticket, mobile, msg)
-            #share_to_get_coin(ticket, mobile, msg)
-
-    # 获取所有任务
-    
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    task_info_body = requests.get(url="{}/telecom/getPhoneSign".format(host), params={"mobile": mobile}).json()
-    task_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/paradise/getTask", headers=h5_headers,
-                             json=task_info_body).json()
-    if task_ret['resoultCode'] == '0':
-        tasks = task_ret['data']
-        for task in tasks:
-            task_id = task['taskId']
-            task_name = task['title']
-            task_body = requests.get(url="{}/telecom/getTaskSign2".format(host),
-                                     params={"mobile": mobile, "task": task_id}).json()
-            polymerize_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/paradise/polymerize",
-                                           json=task_body, headers=h5_headers).json()
-            if polymerize_ret['resoultCode'] == 0:
-                log_msg = task_name + polymerize_ret['data']['err']
-                print(log_msg)
-                #msg.append(log_msg)
-            time.sleep(3)
-    
-    # 获取用户中心
-    #print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    home_info_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/api/home/homeInfo", json=home_info_body,
-                                  headers=h5_headers).json()
-    new_coin = home_info_ret['data']['userInfo']['totalCoin']
-    msg.append("领取完毕, 现有金豆: " + str(new_coin))
-    print("领取完毕, 现有金豆: " + str(new_coin))
-    msg.append("本次领取金豆: " + str(new_coin - old_coin))
-    print("本次领取金豆: " + str(new_coin - old_coin))
-
-    # 喂食
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    if new_coin > 1700:
-        food(config, msg)
-    else:
-        print(mobile + ' 金豆数量过少，不予喂食')
-        msg.append(mobile + ' 金豆数量过少，不予喂食')
-
-    # 签到7天领取话费
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    convert_reward(config, msg)
-    msg.append("----------------------------------------------")
-    msg_list.extend(msg)
-
-
-def food(config, msg):
-    if config['food']:
-        mobile = config['mobile']
-        msg.append(mobile + " 开始执行喂食...")
-        print(mobile + " 开始执行喂食...")
-        while True:
-            food_body = requests.get(url="{}/telecom/getPhoneSign".format(host), params={"mobile": mobile}).json()
-            food_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/paradise/food", json=food_body,
-                                     headers=get_h5_headers(mobile)).json()
-            msg.append(food_ret['resoultMsg'])
-            print(food_ret['resoultMsg'])
-            if food_ret['resoultCode'] != '0':
-                break
-
-
-def convert_reward(config, msg):
-    mobile = config['mobile']
-    msg.append(mobile + " 开始执行满7天兑换话费...")
-    print(mobile + " 开始执行满7天兑换话费...")
-    phone_body = requests.get(url="{}/telecom/getPhoneSign".format(host), params={"mobile": mobile}).json()
-    activity_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/reward/activityMsg", json=phone_body,
-                                 headers=get_h5_headers(mobile)).json()
-    msg.append("你已连续签到 " + str(activity_ret['totalDay']) + " 天")
-    print("你已连续签到 " + str(activity_ret['totalDay']) + " 天")
-    #print(activity_ret)
-    if activity_ret['recordNum'] > 0 and (int(datetime.datetime.now().strftime('%M')) > 55 or int(datetime.datetime.now().strftime('%M')) < 10) and int(datetime.datetime.now().strftime('%H')) > 10:
-        #可以领取
-        reward_id = activity_ret['date']['id']
-        params = {
-            "mobile": mobile,
-            "rewardId": reward_id
+    def chech_in(self):
+        url = "https://wapside.189.cn:9001/jt-sign/api/home/sign"
+        data = {
+            "encode": AES_Ctypt("34d7cb0bcdf07523").encrypt(
+                f'{{"phone":{self.phone},"date":{timestamp()},"signSource":"smlprgrm"}}')
         }
-        reward_body = requests.get(url="{}/telecom/getConvertReward".format(host), params=params).json()
-        changtime = int(datetime.datetime.now().strftime('%S'))
-        if changtime < 60:
-            sleeptime = 60 - changtime
-            print('当前秒：' + str(changtime) + ' 等待秒：' + str(sleeptime))
-            time.sleep(sleeptime)
-        for i in range(15):
-            print('开始兑换时间：' + datetime.datetime.now().strftime('%S'))
-            reward_ret = requests.post(url="https://wapside.189.cn:9001/jt-sign/reward/convertReward", json=reward_body,
-                headers=get_h5_headers(mobile)).json()
-            #print(params)
-            #print(reward_ret)
-            if reward_ret['code'] == '0':
-                msg.append(reward_ret['msg'])
-                print(reward_ret['msg'])
+        print_now(self.req(url, "post", data))
+
+    # 获取任务列表
+    def get_task(self):
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/getTask"
+        data = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone}}}')
+        }
+        msg = self.req(url, "post", data)
+        # print_now(dumps(msg, indent=2, ensure_ascii=False))
+        if msg["resoultCode"] == "0":
+            self.task_list = msg["data"]
+        else:
+            print_now("获取任务列表失败")
+            print_now(msg)
+            return
+
+    # 做每日任务
+    def do_task(self):
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/polymerize"
+        for task in self.task_list:
+            if "翻牌抽好礼" in task["title"] or "查看我的订单" in task["title"] or "查看我的云盘" in task["title"]:
+                print_now(f'{task["title"]}----{task["taskId"]}')
+                decrept_para = f'{{"phone":"{self.phone}","jobId":"{task["taskId"]}"}}'
+                data = {
+                    "para": self.telecom_encrypt(decrept_para)
+                }
+                data = self.req(url, "POST", data)
+                if data["data"]["code"] == 0:
+                    # print(data["resoultMsg"])
+                    print_now(data)
+                else:
+                    print_now(f'聚合任务完成失败,原因是{data["resoultMsg"]}')
+
+    # 给宠物喂食
+    def food(self):
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/food"
+        data = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone}}}')
+        }
+        res_data = self.req(url, "POST", data)
+        if res_data["resoultCode"] == "0":
+            print_now(res_data["resoultMsg"])
+        else:
+            print_now(f'聚合任务完成失败,原因是{res_data["resoultMsg"]}')
+
+    # 查询宠物等级
+    def get_level(self):
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/getParadiseInfo"
+        body = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone}}}')
+        }
+        data = self.req(url, "POST", body)
+        self.level = int(data["userInfo"]["paradiseDressup"]["level"])
+        if self.level < 5:
+            print_now("当前等级小于5级 不领取等级权益")
+            return
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/getLevelRightsList"
+        right_list = self.req(url, "POST", body)[f"V{self.level}"]
+        for data in right_list:
+            # print(dumps(data, indent=2, ensure_ascii=0))
+            if "00金豆" in data["righstName"] or "话费" in data["righstName"]:
+                rightsId = data["id"]
+                self.level_ex(rightsId)
+                continue
+        # print(self.rightsId)
+
+    # 每月领取等级金豆
+    def level_ex(self, rightsId):
+        # self.get_level()
+        url = "https://wapside.189.cn:9001/jt-sign/paradise/conversionRights"
+        data = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone},"rightsId":"{rightsId}"}},"receiveCount":1')
+        }
+        print_now(self.req(url, "POST", data))
+
+    # 查询连续签到天数
+    def query_signinfo(self):
+        url = "https://wapside.189.cn:9001/jt-sign/reward/activityMsg"
+        body = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone}}}')
+        }
+        data = self.req(url, "post", body)
+        # print(dumps(data, indent=2, ensure_ascii=0))
+        recordNum = data["recordNum"]
+        if recordNum != 0:
+            return data["date"]["id"]
+        return ""
+
+    # 若连续签到为7天 则兑换
+    def convert_reward(self):
+        url = "https://wapside.189.cn:9001/jt-sign/reward/convertReward"
+        rewardId = self.query_signinfo()  # "baadc927c6ed4d8a95e28fa3fc68cb9"
+        if rewardId == "":
+            return
+        body = {
+            "para": self.telecom_encrypt(
+                f'{{"phone":"{self.phone}","rewardId":"{rewardId}","month":"{date.today().__format__("%Y%m")}"}}')
+        }
+        for i in range(5):
+            data = self.req(url, "post", body)
+            print_now(data)
+            if data["code"] == "0":
                 break
+            sleep(3)
+        rewardId = self.query_signinfo()
+        if rewardId == "":
+            self.msg += f"账号{self.phone}连续签到7天兑换1元话费成功\n"
+            print_now(self.msg)
+        else:
+            self.msg += f"账号{self.phone}连续签到7天兑换1元话费失败 明天会继续尝试兑换\n"
+            print_now(self.msg)
+
+
+    # 查询金豆数量
+    def coin_info(self):
+        url = "https://wapside.189.cn:9001/jt-sign/api/home/userCoinInfo"
+        data = {
+            "para": self.telecom_encrypt(f'{{"phone":{self.phone}}}')
+        }
+        self.coin_count = self.req(url, "post", data)
+        print_now(self.coin_count)
+
+    def author(self):
+        """
+        通过usercode 获取 authorization
+        :return:
+        """
+        self.get_usercode()
+        url = "https://xbk.189.cn/xbkapi/api/auth/userinfo/codeToken"
+        data = {
+            "usercode": self.usercode
+        }
+        data = post(url, headers=self.headers_live, json=data).json()
+        self.authorization = f"Bearer {data['data']['token']}"
+        self.headers_live["Authorization"] = self.authorization
+    def get_usercode(self):
+        """
+        授权星播客登录获取 usercode
+        :return:
+        """
+        url = f"https://xbk.189.cn/xbkapi/api/auth/jump?userID={self.ticket}&version=9.3.3&type=room&l=renwu"
+        self.headers_live = {
+            "User-Agent": self.ua,
+            "Host": "xbk.189.cn",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh-Hans;q=0.9"
+        }
+        location = get(url, headers=self.headers_live, allow_redirects=False).headers["location"]
+        usercode = findall(r"usercode=(.*?)&", location)[0]
+        self.usercode = usercode
+    def watch_video(self):
+        """
+        看视频 一天可完成6次
+        :return:
+        """
+        url = "https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchVideo"
+        data = {
+            "articleId": 3453
+        }
+        data = post(url, headers=self.headers_live, json=data).json()
+        if data["code"] == 0:
+            print("看小视频15s完成一次")
+        else:
+            print(f"完成看小视频15s任务失败, 失败原因为{data['msg']}")
+    def like(self):
+        """
+        点赞直播间 可完成5次
+        :return:
+        """
+        url = "https://xbk.189.cn/xbkapi/lteration/room/like"
+        liveId_list = [1820, 2032, 2466, 2565, 1094, 2422, 1858, 2346]
+        shuffle(liveId_list)
+        for liveId in liveId_list[:5]:
+            data = {
+                "account": self.phone,
+                "liveId": liveId
+            }
+            try:
+                data = post(url, headers=self.headers_live, json=data).json()
+                if data["code"] == 8888:
+                    sleep(2)
+                    print(data["msg"])
+                else:
+                    print(f"完成点赞直播间任务失败,原因是{data['msg']}")
+            except Exception:
+                print(Exception)
+    def watch_live(self):
+        # 首先初始化任务,等待15秒倒计时后再完成 可完成10次
+        url = "https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchLiveInit"
+        live_id = randint(1000, 2700)
+        data = {
+            "period": 1,
+            "liveId": live_id
+        }
+        data = post(url, headers=self.headers_live, json=data).json()
+        if data["code"] == 0:
+            taskcode = data["data"]
+            url = "https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchLive"
+            data = {
+                "key": taskcode,
+                "period": 1,
+                "liveId": live_id
+            }
+            print("正在等待15秒")
+            sleep(15)
+            data = post(url, headers=self.headers_live, json=data).json()
+            if data["code"] == 0:
+                print("完成1次观看直播任务")
             else:
-                msg.append(reward_ret['msg'])
-                print(reward_ret['msg'])
-                time.sleep(10)
-    else:
-        msg.append('不在兑换时间或无兑换次数')
-        print('不在兑换时间或无兑换次数')
-
-
-def get_h5_headers(mobile):
-    base64_mobile = str(base64.b64encode(mobile[5:11].encode('utf-8')), 'utf-8').strip(r'=+') + "!#!" + str(
-        base64.b64encode(mobile[0:5].encode('utf-8')), 'utf-8').strip(r'=+')
-    return {"User-Agent": "CtClient;9.2.0;Android;10;MI 9;" + base64_mobile}
-
-
-def format_msg():
-    str1 = ''
-    for item in msg_list:
-        str1 += str(item) + "\r\n"
-    return str1
-
-
-def get_ticket(mobile, password, msg):
-    login_body = requests.get(url="{}/telecom/getUserLoginNormal".format(host),
-                              params={"mobile": mobile, "password": password}).json()
-    login_ret = requests.post(url="https://appgologin.189.cn:9031/login/client/userLoginNormal",
-                              json=login_body,
-                              headers=app_headers).json()
-    if login_ret['responseData']['resultCode'] != '0000':
-        msg.append("登录失败, " + login_ret['responseData']['resultDesc'])
-        print("登录失败, " + login_ret['responseData']['resultDesc'])
-        return ''
-    msg.append('登录成功')
-    print('登录成功')
-    #print(login_ret)
-    token = login_ret['responseData']['data']['loginSuccessResult']['token']
-    user_id = login_ret['responseData']['data']['loginSuccessResult']['userId']
-
-    ticket_body = requests.get(url="{}/telecom/getTicket".format(host),
-                               params={"mobile": mobile, "token": token, "userId": user_id}).text
-    ticket_ret = requests.post(url="https://appgo.189.cn:9031/map/clientXML",
-                               data=ticket_body,
-                               headers={"Content-Type":"text/xml", **app_headers}).text
-    collection = xmldom.parseString(ticket_ret).documentElement
-    ticket = collection.getElementsByTagName("Ticket")[0].childNodes[0].data
-    return requests.get(url="{}/telecom/decryptTicket".format(host), params={"ticket": ticket}).text
-
-
-def xbk_video(ticket, mobile, msg):
-    msg.append(mobile + " 开始执行星播客视频任务...")
-    print(mobile + " 开始执行星播客视频任务...")
-    h5_headers = get_h5_headers(mobile)
-    res = requests.get(url="https://xbk.189.cn/xbkapi/api/auth/jump?userID="+ticket+"&version=$version$&type=newHome&tab=1&l=renwu",allow_redirects=False)
-    location = urllib.parse.unquote(res.headers['location'])
-    usercode = re.search(r'usercode=(.+?)&', location).group(1)
-    token_ret = requests.post(url="https://xbk.189.cn/xbkapi/api/auth/userinfo/codeToken", json={"usercode": usercode}, headers=h5_headers).json()
-    token = token_ret['data']['token']
-    xbk_headers={"authorization": "Bearer " + token, **h5_headers}
-    # 获取视频列表
-    video_ret = requests.get(url="https://xbk.189.cn/xbkapi/lteration/index/recommend/floorRecommend?provinceCode=18&p=1", headers=xbk_headers).json()
-    article_id = video_ret['data'][0]['id']
-    # 播放
-    requests.post(url="https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchVideo", json={"articleId": article_id}, headers=xbk_headers)
-    # 领取豆
-    while True:
-        ret = requests.post(url="https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchVideo", json={"articleId": article_id}, headers=xbk_headers).json()
-        if ret['code'] == 0:
-            msg.append("成功领取 5 豆")
-            print("成功领取 5 豆")
+                print(f"完成观看直播任务失败,原因是{data['msg']}")
         else:
-            msg.append(ret['msg'])
-            print(ret['msg'])
-            break
-        # 等待15s
-        time.sleep(16)
+            print(f"初始化观看直播任务失败，失败原因为{data['msg']}")
+    def main(self):
+        self.init()
+        self.chech_in()
+        self.get_task()
+        self.do_task()
+        if foods != 0:
+            for i in range(foods):
+                self.food()
+        self.convert_reward()
+        if datetime.now().day == 1:
+            self.get_level()
+        if self.ticket != "":
+            self.author()
+            for i in range(6):
+                self.watch_video()
+                sleep(15)
+            self.like()
+            for i in range(10):
+                try:
+                    self.watch_live()
+                except:
+                    continue
+        self.coin_info()
+        self.msg += f"你账号{self.phone} 当前有金豆{self.coin_count['totalCoin']}"
+        push("电信app签到", self.msg)
 
 
-def xbk_live(ticket, mobile, msg):
-    msg.append(mobile + " 开始执行星播客直播任务...")
-    print(mobile + " 开始执行星播客直播任务...")
-    h5_headers = get_h5_headers(mobile)
-    res = requests.get(url="https://xbk.189.cn/xbkapi/api/auth/jump?userID="+ticket+"&version=$version$&type=room&tab=1&l=renwu",allow_redirects=False)
-    location = urllib.parse.unquote(res.headers['location'])
-    usercode = re.search(r'usercode=(.+?)&', location).group(1)
-    live_id = re.search(r'liveId=(.+?)&', location).group(1)
-    period = re.search(r'period=(.+?)&', location).group(1)
-
-    token_ret = requests.post(url="https://xbk.189.cn/xbkapi/api/auth/userinfo/codeToken", json={"usercode": usercode}, headers=h5_headers).json()
-    token = token_ret['data']['token']
-    xbk_headers={"authorization": "Bearer " + token, **h5_headers}
-
-    data = {"liveId": live_id, "period": period}
-    # 领取豆
-    while True:
-        init_ret = requests.post(url="https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchLiveInit", json=data, headers=xbk_headers).json()
-        key = init_ret['data']
-        #等待15秒
-        time.sleep(16)
-        watch_ret = requests.post(url="https://xbk.189.cn/xbkapi/lteration/liveTask/index/watchLive", json={**data, "key": key}, headers=xbk_headers).json()
-        if watch_ret['code'] == 0:
-            msg.append("成功领取 5 豆")
-            print("成功领取 5 豆")
-        else:
-            msg.append(watch_ret['msg'])
-            print(watch_ret['msg'])
-            break
-
-
-def share_to_get_coin(ticket, mobile, msg):
-    msg.append(mobile + " 开始执行分享得豆任务...")
-    print(mobile + " 开始执行分享得豆任务...")
-    h5_headers = get_h5_headers(mobile)
-    data = "mpId=goldcoin&ticket="+ticket+"&srcSysID=35000&sceneSources=3&version=9.2.0"
-    login_ret = requests.post(url="https://dxhd.189.cn:7081/actcenter/v1/goldcoinuser/login.do", params=data, headers=h5_headers).json()
-    session = login_ret['module']['session']
-    data = "activityId=telecomrecommend01&session=" + session
-    ret = requests.post(url="https://dxhd.189.cn:7081/actcenter/v1/goldcoinuser/shareToGetCoin.do", params=data, headers=h5_headers).json()
-    if ret['success']:
-        msg.append('获得 20 豆')
-        print('获得 20 豆')
-    else:
-        msg.append('今日已分享')
-        print('今日已分享')
-
-
-def main_handler(event, context):
-    l = []
-    for config in config_list:
-        #print(config)
-        p = threading.Thread(target=telecom_task, args=(config,))
-        l.append(p)
-        p.start()
-    for i in l:
-        i.join()
-    content = format_msg()
-    time.sleep(15)
-    if int(datetime.datetime.now().strftime('%H')) > 11:
-        send('电信签到任务', content)
-    print(content)
-    return content
-
-
-if __name__ == '__main__':
-    main_handler("", "")
+if __name__ == "__main__":
+    ChinaTelecom(phone, password).main()
