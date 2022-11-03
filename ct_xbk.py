@@ -32,11 +32,9 @@ params = {
     'act': 'qiandao',
 }
 response = requests.post(url=url, params=params, headers=headers).json()
-rep = response['giod']
-print("当前积分:", rep)
-title = "线报酷"
-content = "当前积分:" + rep
-send(title,content)
-
-
 print(response.text)
+# rep = response['giod']
+# print("当前积分:", rep)
+# title = "线报酷"
+# content = "当前积分:" + rep
+# send(title,content)
