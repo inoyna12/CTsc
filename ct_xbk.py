@@ -39,4 +39,4 @@ content = "当前积分:" + rep
 send(title,content)
 
 
-# print(response.text)
+print(response.text)
