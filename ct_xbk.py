@@ -34,7 +34,9 @@ params = {
 response = requests.post(url=url, params=params, headers=headers).json()
 print(response.text)
 # rep = response['giod']
-# print("当前积分:", rep)
-# title = "线报酷"
-# content = "当前积分:" + rep
-# send(title,content)
+print("当前积分:", rep)
+title = "线报酷"
+content = "当前积分:" + rep
+send(title,content)
+
+# {"code":0,"msg":"\u7b7e\u5230\u6210\u529f<br\/>\u6ce8\u518c\u4f1a\u5458\u968f\u673a\u5956\u52b1<span style='color:red;font-size:20px;margin: 0 5px;'>23<\/span>\u79ef\u5206\uff01<br\/>\u6e29\u99a8\u63d0\u793a\uff1a\u5347\u7ea7VIP\u4f1a\u5458\u4f1a\u83b7\u53d6\u66f4\u591a\u5956\u52b1\uff01","giod":"982"}
