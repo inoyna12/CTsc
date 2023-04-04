@@ -12,28 +12,21 @@ url_gk = "https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSyst
 
 def ten_video():
    
-    headers_qd = {
+    headers = {
         'user-agent':'Mozilla/5.0 (Linux; Android 11; M2104K10AC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046237 Mobile Safari/537.36 QQLiveBrowser/8.7.85.27058',
         'Content-Type':'application/json',
         'referer':'https://film.video.qq.com/x/vip-center/?entry=common&hidetitlebar=1&aid=V0%24%241%3A0%242%3A8%243%3A8.7.85.27058%244%3A3%245%3A%246%3A%247%3A%248%3A4%249%3A%2410%3A&isDarkMode=0',
         'cookie':cookie
     }
-    response_1 = requests.get(url_qd,headers=headers_qd).json()
+    response_1 = requests.get(url_qd,headers=headers).json()
     print(response_1.text)
     if response_1["err_msg"] == "success":
         print("签到成功，获得" + response_1["err_msg"] + "成长值")
-    print("cookie过期")
-    headers_gk = {
-        'user-agent':'Mozilla/5.0 (Linux; Android 11; M2104K10AC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046237 Mobile Safari/537.36 QQLiveBrowser/8.7.85.27058',
-         'Content-Type':'application/json',
-         'referer':'https://film.video.qq.com/x/vip-center/?entry=common&hidetitlebar=1&aid=V0%24%241%3A0%242%3A8%243%3A8.7.85.27058%244%3A3%245%3A%246%3A%247%3A%248%3A4%249%3A%2410%3A&isDarkMode=0',
-         'cookie':cookie
-    }
-    response_2 = requests.get(url_gk,headers=headers_gk).json()
-    print(response_2.text)
-    if response_1["err_msg"] == "OK":
-        print("领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值")
-    print("cookie过期")
+        response_2 = requests.get(url_gk,headers=headers).json()
+        print(response_2.text)
+        if response_1["err_msg"] == "OK":
+            print("领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值")
+    print("错误")
 
 if __name__ == '__main__':
     ten_video()
