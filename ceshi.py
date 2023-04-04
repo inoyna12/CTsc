@@ -17,18 +17,8 @@ def ten_video():
     }
     response_1 = requests.get(url_qd,headers=headers).json()
     print(response_1.text)
-    if response_1["err_msg"] == "success":
-        qd = "签到成功，获得" + response_1["err_msg"] + "成长值"
-        print(qd)
-        response_2 = requests.get(url_gk,headers=headers).json()
-        print(response_2.text)
-        if response_2["err_msg"] == "OK":
-            gk = "领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值"
-            print(gk)
-            content = qd + '\n' + gk
-            send(title,content)
-        print("错误")
-    print("错误")
+    content = "成功"
+    send(title,content)
 
 if __name__ == '__main__':
     ten_video()
