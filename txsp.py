@@ -9,16 +9,16 @@ import time
 设置项
 '''
 '''腾讯视频签到'''
-push = '1' # 是否微信机器人推送，1为是，0为否，选择0则后面三项失效
+push = '0' # 是否微信机器人推送，1为是，0为否，选择0则后面三项失效
 corpid = 'ww0b4e'  # 企业ID
 secret = 'j-F4DetwqxwU'  # 应用的凭证密钥
 agentid = 1000006 #应用id
 
 '''cookie项'''
-vdevice_qimei36='066ab9df659c7906c'
+vdevice_qimei36='35cb880cff29ab9a4fc74fad100019216c17'
 vqq_appid='101795054'
-vqq_openid='3E68D4BDBAEE'
-vqq_access_token='2B36FC406803D3'
+vqq_openid='DBE498043F22887EBBA5E55ACE10ED12'
+vqq_access_token='387735B18272D57847638CE21732EAC3'
 main_login='qq'
 
 
