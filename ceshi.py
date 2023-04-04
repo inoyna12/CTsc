@@ -6,6 +6,7 @@ from sendNotify import send
 from os import environ
 
 cookie = os.environ["txspcookie"]
+title = "腾讯视频"
 
 url_qd = "https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/CheckIn?rpc_data=%7B%7D"
 url_gk = "https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/ProvideAward?rpc_data=%7B%22task_id%22:1%7D"
@@ -21,11 +22,16 @@ def ten_video():
     response_1 = requests.get(url_qd,headers=headers).json()
     print(response_1.text)
     if response_1["err_msg"] == "success":
-        print("签到成功，获得" + response_1["err_msg"] + "成长值")
+        qd = "签到成功，获得" + response_1["err_msg"] + "成长值"
+        print(qd)
         response_2 = requests.get(url_gk,headers=headers).json()
         print(response_2.text)
         if response_1["err_msg"] == "OK":
-            print("领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值")
+            gk = "领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值"
+            print(gk)
+            content = qd + \n + gk
+            send(title,content)
+        print("错误")
     print("错误")
 
 if __name__ == '__main__':
