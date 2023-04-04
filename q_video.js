@@ -1,243 +1,115 @@
-/****
- *
- * @description 腾讯视频好莱坞会员V力值签到，手机签到和领取任务及奖励。
- * @author BlueSkyClouds
- * @create_at 2022-11-30
- */
+import requests
+import json
+import time
+'''
+可直接部署在华为云函数流
+函数执行入口填：index.main_handler
+触发器用cron表达式：0 30 23 * * ?
+每天23:30执行
+设置项
+'''
+'''腾讯视频签到'''
+push = '1' # 是否微信机器人推送，1为是，0为否，选择0则后面三项失效
+corpid = 'ww0b4e'  # 企业ID
+secret = 'j-F4DetwqxwU'  # 应用的凭证密钥
+agentid = 1000006 #应用id
 
-const $ = new Env('腾讯视频会员签到');
-const notify = $.isNode() ? require('../sendNotify') : '';
-let ref_url = ''
-let _cookie = process.env.V_COOKIE
-const SEND_KEY = process.env.SEND_KEY
-const auth = getAuth()
-const axios = require('axios')
-const UTC8 = new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000;
-let notice = timeFormat(UTC8) + "\n"
+'''cookie项'''
+vdevice_qimei36='066ab9df659c7906c'
+vqq_appid='101795054'
+vqq_openid='3E68D4BDBAEE'
+vqq_access_token='2B36FC406803D3'
+main_login='qq'
 
-let headers = {
-    'Referer': 'https://v.qq.com',
-    'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
-    'Cookie': _cookie
-}
-/**
- * @description 拼接REF_URL
- */
-if (process.env.V_REF_URL) {
-    if (process.env.V_REF_URL.indexOf('https://access.video.qq.com/user/auth_refresh') > -1) {
-        ref_url = process.env.V_REF_URL
-    } else {
-        console.log("V_REF_URL值填写错误 取消运行")
-    }
-    //验证V_REF_URL和cookie是否填写正确
-    ref_url_ver()
-} else {
-    //无意义输出方便调试
-    console.log("V_REF_URL值未填写 取消运行")
-    //ref_url_ver()
-}
 
-/**
- * @description 封装一个解析setCookie的方法
- * @returns obj
- * @param c_list
- */
-function parseSet(c_list) {
-    let obj = {}
-    c_list.map(t => {
-        const obj = {}
-        t.split(', ')[0].split(';').forEach(item => {
-            const [key, val] = item.split('=')
-            obj[key] = val
+
+def ten_video():
+    cookie='vdevice_qimei36='+vdevice_qimei36+';vqq_appid='+vqq_appid+';vqq_openid='+vqq_openid+';vqq_access_token='+vqq_access_token+';main_login='+main_login
+    url_1='https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/CheckIn?rpc_data=%7B%7D'
+    headers_1={'user-agent':'Mozilla/5.0 (Linux; Android 11; M2104K10AC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046237 Mobile Safari/537.36 QQLiveBrowser/8.7.85.27058',
+             'Content-Type':'application/json',
+             'referer':'https://film.video.qq.com/x/vip-center/?entry=common&hidetitlebar=1&aid=V0%24%241%3A0%242%3A8%243%3A8.7.85.27058%244%3A3%245%3A%246%3A%247%3A%248%3A4%249%3A%2410%3A&isDarkMode=0',
+             'cookie':cookie
+             }
+    response_1 = requests.get(url_1,headers=headers_1)
+    res_1 = json.loads(response_1.text)
+    url_2='https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/ProvideAward?rpc_data=%7B%22task_id%22:1%7D'
+    headers_2={'user-agent':'Mozilla/5.0 (Linux; Android 11; M2104K10AC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046237 Mobile Safari/537.36 QQLiveBrowser/8.7.85.27058',
+             'Content-Type':'application/json',
+             'referer':'https://film.video.qq.com/x/vip-center/?entry=common&hidetitlebar=1&aid=V0%24%241%3A0%242%3A8%243%3A8.7.85.27058%244%3A3%245%3A%246%3A%247%3A%248%3A4%249%3A%2410%3A&isDarkMode=0',
+             'cookie':cookie
+             }
+    response_2 = requests.get(url_2,headers=headers_2)
+    res_2 = json.loads(response_2.text)
+    time_1 = int(time.time())
+    time_2 = time.localtime(time_1)
+    now = time.strftime("%Y-%m-%d %H:%M:%S", time_2)
+    log = "腾讯视频会员签到执行任务\n----------raindrop----------\n" + now
+    try:
+        log = log + "\n签到获得积分:" + str(res_1['check_in_score'])
+    except:
+        log=log+"\n腾讯视频签到异常，返回内容："+str(res_1)
+        print(res_1)
+    try:
+        log = log + "\n观看获得积分:" + str(res_2['check_in_score'])
+    except:
+        log=log+"\n腾讯视频领取观看积分异常,返回内容："+str(res_2)
+        print(res_2)
+    url='https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/ReadTaskList?rpc_data=%7B%22business_id%22:%221%22,%22platform%22:3%7D'
+    headers={'user-agent':'Mozilla/5.0 (Linux; Android 11; M2104K10AC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046237 Mobile Safari/537.36 QQLiveBrowser/8.7.85.27058',
+             'Content-Type':'application/json',
+             'referer':'https://film.video.qq.com/x/vip-center/?entry=common&hidetitlebar=1&aid=V0%24%241%3A0%242%3A8%243%3A8.7.85.27058%244%3A3%245%3A%246%3A%247%3A%248%3A4%249%3A%2410%3A&isDarkMode=0',
+             'cookie':cookie
+             }
+    response = requests.get(url,headers=headers)
+    res = json.loads(response.text)
+    try:
+        lis=res["task_list"]
+        log = log + '\n--------任务状态----------'
+        for i in lis:
+            log=log+'\ntask_title:'+i["task_maintitle"]+'\nsubtitle:'+i["task_subtitle"]+'\ntask_button_desc:'+i["task_button_desc"]
+    except:
+        log = log + "获取状态异常，可能是cookie失效"
+        print(res)
+    print(push_a(log))
+
+
+
+def push_a(content):
+    print(content)
+    if push == '0':
+        print('不推送')
+    else:
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + secret
+        access_token = requests.get(url)
+        access_token = json.loads(access_token.text)
+        print(access_token, type(access_token))
+        access_token = access_token.get("access_token")
+        token = 'c8avSOlP-d5wLBuws4LmmsIjgmnCrUfPA16ftSCAJM4'
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token
+        data = json.dumps({
+            "touser": "@all",
+            "msgtype": "text",
+            "agentid": agentid,
+            "text": {
+                "content": content
+            },
+            "safe": 0,
+            "enable_id_trans": 0,
+            "enable_duplicate_check": 0,
+            "duplicate_check_interval": 1800
         })
-        return obj
-    }).forEach(t => obj = { ...obj, ...t })
-    return obj
-}
+        resp = requests.post(url, data=data, headers={'Content-Type': 'application/json'})
+        return (json.loads(resp.text).get('errmsg'))
 
-/**
- * @description 获取有效的cookie参数
- * @param {*} [c=_cookie]
- * @returns obj
- */
-function getAuth(c = _cookie) {
-    let needParams = [""]
-    //适配微信登录
-    if (_cookie) {
-        if (_cookie.includes("main_login=wx")) {
-            needParams = ["tvfe_boss_uuid", "video_guid", "video_platform", "pgv_pvid", "pgv_info", "pgv_pvi", "_qpsvr_localtk", "RK", "ptcz", "ptui_loginuin", "main_login", "access_token", "appid", "openid", "vuserid", "vusession"]
-        } else if (_cookie.includes("main_login=qq")) {
-            needParams = ["tvfe_boss_uuid", "video_guid", "video_platform", "pgv_pvid", "pgv_info", "pgv_pvi", "_qpsvr_localtk", "RK", "ptcz", "ptui_loginuin", "main_login", "vqq_access_token", "vqq_appid", "vqq_openid", "vqq_vuserid", "vqq_vusession"]
-        } else {
-            console.log("getAuth - 无法提取有效cookie参数")
-        }
-    }
-    const obj = {}
-    if (c) {
-        c.split('; ').forEach(t => {
-            const [key, val] = t.split(/\=(.*)$/, 2)
-            needParams.indexOf(key) !== -1 && (obj[key] = val)
-        })
-    }
-    return obj
-}
 
-/**
- * @description 刷新每天更新cookie参数
- * @returns
- */
-function refCookie(url = ref_url) {
-    return new Promise((resovle, reject) => {
-        axios({ url, headers }).then(e => {
-            const { vusession } = parseSet(e.headers['set-cookie'])
-            const { vqq_vusession } = parseSet(e.headers['set-cookie'])
-            const { access_token } = parseSet(e.headers['set-cookie'])
-            //微信多一个access_token
-            if (vusession) {
-                auth['vusession'] = vusession
-                auth['access_token'] = access_token
-            } else {
-                auth['vqq_vusession'] = vqq_vusession
-            }
-            // 刷新cookie后去签到
-            resovle({
-                ...headers, Cookie: Object.keys(auth).map(i => i + '=' + auth[i]).join('; ').replace("video_platform=2", "video_platform=3"),
-                'Referer': 'https://film.video.qq.com/'
-            })
-        }).catch(reject)
-    })
-}
+def main():
+    ten_video()
 
-/**
- * @description 验证ref_url是否正确
- */
-function ref_url_ver(url = ref_url, _cookie) {
-    $.get({
-        url, headers
-    }, function (error, response, data) {
-        if (error) {
-            $.log(error);
-            console.log("腾讯视频会员签到", "验证ref_url请求失败 ‼️‼️", error)
-        } else {
-            if (data.match(/nick/)) { //通过验证获取QQ昵称参数来判断是否正确
-                console.log("验证成功，执行主程序")
-                exports.main()
-            } else {
-                console.log("验证ref_url失败,无法获取个人资料 ref_url或Cookie失效 ‼️‼️")
-                notify.sendNotify("腾讯视频会员签到", '验证ref_url失败,无法获取个人资料 ref_url或Cookie失效 ‼️‼️');
-            }
-        }
-    })
-}
 
-// 手机端签到
-function txVideoSignIn(headers) {
-    $.get({
-        url: `https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/CheckIn?rpc_data=%7B%7D`, headers
-    }, function (error, response, data) {
-        if (error) {
-            $.log(error);
-            console.log("腾讯视频会员签到", "签到请求失败 ‼️‼️", error)
-        } else {
-            if (data != null) {
-                let jsonParsed, code, check_in_score;
-                jsonParsed = JSON.parse(data);
-                code = jsonParsed.ret;
-                check_in_score = jsonParsed.check_in_score;
-                if (code === 0 && check_in_score != undefined) {
-                    notice += "腾讯视频会员手机端签到成功：签到分数：" + check_in_score + "分 🎉" + "\n"
-                    console.log("腾讯视频会员手机端签到成功：签到分数：" + check_in_score + "分 🎉")
-                } else if (code === -2002) {
-                    console.log("腾讯视频会员手机端签到失败：重复签到 ‼️‼️")
-                    notice += "腾讯视频会员手机端签到失败：重复签到 ‼️‼️" + "\n"
-                } else if (code === -2007) {
-                    notice += "腾讯视频会员签到：非会员无法签到"
-                    console.log("腾讯视频会员签到：非会员无法签到")
-                } else {
-                    console.log("腾讯视频会员手机端签到失败：未知错误请查看控制台输出 ‼️‼️\n" + data)
-                    notice += "腾讯视频会员手机端签到失败：未知错误请查看控制台输出 ‼️‼️" + "\n" + data
-                }
+def main_handler(event, context):
+    return main()
 
-            } else {
-                notice += "腾讯视频会员签到：签到失败-Cookie失效 ‼️‼️" + "\n"
-                console.log("腾讯视频会员签到：签到失败, Cookie失效 ‼️‼️")
-            }
-        }
-    })
-}
 
-//观看60分钟任务签到请求
-function txVideoDownTasks(headers) {
-    $.get({
-        url: `https://vip.video.qq.com/rpc/trpc.new_task_system.task_system.TaskSystem/ProvideAward?rpc_data=%7B%22task_id%22:1%7D`, headers
-    }, function (error, response, data) {
-        if (error) {
-            $.log(error);
-            console.log("腾讯视频会员签到", "观看任务签到请求 ‼️‼️", error)
-        } else {
-            if (data != null) {
-                let jsonParsed, code, provide_value;
-                jsonParsed = JSON.parse(data);
-                code = jsonParsed.ret;
-                provide_value = jsonParsed.provide_value;
-                if (code === 0 && provide_value != 0) {
-                    notice += "腾讯视频会员观看任务签到成功：签到分数：" + provide_value + "分 🎉" + "\n"
-                    console.log("腾讯视频会员观看任务签到成功：签到分数：" + provide_value + "分 🎉")
-                } else if (code === -2003) {
-                    console.log("腾讯视频会员观看任务签到失败：任务未完成或重复领取 ‼️‼️")
-                    notice += "腾讯视频会员观看任务签到失败：任务未完成或重复领取 ‼️‼️" + "\n"
-                } else if (code === -2007) {
-                    notice += "腾讯视频会员签到：非会员无法签到"
-                    console.log("腾讯视频会员签到：非会员无法签到")
-                } else {
-                    console.log("腾讯视频会员观看任务签到成功：未知错误请查看控制台输出 ‼️‼️\n" + data)
-                    notice += "腾讯视频会员观看任务签到成功：未知错误请查看控制台输出 ‼️‼️" + "\n" + data
-                }
-            } else {
-                notice += "腾讯视频会员签到：签到失败-Cookie失效 或 脚本待更新 ‼️‼️" + "\n"
-                console.log("腾讯视频会员签到：签到失败, Cookie失效 或 脚本待更新 ‼️‼️")
-            }
-        }
-    })
-}
-
-//推送
-function sendNotify() {
-    //判断是否为Cookie失效时才提醒
-    if (SEND_KEY) {
-        if (notice.includes("Cookie失效")) {
-            notify.sendNotify("腾讯视频会员签到", notice)
-            //console.log("腾讯视频会员签到" + notice)
-        }
-    } else {
-        notify.sendNotify("腾讯视频会员签到", notice)
-        //console.log("腾讯视频会员签到" + notice )
-    }
-}
-
-//主程序入口
-exports.main = () => new Promise(
-    (resovle, reject) => refCookie()
-        .then(params => Promise.all([
-            txVideoSignIn(params),
-            setTimeout(() => { txVideoDownTasks(params) }, 5000),
-            setTimeout(() => { sendNotify() }, 10000)
-        ])
-            .then(e => resovle())
-            .catch(e => reject())
-        ).catch(e => {
-            console.log(e)
-        })
-)
-
-function timeFormat(time) {
-    let date;
-    if (time) {
-        date = new Date(time)
-    } else {
-        date = new Date();
-    }
-    return date.getFullYear() + '年' + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '月' + (date.getDate() >= 10 ? date.getDate() : '0' + date.getDate()) + '日';
-}
-// prettier-ignore
-function Env(t, e) { class s { constructor(t) { this.env = t } send(t, e = "GET") { t = "string" == typeof t ? { url: t } : t; let s = this.get; return "POST" === e && (s = this.post), new Promise((e, i) => { s.call(this, t, (t, s, r) => { t ? i(t) : e(s) }) }) } get(t) { return this.send.call(this.env, t) } post(t) { return this.send.call(this.env, t, "POST") } } return new class { constructor(t, e) { this.name = t, this.http = new s(this), this.data = null, this.dataFile = "box.dat", this.logs = [], this.isMute = !1, this.isNeedRewrite = !1, this.logSeparator = "\n", this.startTime = (new Date).getTime(), Object.assign(this, e), this.log("", `\ud83d\udd14${this.name}, \u5f00\u59cb!`) } isNode() { return "undefined" != typeof module && !!module.exports } isQuanX() { return "undefined" != typeof $task } isSurge() { return "undefined" != typeof $httpClient && "undefined" == typeof $loon } isLoon() { return "undefined" != typeof $loon } isShadowrocket() { return "undefined" != typeof $rocket } toObj(t, e = null) { try { return JSON.parse(t) } catch { return e } } toStr(t, e = null) { try { return JSON.stringify(t) } catch { return e } } getjson(t, e) { let s = e; const i = this.getdata(t); if (i) try { s = JSON.parse(this.getdata(t)) } catch { } return s } setjson(t, e) { try { return this.setdata(JSON.stringify(t), e) } catch { return !1 } } getScript(t) { return new Promise(e => { this.get({ url: t }, (t, s, i) => e(i)) }) } runScript(t, e) { return new Promise(s => { let i = this.getdata("@chavy_boxjs_userCfgs.httpapi"); i = i ? i.replace(/\n/g, "").trim() : i; let r = this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout"); r = r ? 1 * r : 20, r = e && e.timeout ? e.timeout : r; const [o, h] = i.split("@"), a = { url: `http://${h}/v1/scripting/evaluate`, body: { script_text: t, mock_type: "cron", timeout: r }, headers: { "X-Key": o, Accept: "*/*" } }; this.post(a, (t, e, i) => s(i)) }).catch(t => this.logErr(t)) } loaddata() { if (!this.isNode()) return {}; { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e); if (!s && !i) return {}; { const i = s ? t : e; try { return JSON.parse(this.fs.readFileSync(i)) } catch (t) { return {} } } } } writedata() { if (this.isNode()) { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e), r = JSON.stringify(this.data); s ? this.fs.writeFileSync(t, r) : i ? this.fs.writeFileSync(e, r) : this.fs.writeFileSync(t, r) } } lodash_get(t, e, s) { const i = e.replace(/\[(\d+)\]/g, ".$1").split("."); let r = t; for (const t of i) if (r = Object(r)[t], void 0 === r) return s; return r } lodash_set(t, e, s) { return Object(t) !== t ? t : (Array.isArray(e) || (e = e.toString().match(/[^.[\]]+/g) || []), e.slice(0, -1).reduce((t, s, i) => Object(t[s]) === t[s] ? t[s] : t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {}, t)[e[e.length - 1]] = s, t) } getdata(t) { let e = this.getval(t); if (/^@/.test(t)) { const [, s, i] = /^@(.*?)\.(.*?)$/.exec(t), r = s ? this.getval(s) : ""; if (r) try { const t = JSON.parse(r); e = t ? this.lodash_get(t, i, "") : e } catch (t) { e = "" } } return e } setdata(t, e) { let s = !1; if (/^@/.test(e)) { const [, i, r] = /^@(.*?)\.(.*?)$/.exec(e), o = this.getval(i), h = i ? "null" === o ? null : o || "{}" : "{}"; try { const e = JSON.parse(h); this.lodash_set(e, r, t), s = this.setval(JSON.stringify(e), i) } catch (e) { const o = {}; this.lodash_set(o, r, t), s = this.setval(JSON.stringify(o), i) } } else s = this.setval(t, e); return s } getval(t) { return this.isSurge() || this.isLoon() ? $persistentStore.read(t) : this.isQuanX() ? $prefs.valueForKey(t) : this.isNode() ? (this.data = this.loaddata(), this.data[t]) : this.data && this.data[t] || null } setval(t, e) { return this.isSurge() || this.isLoon() ? $persistentStore.write(t, e) : this.isQuanX() ? $prefs.setValueForKey(t, e) : this.isNode() ? (this.data = this.loaddata(), this.data[e] = t, this.writedata(), !0) : this.data && this.data[e] || null } initGotEnv(t) { this.got = this.got ? this.got : require("got"), this.cktough = this.cktough ? this.cktough : require("tough-cookie"), this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar, t && (t.headers = t.headers ? t.headers : {}, void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar)) } get(t, e = (() => { })) { t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"]), this.isSurge() || this.isLoon() ? (this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient.get(t, (t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status), e(t, s, i) })) : this.isQuanX() ? (this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => e(t))) : this.isNode() && (this.initGotEnv(t), this.got(t).on("redirect", (t, e) => { try { if (t.headers["set-cookie"]) { const s = t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString(); s && this.ckjar.setCookieSync(s, null), e.cookieJar = this.ckjar } } catch (t) { this.logErr(t) } }).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => { const { message: s, response: i } = t; e(s, i, i && i.body) })) } post(t, e = (() => { })) { const s = t.method ? t.method.toLocaleLowerCase() : "post"; if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isLoon()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient[s](t, (t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status), e(t, s, i) }); else if (this.isQuanX()) t.method = s, this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => e(t)); else if (this.isNode()) { this.initGotEnv(t); const { url: i, ...r } = t; this.got[s](i, r).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => { const { message: s, response: i } = t; e(s, i, i && i.body) }) } } time(t, e = null) { const s = e ? new Date(e) : new Date; let i = { "M+": s.getMonth() + 1, "d+": s.getDate(), "H+": s.getHours(), "m+": s.getMinutes(), "s+": s.getSeconds(), "q+": Math.floor((s.getMonth() + 3) / 3), S: s.getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, (s.getFullYear() + "").substr(4 - RegExp.$1.length))); for (let e in i) new RegExp("(" + e + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? i[e] : ("00" + i[e]).substr(("" + i[e]).length))); return t } msg(e = t, s = "", i = "", r) { const o = t => { if (!t) return t; if ("string" == typeof t) return this.isLoon() ? t : this.isQuanX() ? { "open-url": t } : this.isSurge() ? { url: t } : void 0; if ("object" == typeof t) { if (this.isLoon()) { let e = t.openUrl || t.url || t["open-url"], s = t.mediaUrl || t["media-url"]; return { openUrl: e, mediaUrl: s } } if (this.isQuanX()) { let e = t["open-url"] || t.url || t.openUrl, s = t["media-url"] || t.mediaUrl; return { "open-url": e, "media-url": s } } if (this.isSurge()) { let e = t.url || t.openUrl || t["open-url"]; return { url: e } } } }; if (this.isMute || (this.isSurge() || this.isLoon() ? $notification.post(e, s, i, o(r)) : this.isQuanX() && $notify(e, s, i, o(r))), !this.isMuteLog) { let t = ["", "==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="]; t.push(e), s && t.push(s), i && t.push(i), console.log(t.join("\n")), this.logs = this.logs.concat(t) } } log(...t) { t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.join(this.logSeparator)) } logErr(t, e) { const s = !this.isSurge() && !this.isQuanX() && !this.isLoon(); s ? this.log("", `\u2757\ufe0f${this.name}, \u9519\u8bef!`, t.stack) : this.log("", `\u2757\ufe0f${this.name}, \u9519\u8bef!`, t) } wait(t) { return new Promise(e => setTimeout(e, t)) } done(t = {}) { const e = (new Date).getTime(), s = (e - this.startTime) / 1e3; this.log("", `\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${s} \u79d2`), this.log(), (this.isSurge() || this.isQuanX() || this.isLoon()) && $done(t) } }(t, e) }
+if __name__ == '__main__':
+    main()
