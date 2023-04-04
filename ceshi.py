@@ -29,7 +29,7 @@ def ten_video():
         if response_1["err_msg"] == "OK":
             gk = "领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值"
             print(gk)
-            content = qd + \n + gk
+            content = qd + '\n' + gk
             send(title,content)
         print("错误")
     print("错误")
