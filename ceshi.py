@@ -22,7 +22,7 @@ def ten_video():
         print(qd)
         response_2 = requests.get(url_gk,headers=headers).json()
         print(response_2.text)
-        if response_1["err_msg"] == "OK":
+        if response_2["err_msg"] == "OK":
             gk = "领取观看视频60min奖励成功" + response_2["provide_value"] + "成长值"
             print(gk)
             content = qd + '\n' + gk
