@@ -6,7 +6,7 @@ new Env('哈啰签到');
 '''
 import requests
 import os
-
+import json
 from sendNotify import send
 from os import environ
 token = os.environ["haluotoken"]
