@@ -11,7 +11,7 @@ import os
 
 from sendNotify import send
 from os import environ
-
+token = os.environ["haluotoken"]
 url_qd = "https://api.hellobike.com/api?common.welfare.signAndRecommend="
 url_xx = "https://api.hellobike.com/api?user.taurus.pointInfo="
 # URL+参数,参数值为空
@@ -52,10 +52,10 @@ headers_xx = {
     'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
-data_qd = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"common.welfare.signAndRecommend","token":"cfb4950b8c4141bcba6c0c2a0144f0af"}'
+data_qd = '{"from":"h5","systemCode":62,"platform":4,"version":"6.36.0","action":"common.welfare.signAndRecommend","token":"cfb4950b8c4141bcba6c0c2a0144f0af"}'
 # 请求体Text内容，'全部内容'
 
-data_xx = '{"from":"h5","systemCode":62,"platform":4,"version":"6.25.0","action":"user.taurus.pointInfo","token":"cfb4950b8c4141bcba6c0c2a0144f0af","pointType":1}'
+data_xx = '{"from":"h5","systemCode":62,"platform":4,"version":"6.36.0","action":"user.taurus.pointInfo","token":f"{token}","pointType":1}'
 
 haluo_qd = requests.post(url=url_qd, headers = headers_qd, data = data_qd).json()
 haluo_xx = requests.post(url=url_xx, headers = headers_xx, data = data_xx).json()
