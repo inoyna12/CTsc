@@ -1,6 +1,6 @@
 '''
 
-cron: 6 14 * * * ct_haluo.py
+cron: 15 9 * * * ct_haluo.py
 new Env('哈啰签到');
 
 '''
