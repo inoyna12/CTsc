@@ -1,6 +1,6 @@
 '''
 
-cron: 6 10 * * * ct_xbk.py
+cron: 6 9 * * * ct_xbk.py
 new Env('线报酷签到');
 
 '''
