@@ -35,7 +35,7 @@ def main():
     elif result["ret"] == -110009:
         msg += "出现图形验证，请手动签到后第二天运行此脚本"
         print(msg)
-        send("腾讯视频",msg)
+        send("腾讯视频签到",msg)
     else:
         print("结束")
 
