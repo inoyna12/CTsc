@@ -1,3 +1,7 @@
+'''
+cron: 6 9 * * * ct_txsp.py
+new Env('腾讯视频签到');
+'''
 import requests
 import os
 import json
@@ -18,20 +22,20 @@ def main():
     response = requests.get(url,headers=headers)
     result = response.json()
     print(result)
+    msg = ""
     if result["ret"] == 0: 
         check_in_score = result['check_in_score']
-        msg = ""
         msg += f"签到获得成长值: {check_in_score}\n"
         response1 = requests.get(url1,headers=headers)
         result1 = response1.json()
-        print(result1)
         provide_value = result1['provide_value']
         msg += f"观看视频成长值: {provide_value}\n"
         print(msg)
         send("腾讯视频", msg)
     elif result["ret"] == -110009:
-        res2 = "出现图形验证，请手动签到后第二天运行此脚本"
-        send("腾讯视频",res2)
+        msg += "出现图形验证，请手动签到后第二天运行此脚本"
+        print(msg)
+        send("腾讯视频",msg)
     else:
         print("结束")
 
