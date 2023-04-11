@@ -24,11 +24,11 @@ def qiandao(token):
 #   print(type(result), result)
     if result['code'] == 0:
         bountyCountToday = result['data']['bountyCountToday']
-        msg += f"签到成功，获得{bountyCountToday}奖励金\n"
+        msg += f"签到获得奖励金: {bountyCountToday}\n\n"
         print(msg)
         msg +=chaxun(token)
     elif result['code'] == 103:
-        msg += "token过期"
+        msg += "token过期\n"
         print(msg)
     return msg
 
@@ -48,7 +48,7 @@ def chaxun(token):
 #        print(type(result1), result1)
     points = result['data']['points']
     expiring = result['data']['expiring']
-    msg += f"当前奖励金:{points}, 月底将过期{expiring}\n\n"
+    msg += f"当前奖励金: {points}， 月底将过期: {expiring}\n\n"
     print(msg)
     return msg
     
