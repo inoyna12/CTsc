@@ -48,8 +48,8 @@ def chaxun(token):
 #        print(type(result1), result1)
     points = result['data']['points']
     expiring = result['data']['expiring']
-        msg += f"当前奖励金:{points}, 月底将过期{expiring}\n\n"
-        print(msg)
+    msg += f"当前奖励金:{points}, 月底将过期{expiring}\n\n"
+    print(msg)
     return msg
     
 def ql_env():
