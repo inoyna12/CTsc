@@ -24,7 +24,7 @@ def qiandao(token):
 #   print(type(result), result)
     if result['code'] == 0:
         bountyCountToday = result['data']['bountyCountToday']
-        msg += f"签到获得奖励金: {bountyCountToday}\n\n"
+        msg += f"签到获得奖励金: {bountyCountToday}\n"
         print(msg)
         msg +=chaxun(token)
     elif result['code'] == 103:
