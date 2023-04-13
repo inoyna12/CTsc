@@ -51,7 +51,7 @@ def qiandao(cookie):
             print(msg)
             msg += chaxun(cookie)
         else:
-        print("未知错误\n")    
+            print("未知错误\n")    
     except:
         msg += f"Cookie失效或脚本待更新\n"
         print(msg)
