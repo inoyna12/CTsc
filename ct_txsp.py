@@ -23,7 +23,7 @@ def qiandao(cookie):
         }
         response = requests.get(url,headers=headers)
         result = response.json()
-        if result['ret'] == 0 and int(result['check_in_score']) > 0: 
+        if result['ret'] == 0: 
             check_in_score = result['check_in_score']
             msg += f"签到获得成长值: {check_in_score}\n"
             print(msg)
@@ -62,7 +62,7 @@ def video_60(cookie):
     result = response.json()
     print(result)
     print(type(result['provide_value']))
-    if result['ret'] == 0 and int(result['provide_value']) > 0:
+    if result['ret'] == 0:
         provide_value = result['provide_value'] 
         msg += f"观看视频成长值: {provide_value}\n"
         print(msg)
@@ -108,8 +108,7 @@ if __name__ == '__main__':
     for cookie in quantity:
         print (f"------------正在执行第{index}个账号----------------")
         msg += f"第{str(index)}个账号运行结果: \n"
-     #   msg += qiandao(cookie)
-        msg += video_60(cookie)
+        msg += qiandao(cookie)
         index += 1
   #  print(msg)
     send('腾讯视频', msg)
