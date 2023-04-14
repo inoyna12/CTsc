@@ -27,7 +27,6 @@ def qiandao(cookie):
             check_in_score = result['check_in_score']
             msg += f"签到获得成长值: {check_in_score}\n"
             print(msg)
-            #
             msg += video_60(cookie)
             msg += chaxun(cookie)
         elif result['ret'] == -110009:
@@ -60,8 +59,6 @@ def video_60(cookie):
     }
     response = requests.get(url,headers=headers)
     result = response.json()
-    print(result)
-    print(type(result['provide_value']))
     if result['ret'] == 0:
         provide_value = result['provide_value'] 
         msg += f"观看视频成长值: {provide_value}\n"
