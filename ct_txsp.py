@@ -87,7 +87,7 @@ def chaxun(cookie):
 
 def ql_env():
     if "txspcookie" in os.environ:
-        token_list = os.environ['txspcookie'].split('#')
+        token_list = os.environ['txspcookie'].split('\n')
         if len(token_list) > 0:
             return token_list
         else:
