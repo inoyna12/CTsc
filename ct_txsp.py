@@ -6,7 +6,7 @@ new Env('腾讯视频签到');
 import requests
 import os
 import json
-#import time
+import time
 #print(f"==================脚本执行- 北京时间(UTC+8)：{time.strftime('%Y/%m/%d %H:%M:%S', time.localtime())}=====================\n")
 from sendNotify import send
 from os import environ
@@ -106,6 +106,7 @@ if __name__ == '__main__':
         print (f"------------正在执行第{index}个账号----------------")
         msg += f"第{str(index)}个账号运行结果: \n"
         msg += qiandao(cookie)
+        time.sleep(1)
         index += 1
   #  print(msg)
     send('腾讯视频', msg)
