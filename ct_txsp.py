@@ -30,10 +30,10 @@ def qiandao(cookie):
             msg += video_60(cookie)
             msg += chaxun(cookie)
         elif result['ret'] == -110009:
-            msg += "出现图形验证，请手动签到后第二天运行此脚本\n"
+            msg += "出现图形验证，请手动签到后第二天运行此脚本\n\n"
             print(msg)
         elif result['ret'] == -2007:
-            msg += "非会员无法签到\n"
+            msg += "非会员无法签到\n\n"
             print(msg)
         elif result['ret'] == -2002:
             msg += "请勿重复签到\n"
