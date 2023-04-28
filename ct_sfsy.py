@@ -4,7 +4,7 @@
 # @Author : github@limoruirui https://github.com/limoruirui
 # @Time : 2022/8/1 23:33
 # -------------------------------
-# cron ""
+# cron "6 9 * * *"ct_txsp.py
 # const $ = new Env('顺丰速运签到');
 """
 1. 某快递app签到 脚本仅供学习交流使用, 请在下载后24h内删除
