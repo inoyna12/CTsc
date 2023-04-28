@@ -106,7 +106,7 @@ if __name__ == '__main__':
         print (f"------------正在执行第{index}个账号----------------")
         msg += f"第{str(index)}个账号运行结果: \n"
         msg += qiandao(cookie)
-        time.sleep(1)
+        time.sleep(10)
         index += 1
   #  print(msg)
     send('腾讯视频', msg)
