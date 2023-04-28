@@ -201,7 +201,7 @@ class SFExpress:
         data = self.session.post(url, headers=headers, json=body).json()
         total_score = data["obj"]["availablePoints"]
         print_now(f"您当前账号共有积分{total_score}")
-        send("顺丰签到", f"您当前账号共有积分{total_score}")
+        send("顺丰速运", f"您当前账号共有积分{total_score}")
 
     def old_daily_task(self):
         # url = "https://mcs-mimp-web.sf-express.com/mcs-mimp/appTask/queryPointTaskAndSign"
