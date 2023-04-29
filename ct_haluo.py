@@ -1,4 +1,4 @@
-aaaa = f'{{"IS_CARE":"0","REGION_CODE":"320500","MEB_ID":"{token}","CHANNEL_TYPE":"01","LGT":"","LTT":"","DEVICE_NO":"","REAL_REGION_CODE":"320500","SECOND_AD_TYPE_LIST":[{"SECOND_AD_TYPE":"131"},{"SECOND_AD_TYPE":"132"},{"SECOND_AD_TYPE":"133"},{"SECOND_AD_TYPE":"134"},{"SECOND_AD_TYPE":"135"}],"chnlType":"1","regionCode":"320500"}}'
+
 '''
 cron: 15 9 * * * ct_haluo.py
 new Env('哈啰签到');
