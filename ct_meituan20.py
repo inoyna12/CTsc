@@ -44,10 +44,6 @@ def exchange(cookie):
         }
         print(f"抢购时间为：{qgtime}")
         print("正在等待兑换时间，请勿终止退出...")
-        response = requests.post(url=url,headers=headers,json=json)
-
-        result = response.json()
-        print(result)
         while True:
             nowtime1 = datetime.datetime.now ().strftime ('%Y-%m-%d %H:%M:%S.%f8')#循环刷新当前系统时间
             if nowtime1 > qgtime:
