@@ -49,6 +49,7 @@ def exchange(cookie):
             if nowtime1 > qgtime:
                 response = requests.post(url=url,headers=headers,data=data)
                 result = response.json()
+                print(result)
                 if result['subcode'] == 0:
                     msg += "抢券成功！"
                     print(f"当前时间：{nowtime1}")
