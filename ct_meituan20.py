@@ -12,9 +12,9 @@ from os import environ
 
 today = datetime.datetime.now().strftime('%Y-%m-%d')
 #开始抢兑时间
-starttime='13:59:58.00000000'
+starttime='14:05:58.00000000'
 #结束时间
-endtime='14:00:02.00000000'
+endtime='14:06:04.00000000'
 
 couponReferId='4D823738DC09463DAA54156094768F02'
 
@@ -52,7 +52,7 @@ def exchange(cookie):
                 print(result)
                 if result['subcode'] == 0:
                     msg += "抢券成功！"
-                    print(f"当前时间：{nowtime1}")
+                 #   print(f"当前时间：{nowtime1}")
                     print(msg)
                     break
                 time.sleep(0.002)
