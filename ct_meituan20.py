@@ -16,7 +16,7 @@ starttime='13:59:59.00000000'
 #结束时间
 endtime='14:00:03.00000000'
 
-couponReferId='5865AE2DF47846FC8C2B85078C075051'
+couponReferId='4D823738DC09463DAA54156094768F02'
 
 qgtime = '{} {}'.format (today, starttime)
 qgendtime = '{} {}'.format (today, endtime)
