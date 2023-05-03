@@ -43,7 +43,7 @@ def qiandao(Phone, MEB_ID, new_Phone):
                 msg += f"获得：{COUP_TITLE}，{COUP_SUB_TITLE}\n"  
             NEST_AWARD_DAY = result['data']['NEST_AWARD_DAY']#剩余天数
             SIGN_TIPS = result['data']['SIGN_TIPS']#可获得奖励
-            msg += f"再签到{NEST_AWARD_DAY}可获得{SIGN_TIPS}\n\n" 
+            msg += f"再签到{NEST_AWARD_DAY}天可获得{SIGN_TIPS}\n\n" 
         elif len(result['data']) == 0: 
             msg += f"{new_Phone}：请勿重复签到！\n\n"
     except:
