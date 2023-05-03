@@ -12,9 +12,9 @@ from os import environ
 
 today = datetime.datetime.now().strftime('%Y-%m-%d')
 #开始抢兑时间
-starttime='14:05:58.00000000'
+starttime='14:10:58.00000000'
 #结束时间
-endtime='14:06:04.00000000'
+endtime='14:11:04.00000000'
 
 couponReferId='4D823738DC09463DAA54156094768F02'
 
