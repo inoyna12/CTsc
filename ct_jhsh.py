@@ -37,7 +37,7 @@ def qiandao(Phone, MEB_ID, new_Phone):
         print(result)
         if len(result['data']) > 0:
             msg += f"{new_Phone}：签到成功！\n"
-            if 'IS_AWARD' in result['data']:
+            if result['data']['IS_AWARD'] == 1:
                 COUP_TITLE = result['data']['COUP_TITLE']#获得奖励
                 COUP_SUB_TITLE = result['data']['COUP_SUB_TITLE']#满多少可用
                 msg += f"获得：{COUP_TITLE}，{COUP_SUB_TITLE}\n"  
