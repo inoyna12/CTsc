@@ -35,6 +35,8 @@ def qiandao(Phone, MEB_ID, new_Phone):
         response = requests.post(url=url, headers = headers, json = json)
         result = response.json()
         print(result)
+        response_headers = response.headers
+        print(response_headers)
         if len(result['data']) > 0:
             msg += f"{new_Phone}：签到成功！\n"
             if result['data']['IS_AWARD'] == 1:
