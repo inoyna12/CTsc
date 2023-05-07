@@ -1,6 +1,6 @@
 '''
 cron: */30 * * * *
-new Env('福域');
+new Env('福域点赞');
 '''
 
 import requests
