@@ -451,7 +451,7 @@ def chaxun(cookie):
     phone = result_data_res['phone']
     Phone = phone[:3] + "****" + phone[7:]
     totalIntegral = result_data_res['ext']['totalIntegral']
-    msg += f"{Phone}，福币：{totalIntegral}\n"
+    msg += f"{Phone}，福币：{totalIntegral}\n\n"
     print(msg)
     return msg
          
