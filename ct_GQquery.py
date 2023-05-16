@@ -106,7 +106,7 @@ if __name__ == '__main__':
     print (f"共找到{len(quantity)}个账号")
     for token in quantity:
         print(f"------------正在执行第{index}个账号----------------")
-       msg += Phone(token)
+        msg += Phone(token)
         time.sleep(5)
         index += 1
     send('广汽传祺查询', msg)
