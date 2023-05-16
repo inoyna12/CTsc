@@ -4,6 +4,7 @@ new Env('广汽传祺查询');
 '''
 
 import requests
+import os
 import json
 import hashlib
 import time
