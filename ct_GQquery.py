@@ -63,7 +63,7 @@ def Phone(token):
         'channel': 'unknown',
         'platformNo': 'Android',
         'osVersion': '12',
-        'version': '4.1.0',
+        'version': '4.1.2',
         'imei': 'fc723391358dedbf',
         'imsi': 'unknown',
         'deviceType': 'Android',
