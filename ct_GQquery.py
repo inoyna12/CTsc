@@ -55,7 +55,7 @@ def Gdou(token):
 def Phone(token):
     reqNonc = random.randint(100000, 999999)
     timestamp = str(int(time.time() * 1000)) 
-    reqSign = f"signature{reqNonc}{timestamp}17aaf8118ffb270b766c6d6774317a134.1.0"
+    reqSign = f"signature{reqNonc}{timestamp}17aaf8118ffb270b766c6d6774317a134.1.2"
     md5_reqSign = get_md5_signature(reqSign)
     url = 'https://gsp.gacmotor.com/gateway/webapi/account/getUserInfoV2'
     headers = {
