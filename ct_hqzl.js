@@ -95,7 +95,7 @@
                          let temp =+ i;
                          temp ++;
                          await addComment(i);
-                         await $.wait(randomInt(3000,6000));
+                         await $.wait(randomInt(6000,9000));
                      }
                  }
                  contentIdArr.length = 0;
