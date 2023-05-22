@@ -5,7 +5,7 @@
  抓包：hqapp.faw.cn/fawcshop 这个域名里请求体 Authorization 和 aid
  变量：两个 hqAPP：Authorization hqAid：aid
  定时一天一次
- cron: 15 11 * * *
+ cron: 35 9 * * *
 
  [task_local]
  #红旗智联
