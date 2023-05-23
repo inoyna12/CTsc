@@ -565,7 +565,7 @@ def tieziID(cookie, userid):
     if 2005056 in posts_id_list:
         posts_id_list.remove(2005056)
 #        print('去除帖子ID2005056:', posts_id_list)
-    else:
+#    else:
 #        print('帖子ID:', posts_id_list)
     return posts_id_list
 
