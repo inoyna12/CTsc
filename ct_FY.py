@@ -664,10 +664,12 @@ def choujiang(cookie):
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json() 
     print(result)
-    if result['msg'] == '操作成功':
+    if '操作成功' in result['msg']:
         msg += f"签到7天抽奖：{result['msg']}\n"
         print(msg)
         return msg
+    else:
+        return None
          
 def ql_env():
     if "FYtoken" in os.environ:
@@ -700,21 +702,21 @@ if __name__ == '__main__':
             print("点赞")
             random_sleep(30, 60) 
             msg += dianzan(cookie)
-            print("分享资讯")
+            print("\n分享资讯")
             random_sleep(30, 60)
             msg += zixun(cookie, userid)
-            print("分享帖子")
+            print("\n分享帖子")
             random_sleep(30, 60)
             msg += tiezi(cookie, userid)
-            print("回复帖子")
+            print("\n回复帖子")
             random_sleep(30, 60)
             msg += huifu(cookie)
-            print("删除帖子")
+            print("\n删除帖子")
             random_sleep(10, 20)
             deleteID(cookie)
-            print("签到7天抽奖")
+            print("\n签到7天抽奖")
             msg += choujiang(cookie)
-            print("查询")
+            print("\n查询")
             msg += chaxun(cookie)
             print(f"第{str(index)}个账号运行完成")
         elif activate != '操作成功':
