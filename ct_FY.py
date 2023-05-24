@@ -664,12 +664,12 @@ def choujiang(cookie):
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json() 
     print(result)
-    if '操作成功' in result['msg']:
-        msg += f"签到7天抽奖：{result['msg']}\n"
-        print(msg)
-        return msg
-    else:
-        return None
+
+    msg += f"签到7天抽奖：{result['msg']}\n"
+
+    return msg
+
+
          
 def ql_env():
     if "FYtoken" in os.environ:
