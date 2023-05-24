@@ -4,6 +4,7 @@ new Env('福域');
 '''
 import hashlib
 import requests
+import random
 import os
 import json
 import time
