@@ -5,6 +5,7 @@ new Env('哪吒汽车');
 '''
 import requests
 import json
+import os
 import random
 import time
 import hashlib
