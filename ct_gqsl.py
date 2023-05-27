@@ -170,7 +170,7 @@ def user_info():
     mobile = result['data']['mobile']
     integral = result['data']['integral']
     new_Phone = mobile[:3] + "****" + mobile[7:]
-    info = f"{new_Phone}：{integral}积分\n"
+    info = f"{new_Phone}：{integral}积分\n\n"
     return info
 
 #遍历社区最新动态id
