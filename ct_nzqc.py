@@ -377,7 +377,7 @@ def information():
     addUpScore = result['data']['addUpScore']
     phone = result['data']['phone']
     Phone = phone[:3] + "****" + phone[7:]
-    msg = f"{Phone}：{addUpScore}积分\n"
+    msg = f"{Phone}：{addUpScore}积分\n\n"
     print(msg)
     return msg
 
