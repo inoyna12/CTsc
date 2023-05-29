@@ -240,12 +240,12 @@ def traversal_toutiao():
     group_id_list = []
     for item in result['data']:
         group_id_list.append(item['article']['groupId'])
-#    print(f"头条groupId列表：\n{group_id_list}\n")
+    print(f"头条groupId列表：\n{group_id_list}\n")
 #    return group_id_list
     openId_id_list = []
     for item in result['data']:
         openId_id_list.append(item['article']['openId'])
-#    print(f"头条openId列表：\n{openId_id_list}\n")
+    print(f"头条openId列表：\n{openId_id_list}\n")
     return openId_id_list,group_id_list
     
 #爬头条评论
