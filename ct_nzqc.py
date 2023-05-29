@@ -151,6 +151,7 @@ def refresh_Authorization():
     }
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json()
+    print(result)
     if result['success'] == True:
         print("刷新Authorization成功")
         Authorization_new = result['data']['access_token']
