@@ -117,7 +117,7 @@ def callback_post():
         bizId = random.choice(bizId_list)
         content_a = f'{{"bizId":"2005056","content":"{{\\"bizId\\":\\"2005056\\",\\"shareImg\\":\\"ford-base-provider/2023/05/14/1684048349986androidios3000_4000.jpg\\",\\"shareTitle\\":\\"记录生活\\",\\"shareUrl\\":\\"https://evosh5.changanford.cn/common/?from=singlemessage&t=%s#/postDetail?postsId=2005056&jumpDataType=4&jumpDataValue=2005056\\",\\"type\\":\\"2\\"}}","device":"","shareTime":%s,"shareTo":"3","type":"2","userId":"{userid}"}}'
         content_b = content_a % (timestamp_sec, timestamp)
-        content = content_b.replace('1290', str(bizId))
+        content = content_b.replace('2005056', str(bizId))
         url = 'https://evosapi.changanford.cn/con/share/callback'
         headers, data = headers_new(content, timestamp, letters)
         response = requests.post(url=url, headers=headers, data=data)
