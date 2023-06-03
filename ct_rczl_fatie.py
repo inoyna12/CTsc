@@ -47,9 +47,10 @@ def feeds():
         title, content = tianhang_api()
         reqNonc = random.randint(1000, 9999)
         contents = f"{content}{reqNonc}"#内容后面加入随机数，防止帖子重复
+        titles = f"{title}{reqNonc}"
         data = {
             "feed_mark": f"{timestamp}",
-            "feed_title": title,
+            "feed_title": titles,
             "themes": [],
             "feeds_type": 2,
             "feed_from": 2,
