@@ -51,7 +51,7 @@ def feeds():
         "feed_from": 2,
         "app_feed_content": [
             {
-                "content": {"height": 0, "text": contents, "width": 0},
+                "content": {"height": 0, "text": content, "width": 0},
                 "type": 1
             }
         ]
