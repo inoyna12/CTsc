@@ -384,10 +384,10 @@ def information():
     response = requests.get(url=url, headers=headers)
     result = response.json()
 #    print(result)
-    addUpScore = result['data']['addUpScore']
+    creditScore = result['data']['creditScore']
     phone = result['data']['phone']
     Phone = phone[:3] + "****" + phone[7:]
-    msg = f"{Phone}：{addUpScore}积分\n\n"
+    msg = f"{Phone}：{creditScore}积分\n\n"
     print(msg)
     return msg
 
