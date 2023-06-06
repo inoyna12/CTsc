@@ -233,7 +233,7 @@ def getAllTasks():
     for item in result_data:
         for task in item['list']:
             # 如果是特殊任务（邀请新用户，预约试驾，车主认证）则跳过
-            if task['taskName'] in ['邀请新用户', '预约试驾', '车主认证']:
+            if task['taskName'] in ['完善资料', '绑定第三方账号', '首次加入圈子', '邀请新用户', '预约试驾', '车主认证']:
                 continue
             # 输出符合条件的任务
             done = "已完成" if task['taskDoneCount'] == task['taskAllCount'] else "未完成"
