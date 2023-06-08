@@ -296,7 +296,7 @@ def traversal_comment(openId, groupId):
         else:
             print(f'请求失败，响应状态码为{response.status_code}')
     result = response.json()
-#    print(result)
+    print(result)
     content_list = []
     for item in result['data']['rows']:
         content_list.append(item['content'])
