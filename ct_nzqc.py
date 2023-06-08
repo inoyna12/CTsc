@@ -647,7 +647,7 @@ if __name__ == '__main__':
             # msg += addArticle()
             # print("【删除】")
             # del_article()
-            information()
+            msg += information()
             print(f"第{index + 1}个账号运行完成\n")
         else:
             msg += "token失效或脚本待更新\n"
