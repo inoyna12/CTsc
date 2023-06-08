@@ -267,6 +267,7 @@ def traversal_toutiao():
 #爬头条评论
 def traversal_comment(openId, groupId):
     print("【遍历头条评论】")
+    random_sleep(5, 10)
     url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
     headers = {
         'Host': 'api.chehezhi.cn',
