@@ -285,7 +285,7 @@ def traversal_comment(openId, groupId):
     }
     params = {
         'page': '1',
-        'pageSize': '10',
+        'pageSize': '100',
         'groupId': groupId,
         'openId': openId,
         'generateType': 'ugc_api'
