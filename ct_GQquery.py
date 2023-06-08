@@ -80,7 +80,7 @@ def Phone(token):
     data = 'userIdStr=NDkzNTE5Mg%3D%3D'
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json()
-#    print(result)
+    print(result)
     mobile = result['data']['mobile']
     Mobile = mobile[:3] + "****" + mobile[7:]
     gdou = Gdou(token)
