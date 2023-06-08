@@ -241,6 +241,7 @@ def getAllTasks():
 
 def myInfo():
     print("\n【【【【【【查询福币】】】】】】\n")
+    random_sleep(60, 70)#添加延迟查询实时福币
     timestamp = (int(time.time() * 1000))
     letters = get_random_letters()
     content = '{}'
