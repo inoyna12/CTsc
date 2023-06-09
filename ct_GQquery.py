@@ -80,7 +80,7 @@ def Phone(token):
     data = 'userIdStr=NDkzNTE5Mg%3D%3D'
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json()
-#    print(result)
+    print(result)
     if result['errorCode'] == '401':
 
         return "token失效\n"
