@@ -297,7 +297,7 @@ def traversal_comment(openId, groupId):
         else:
             print(f'请求失败，响应状态码为{response.status_code}')
     result = response.json()
-    print(result)
+#    print(result)
     content_list = []
     for item in result['data']['rows']:
         content_list.append(item['content'])
@@ -405,7 +405,7 @@ def information():
     creditScore = result['data']['creditScore']
     phone = result['data']['phone']
     Phone = phone[:3] + "****" + phone[7:]
-    msg = f"{Phone}：{creditScore}积分\n\n"
+    msg = f"{Phone}：{creditScore}积分\n"
     print(msg)
     return msg
 
