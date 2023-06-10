@@ -3,7 +3,7 @@ cron: 55 13 * * * ct_meituan20.py
 new Env('美团奶茶券');
 '''
 
-#青龙多账号换行并发:task 5.py conc ceshi 1 2
+#青龙多账号换行并发:task 5.py conc ceshi 1 2 3
 
 
 import time,datetime,requests,os,json
