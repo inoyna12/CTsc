@@ -1,6 +1,6 @@
 '''
 cron: 55 59 9 * * *
-new Env('美团30～15（10:00）');
+new Env('美团15');
 '''
 
 import time,datetime,requests,os,json,execjs
