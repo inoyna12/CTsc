@@ -17,7 +17,7 @@ endtime='10:00:02.000'
 couponReferId = 'DBFA760914E34AFF9D8B158A7BC4D706'
 url = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/fetchcoupon?couponReferId={couponReferId}&actualLng=120.64517&actualLat=31.13914&geoType=2&gdPageId=306477&pageId=306004&version=1&utmSource=&utmCampaign=&instanceId=16620226080900.11717750606071209&componentId=16620226080900.11717750606071209'
 
-def mtgsig():
+def mtgsigs():
     js_code = open('utils/mt.js', 'r', encoding='utf-8').read()
     data = {"cType": "mtandroid", "fpPlatform": 4, "wxOpenId": "", "appVersion": "12.9.404"}
     js = execjs.compile(js_code)
@@ -47,13 +47,13 @@ def mtgsig():
     return Cookie, mtgsig, data
 
 def mt30_15():
-    Cookie, data = mtgsig()
+    Cookie, mtgsig, data = mtgsigs()
     headers = {
         'Connection': 'keep-alive',
         'Content-Length': '2700',
         'Accept': 'application/json, text/plain, */*',
         'Origin': 'https://market.waimai.meituan.com',
-        'mtgsig': '',
+        'mtgsig': mtgsig,
         'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212d Build/SKQ1.220303.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36',
         'Content-Type': 'application/json',
         'Referer': 'https://market.waimai.meituan.com/',
