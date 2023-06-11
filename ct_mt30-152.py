@@ -6,7 +6,7 @@ new Env('美团152');
 import time,datetime,requests,os,json,execjs
 #from sendNotify import send
 #from os import environ
-from utils.ql_api import get_envs, disable_env, post_envs, put_envs
+#from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 
 
 #开始抢兑时间
@@ -97,8 +97,8 @@ def mt30_15():
             print(now, result['msg'])
         if now > endtime:
             print(now, "结束循环")
-            u_token = get_envs("meituanck")
-            put_envs(u_token[0].get('id'), u_token[0].get('name'), Cookie, '美团 ' + now)
+       #     u_token = get_envs("meituanck")
+      #      put_envs(u_token[0].get('id'), u_token[0].get('name'), Cookie, '美团 ' + now)
             break
         
 if __name__ == '__main__':
