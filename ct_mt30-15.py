@@ -42,8 +42,9 @@ def mtgsig():
     r = js.call("signReq", req, now)
 #    print(r)
     Cookie = r['headers']['Cookie']
-    data = r['data']
-    return Cookie, data
+    mtgsig = r['headers']['mtgsig'] 
+    data = r['data'] 
+    return Cookie, mtgsig, data
 
 def mt30_15():
     Cookie, data = mtgsig()
