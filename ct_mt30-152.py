@@ -87,7 +87,7 @@ def mt30_15():
         'X-Requested-With': 'mark.via',
     }
     Jin = Sxin(Cookie)
-    print(Cookie, data, Jin, "\n刷新参数成功")
+    print(Cookie, data, "\n刷新参数成功")
     print("正在等待领券时间，请勿终止退出...")
     while True:
         now = datetime.datetime.now().strftime('%H:%M:%S.%f')[:-3]
