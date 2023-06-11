@@ -60,9 +60,10 @@ def Sxin(Cookie):
         "Sec-Fetch-Mode":"navigate", 
         "Sec-Fetch-User":"?1", 
         "Sec-Fetch-Dest":"document", 
-        "Accept-Encoding":"gzip, deflate, br",  "Accept-Language":"zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7", 
+                "Accept-Encoding":"gzip, deflate, br", 
+         "Accept-Language":"zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7", 
          "Cookie":Cookie 
-     } 
+     }
      response = requests.get(url, headers=headers) 
      result = response.json() 
      print(result)
