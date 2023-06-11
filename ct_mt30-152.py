@@ -20,7 +20,7 @@ couponReferId = 'F6CFF2A35BD94F49BDEE0CC6F7CF9FE4'
 url = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/fetchcoupon?couponReferId={couponReferId}&actualLng=120.64517&actualLat=31.13914&geoType=2&gdPageId=306477&pageId=306004&version=1&utmSource=&utmCampaign=&instanceId=16620226080900.11717750606071209&componentId=16620226080900.11717750606071209'
 
 
-def mtgsig():
+def mtgsigs():
     js_code = open('utils/mt.js', 'r', encoding='utf-8').read()
     data = {"cType": "mtandroid", "fpPlatform": 4, "wxOpenId": "", "appVersion": "12.9.404"}
     js = execjs.compile(js_code)
@@ -72,7 +72,7 @@ def Sxin(Cookie):
     print(result)
 
 def mt30_15():
-    Cookie, mtgsig, data = mtgsig()
+    Cookie, mtgsig, data = mtgsigs()
     headers = {
         'Connection': 'keep-alive',
         'Content-Length': '2764',
