@@ -18,6 +18,7 @@ endtime='16:00:02.000'
 
 couponReferId = 'F6CFF2A35BD94F49BDEE0CC6F7CF9FE4'
 url = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/fetchcoupon?couponReferId={couponReferId}&actualLng=120.64517&actualLat=31.13914&geoType=2&gdPageId=306477&pageId=306004&version=1&utmSource=&utmCampaign=&instanceId=16620226080900.11717750606071209&componentId=16620226080900.11717750606071209'
+url2 = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/info?couponReferIds={couponReferId}'
 
 def mtgsig():
     js_code = open('utils/mt.js', 'r', encoding='utf-8').read()
@@ -64,6 +65,7 @@ def mt30_15():
         'X-Requested-With': 'mark.via',
     }
     print(Cookie, data, "\n刷新参数成功")
+    print(requests.get(url2, headers=headers).text)
     print("正在等待领券时间，请勿终止退出...")
     while True:
         now = datetime.datetime.now().strftime('%H:%M:%S.%f')[:-3]
