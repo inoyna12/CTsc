@@ -45,8 +45,9 @@ def mtgsig():
     r = js.call("signReq", req, now)
 #    print(r)
     Cookie = r['headers']['Cookie']
+    mtgsig = r['headers']['mtgsig']
     data = r['data']
-    return Cookie, data
+    return Cookie, mtgsig, data
 
 def Sxin(Cookie):
     url = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/info?couponReferIds={couponReferId}'
@@ -71,13 +72,13 @@ def Sxin(Cookie):
     print(result)
 
 def mt30_15():
-    Cookie, data = mtgsig()
+    Cookie, mtgsig, data = mtgsig()
     headers = {
         'Connection': 'keep-alive',
         'Content-Length': '2764',
         'Accept': 'application/json, text/plain, */*',
         'Origin': 'https://market.waimai.meituan.com',
-        'mtgsig': '',
+        'mtgsig': mtgsig,
         'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212d Build/SKQ1.220303.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36',
         'Content-Type': 'application/json',
         'Referer': 'https://market.waimai.meituan.com/',
@@ -97,8 +98,8 @@ def mt30_15():
             print(now, result['msg'])
         if now > endtime:
             print(now, "结束循环")
-       #     u_token = get_envs("meituanck")
-      #      put_envs(u_token[0].get('id'), u_token[0].get('name'), Cookie, '美团 ' + now)
+            u_token = get_envs("meituanck")
+            put_envs(u_token[0].get('id'), u_token[0].get('name'), Cookie, '美团 ' + now)
             break
         
 if __name__ == '__main__':
