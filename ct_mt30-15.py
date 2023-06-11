@@ -12,7 +12,7 @@ from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 #开始抢兑时间
 starttime='09:59:59.000'
 #结束时间
-endtime='10:00:03.000'
+endtime='10:00:02.000'
 
 couponReferId = 'DBFA760914E34AFF9D8B158A7BC4D706'
 url = f'https://promotion.waimai.meituan.com/lottery/limitcouponcomponent/fetchcoupon?couponReferId={couponReferId}&actualLng=120.64517&actualLat=31.13914&geoType=2&gdPageId=306477&pageId=306004&version=1&utmSource=&utmCampaign=&instanceId=16620226080900.11717750606071209&componentId=16620226080900.11717750606071209'
