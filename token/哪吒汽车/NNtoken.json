@@ -1,1 +1,18 @@
-1
+{
+    "name": "NNtoken.json",
+    "path": "token/\u54ea\u5412\u6c7d\u8f66/NNtoken.json",
+    "sha": "d00491fd7e5bb6fa28c517a0bb32b8b506539d4d",
+    "size": 2,
+    "url": "https://api.github.com/repos/inoyna12/CTsc/contents/token/%E5%93%AA%E5%90%92%E6%B1%BD%E8%BD%A6/NNtoken.json?ref=master",
+    "html_url": "https://github.com/inoyna12/CTsc/blob/master/token/%E5%93%AA%E5%90%92%E6%B1%BD%E8%BD%A6/NNtoken.json",
+    "git_url": "https://api.github.com/repos/inoyna12/CTsc/git/blobs/d00491fd7e5bb6fa28c517a0bb32b8b506539d4d",
+    "download_url": "https://raw.githubusercontent.com/inoyna12/CTsc/master/token/%E5%93%AA%E5%90%92%E6%B1%BD%E8%BD%A6/NNtoken.json?token=AUVYANSXZJ2WK2JJCITJK23EQ6BZ4",
+    "type": "file",
+    "content": "MQo=\n",
+    "encoding": "base64",
+    "_links": {
+        "self": "https://api.github.com/repos/inoyna12/CTsc/contents/token/%E5%93%AA%E5%90%92%E6%B1%BD%E8%BD%A6/NNtoken.json?ref=master",
+        "git": "https://api.github.com/repos/inoyna12/CTsc/git/blobs/d00491fd7e5bb6fa28c517a0bb32b8b506539d4d",
+        "html": "https://github.com/inoyna12/CTsc/blob/master/token/%E5%93%AA%E5%90%92%E6%B1%BD%E8%BD%A6/NNtoken.json"
+    }
+}
