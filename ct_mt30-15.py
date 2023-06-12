@@ -64,9 +64,9 @@ def Sxin(Cookie):
         "Accept-Language":"zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7", 
         "Cookie":Cookie 
     }
-        response = requests.get(url, headers=headers) 
-        result = response.json() 
-        print(result)
+    response = requests.get(url, headers=headers) 
+    result = response.json() 
+    print(result)
 
 
 def mt30_15():
