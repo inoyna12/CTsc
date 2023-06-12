@@ -6,7 +6,7 @@ new Env('美团152');
 import time,datetime,requests,os,json,execjs
 #from sendNotify import send
 #from os import environ
-#from utils.ql_api import get_envs, disable_env, post_envs, put_envs
+from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 
 
 #开始抢兑时间
