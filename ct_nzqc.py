@@ -670,6 +670,6 @@ if __name__ == '__main__':
             random_sleep(60, 200)
 #    print(msg)
     msg += ql_env_put(env_name, token_list, title_name)
-    msg += update_github_file(f"token/{title_name}/{env_name}.txt", token_list)
+    msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
     send(title_name, msg)
