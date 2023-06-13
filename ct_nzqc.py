@@ -630,8 +630,8 @@ def ql_env_put(name, data, Remarks=None):
     if fetch_env:
         put_envs(fetch_env[0].get('id'), fetch_env[0].get('name'), data, Remarks)
         fetch2_env = get_envs(name)
-        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp')
-        print(str_time)
+        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp') + "\n"
+
         return str_time
     else:
         print(f"未找到 {name} 变量")
