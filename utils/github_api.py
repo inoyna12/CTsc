@@ -39,11 +39,11 @@ def update_github_file(
         }
         response = requests.put(create_url, headers=headers, json=payload)
         if response.status_code == 201:
-            msg = f"{file_path} 文件创建成功"
+            msg = f"{file_path} 文件创建成功\n"
         else:
             print(response.text)
-            msg = f"{file_path} 文件创建失败"
-        print(msg)
+            msg = f"{file_path} 文件创建失败\n"
+
         return msg
         
     data = response.json()
@@ -60,9 +60,9 @@ def update_github_file(
 
     # 打印结果
     if response.status_code == 200:
-        msg = f"{file_path} 文件更新成功"
+        msg = f"{file_path} 文件更新成功\n"
     else:
         print(response.text)
-        msg = f"{file_path} 文件更新失败"
-    print(msg)
+        msg = f"{file_path} 文件更新失败\n"
+
     return msg
