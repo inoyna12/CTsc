@@ -86,7 +86,7 @@ def Phone(token):
         mobile = result['data']['mobile']
         Mobile = mobile[:3] + "****" + mobile[7:]
         gdou = Gdou(token)
-        Mobile_data = f"{mobile}：{gdou}G豆\n"
+        Mobile_data = f"{Mobile}：{gdou}G豆\n"
         print(Mobile_data)
         return Mobile_data, mobile
     elif result['errorCode'] != '200':
