@@ -454,6 +454,6 @@ if __name__ == '__main__':
             msg += "token失效或脚本待更新\n" 
         index += 1
         if index < len(quantity):
-            random_sleep(20, 60)
+            random_sleep(20, 40)
 #    print(msg)
     send('福域', msg)
