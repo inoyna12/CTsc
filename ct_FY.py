@@ -278,6 +278,7 @@ def myPostsList():
 
 def recommendPosts():
     print("【爬取推荐帖子】")
+    random_sleep(2, 5)
     timestamp = (int(time.time() * 1000))
     letters = get_random_letters()
     content = '{"pageNo":1,"pageSize":20,"queryParams":{"type":1,"viewType":1}}'
@@ -453,6 +454,6 @@ if __name__ == '__main__':
             msg += "token失效或脚本待更新\n" 
         index += 1
         if index < len(quantity):
-            random_sleep(30, 60)
+            random_sleep(20, 60)
 #    print(msg)
     send('福域', msg)
