@@ -675,7 +675,7 @@ if __name__ == '__main__':
             msg += "token失效或脚本待更新\n"
         index += 1
         if index < len(quantity):
-            random_sleep(60, 200)
+            random_sleep(1, 200)
 #    print(msg)
     msg += ql_env_put(env_name, token_list, title_name)
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
