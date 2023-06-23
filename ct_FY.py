@@ -17,6 +17,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from sendNotify import send
 from os import environ
+from utils.github_api import update_github_file
 
 contents_list = ["666", "不错", "不错不错", "无与伦比", "羡慕了", "真好啊", "真好", "赞一个", "6666666", "不错点赞", "不错哦", "支持一下", "说得好", "棒棒哒", "加油加油", "真的强", "真的很不错哦"]
 
@@ -256,7 +257,7 @@ def myInfo():
     totalIntegral = result_data['ext']['totalIntegral']
     Phone_totalIntegral = f"{Phone}：{totalIntegral}福币\n"
     print(Phone_totalIntegral)
-    return Phone_totalIntegral
+    return Phone_totalIntegral, result_data['phone']
 
 def myPostsList():
     print("【查询自己帖子ID】")
@@ -417,9 +418,9 @@ def decrypt_data(data, timestamp, letters):#aes解密
     decrypted_data = json.loads(decrypted_str)
     return decrypted_data
     
-def ql_env():
-    if "FYtoken" in os.environ:
-        token_list = os.environ['FYtoken'].split('\n')
+def ql_env(name):
+    if name in os.environ:
+        token_list = os.environ[name].split('\n')
         if len(token_list) > 0:
             return token_list
         else:
@@ -430,7 +431,11 @@ def ql_env():
         sys.exit(0)
 
 if __name__ == '__main__':
+    env_name = "FYtoken"#变量名
+    title_name = '福域'
     msg = ""
+    token_list = ""
+    phone_list = ""
     index = 0
     quantity = ql_env()
     print (f"共找到{len(quantity)}个账号")
@@ -448,12 +453,20 @@ if __name__ == '__main__':
             luckDraw()
             delete()
             getAllTasks()
-            msg += myInfo()
+            info = myInfo()
+            msg += info[0]
+            if len(token_list) > 0 and len(phone_list) > 0:
+                token_list += '\n' + token
+                phone_list += '\n' + info[1]
+            else:
+                token_list += token
+                phone_list += info[1]
             print(f"第{index + 1}个账号运行完成\n")
         else:
             msg += "token失效或脚本待更新\n" 
         index += 1
         if index < len(quantity):
             random_sleep(20, 40)
-#    print(msg)
-    send('福域', msg)
+    msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
+    msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
+    send(title_name, msg)
