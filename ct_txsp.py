@@ -23,6 +23,7 @@ def qiandao(cookie):
         }
         response = requests.get(url,headers=headers)
         result = response.json()
+        print(result)
         if result['ret'] == 0: 
             check_in_score = result['check_in_score']
             msg += f"签到获得成长值: {check_in_score}\n"
