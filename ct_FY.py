@@ -437,7 +437,7 @@ if __name__ == '__main__':
     token_list = ""
     phone_list = ""
     index = 0
-    quantity = ql_env()
+    quantity = ql_env(name)
     print (f"共找到{len(quantity)}个账号")
     for token in quantity:
         userid = token.split(':')[3]
