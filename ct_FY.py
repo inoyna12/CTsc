@@ -36,7 +36,7 @@ def headers_new(content, timestamp, letters):
         'operatorName': 'yd',
         'networkState': 'mobile',
         'token': token,
-        'osVersion': '12',
+#        'osVersion': '12',
         'seccode': seccode,
         'model': '22081212C',
         'brand': 'Xiaomi',
@@ -45,7 +45,7 @@ def headers_new(content, timestamp, letters):
         'Content-Type': 'application/json',
         'Host': 'evosapi.changanford.cn',
         'Connection': 'Keep-Alive',
-        'Accept-Encoding': 'gzip',
+#        'Accept-Encoding': 'gzip',
         'User-Agent': 'ford-evos',
     }
     return headers, data
