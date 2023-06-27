@@ -36,7 +36,7 @@ def headers_new(content, timestamp, letters):
         'operatorName': 'yd',
         'networkState': 'mobile',
         'token': token,
-#        'osVersion': '12',
+        'osVersion': '12',
         'seccode': seccode,
         'model': '22081212C',
         'brand': 'Xiaomi',
@@ -44,7 +44,7 @@ def headers_new(content, timestamp, letters):
         'codelab': 'codelabs',
         'Content-Type': 'application/json',
         'Host': 'evosapi.changanford.cn',
-        'Connection': 'Keep-Alive',
+#        'Connection': 'Keep-Alive',
 #        'Accept-Encoding': 'gzip',
         'User-Agent': 'ford-evos',
     }
