@@ -56,7 +56,13 @@ def activate():
     content = '{"pageNo":1,"pageSize":20}'
     url = 'https://evosapi.changanford.cn/con/recommend/list'
     headers, data = headers_new(content, timestamp, letters)
-    response = requests.post(url=url, headers=headers, data=data)
+    for i in range(3):
+        try:
+            response = requests.post(url=url, headers=headers, data=data, timeout=5)
+            break
+        except requests.exceptions.Timeout:
+            print(f"第 {i + 1} 次请求超时") 
+            random_sleep(10, 20)
     result = response.json()
 #    print(result)
     return result['msg']
@@ -279,13 +285,18 @@ def myPostsList():
 
 def recommendPosts():
     print("【爬取推荐帖子】")
-    random_sleep(2, 5)
     timestamp = (int(time.time() * 1000))
     letters = get_random_letters()
     content = '{"pageNo":1,"pageSize":20,"queryParams":{"type":1,"viewType":1}}'
     url = 'https://evosapi.changanford.cn/con/community/recommendPosts'
     headers, data = headers_new(content, timestamp, letters)
-    response = requests.post(url=url, headers=headers, data=data)
+    for i in range(3):
+        try:
+            response = requests.post(url=url, headers=headers, data=data, timeout=5)
+            break
+        except requests.exceptions.Timeout:
+            print(f"第 {i + 1} 次请求超时") 
+            random_sleep(10, 20)
     result = response.json()
     result_data = decrypt_data(result['data'], timestamp, letters)
 #    print(result_data)
