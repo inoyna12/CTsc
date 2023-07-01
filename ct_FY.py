@@ -51,18 +51,18 @@ def headers_new(content, timestamp, letters):
     return headers, data
  
 def activate():
-    timestamp = (int(time.time() * 1000))
-    letters = get_random_letters()
-    content = '{"pageNo":1,"pageSize":20}'
-    url = 'https://evosapi.changanford.cn/con/recommend/list'
-    headers, data = headers_new(content, timestamp, letters)
-    for i in range(3):
+    for i in range(5):
+        timestamp = (int(time.time() * 1000))
+        letters = get_random_letters()
+        content = '{"pageNo":1,"pageSize":20}'
+        url = 'https://evosapi.changanford.cn/con/recommend/list'
+        headers, data = headers_new(content, timestamp, letters)
         try:
-            response = requests.post(url=url, headers=headers, data=data, timeout=5)
+            response = requests.post(url=url, headers=headers, data=data, timeout=10)
             break
         except requests.exceptions.Timeout:
             print(f"第 {i + 1} 次请求超时") 
-            random_sleep(10, 20)
+            random_sleep(60, 120)
     result = response.json()
 #    print(result)
     return result['msg']
