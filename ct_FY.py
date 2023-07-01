@@ -62,6 +62,9 @@ def activate():
             break
         except requests.exceptions.Timeout:
             print(f"第 {i + 1} 次请求超时") 
+        except requests.exceptions.RequestException as e:
+            # 其他异常处理代码
+            print("请求发生错误:", e)
             random_sleep(60, 120)
     result = response.json()
 #    print(result)
