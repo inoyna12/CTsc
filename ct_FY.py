@@ -461,7 +461,7 @@ if __name__ == '__main__':
             callback_post()
             callback_information()
             addComment()
-            luckDraw()
+#活动结束            luckDraw()
             delete()
             getAllTasks()
             info = myInfo()
