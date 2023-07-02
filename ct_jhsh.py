@@ -33,17 +33,17 @@ def sign():
     response = requests.post(url=url, headers = headers, json = json)
     result = response.json()
     print(result)
-        if result['errMsg'] == None:
-            msgs += f"{Phones}：签到成功！\n"
-            if result['data']['IS_AWARD'] == 1:
-                COUP_TITLE = result['data']['COUP_TITLE']#获得奖励
-                COUP_SUB_TITLE = result['data']['COUP_SUB_TITLE']#满多少可用
-                msgs += f"获得：{COUP_TITLE}，{COUP_SUB_TITLE}\n"  
-            NEST_AWARD_DAY = result['data']['NEST_AWARD_DAY']#剩余天数
-            SIGN_TIPS = result['data']['SIGN_TIPS']#可获得奖励
-            msgs += f"再签到{NEST_AWARD_DAY}天获得{SIGN_TIPS}\n\n" 
-        else:
-            msgs += f"{Phones}：{result['errMsg']}\n\n"
+    if result['errMsg'] == None:
+        msgs += f"{Phones}：签到成功！\n"
+        if result['data']['IS_AWARD'] == 1:
+            COUP_TITLE = result['data']['COUP_TITLE']#获得奖励
+            COUP_SUB_TITLE = result['data']['COUP_SUB_TITLE']#满多少可用
+            msgs += f"获得：{COUP_TITLE}，{COUP_SUB_TITLE}\n"  
+        NEST_AWARD_DAY = result['data']['NEST_AWARD_DAY']#剩余天数
+        SIGN_TIPS = result['data']['SIGN_TIPS']#可获得奖励
+        msgs += f"再签到{NEST_AWARD_DAY}天获得{SIGN_TIPS}\n\n" 
+    else:
+        msgs += f"{Phones}：{result['errMsg']}\n\n"
     return msgs
 
 def get_act_id(MEB_ID):
@@ -83,7 +83,7 @@ def ql_env():
         sys.exit(0)
 
 if __name__ == '__main__':
-    env_name = "jhshID"
+    env_name = "jhshID"#变量名
     title_name = '建行生活'
     msg = ""
     index = 0
