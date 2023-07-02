@@ -70,9 +70,9 @@ def random_sleep(min_val, max_val):
     print(f"等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
 
-def ql_env():
-    if env_name in os.environ:
-        token_list = os.environ[env_name].split('\n')
+def ql_env(name):
+    if name in os.environ:
+        token_list = os.environ[name].split('\n')
         if len(token_list) > 0:
             return token_list
         else:
