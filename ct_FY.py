@@ -51,14 +51,14 @@ def headers_new(content, timestamp, letters):
     return headers, data
  
 def activate():
-    for i in range(5):
+    for i in range(10):
         timestamp = (int(time.time() * 1000))
         letters = get_random_letters()
         content = '{"pageNo":1,"pageSize":20}'
         url = 'https://evosapi.changanford.cn/con/recommend/list'
         headers, data = headers_new(content, timestamp, letters)
         try:
-            response = requests.post(url=url, headers=headers, data=data, timeout=10)
+            response = requests.post(url=url, headers=headers, data=data, timeout=5)
             break
         except requests.exceptions.Timeout:
             print(f"第 {i + 1} 次请求超时") 
@@ -288,18 +288,21 @@ def myPostsList():
 
 def recommendPosts():
     print("【爬取推荐帖子】")
-    timestamp = (int(time.time() * 1000))
-    letters = get_random_letters()
-    content = '{"pageNo":1,"pageSize":20,"queryParams":{"type":1,"viewType":1}}'
-    url = 'https://evosapi.changanford.cn/con/community/recommendPosts'
-    headers, data = headers_new(content, timestamp, letters)
-    for i in range(3):
-        try:
+    for i in range(10):
+        try:  
+            timestamp = (int(time.time() * 1000))
+            letters = get_random_letters()
+            content = '{"pageNo":1,"pageSize":20,"queryParams":{"type":1,"viewType":1}}'
+            url = 'https://evosapi.changanford.cn/con/community/recommendPosts'
+            headers, data = headers_new(content, timestamp, letters)
             response = requests.post(url=url, headers=headers, data=data, timeout=5)
             break
         except requests.exceptions.Timeout:
             print(f"第 {i + 1} 次请求超时") 
-            random_sleep(10, 20)
+        except requests.exceptions.RequestException as e:
+            # 其他异常处理代码
+            print("请求发生错误:", e)
+            random_sleep(60, 100)
     result = response.json()
     result_data = decrypt_data(result['data'], timestamp, letters)
 #    print(result_data)
