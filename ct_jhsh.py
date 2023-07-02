@@ -25,7 +25,7 @@ def qiandao(Phone, MEB_ID, new_Phone):
             'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
         }
         json = {
-            'ACT_ID': '20230306090000000001',
+            'ACT_ID': '20230628070000000001',
             'MEB_ID': MEB_ID,
             'USR_TEL': Phone,
             'REGION_CODE': '320500',
@@ -35,8 +35,6 @@ def qiandao(Phone, MEB_ID, new_Phone):
         response = requests.post(url=url, headers = headers, json = json)
         result = response.json()
         print(result)
-        response_headers = response.headers
-        print(response_headers)
         if len(result['data']) > 0:
             msg += f"{new_Phone}：签到成功！\n"
             if result['data']['IS_AWARD'] == 1:
