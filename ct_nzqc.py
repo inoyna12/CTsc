@@ -226,49 +226,49 @@ def traversal_xiaoquan():
 def traversal_toutiao():
     print("【遍历头条翻页】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao'
-    nonce = random.randint(1000000000, 9999999999)
-    timestamp = str(int(time.time() * 1000))
-    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiao8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-    sign_sha256 = sha256_encode(sign)
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': '5.2.3',
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': f"{nonce}",
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': f"{timestamp}",
-        'sign': sign_sha256,
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization_new}",
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
     for i in range(3):
+        nonce = random.randint(1000000000, 9999999999)
+        timestamp = str(int(time.time() * 1000))
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiao8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        sign_sha256 = sha256_encode(sign)
+        headers = {
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': appKey,
+            'appVersion': '5.2.3',
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': f"{nonce}",
+            'phoneModel': 'Redmi 22081212C',
+            'timestamp': f"{timestamp}",
+            'sign': sign_sha256,
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {Authorization_new}",
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
+        }
         response = requests.get(url=url, headers=headers)
-        if response.status_code == 200:
+        result = response.json()
+        group_id_list = []
+        openId_id_list = []
+        for item in result['data']:
+            group_id_list.append(item['article']['groupId'])
+            openId_id_list.append(item['article']['openId'])
+        if len(group_id_list) > 0:
             break
         else:
-            print(f'请求失败，响应状态码为{response.status_code}')
-    result = response.json()
-#    print(result)
-    group_id_list = []
-    for item in result['data']:
-        group_id_list.append(item['article']['groupId'])
-    print(f"头条groupId列表：\n{group_id_list}\n")
-#    return group_id_list
-    openId_id_list = []
-    for item in result['data']:
-        openId_id_list.append(item['article']['openId'])
-    print(f"头条openId列表：\n{openId_id_list}\n")
-    return openId_id_list,group_id_list
+            send(title_name, f"账号{index + 1}：遍历头条翻页报错")
+            print(result)
+            random_sleep(10, 20)   
+    indexs = random.randint(0, len(openId_id_list)-1)#把随机序列号存入变量
+    openId = openId_id_list[indexs]
+    groupId = group_id_list[indexs]
+    print(f"帖子ID：{openId}，{groupId}")
+    return openId,groupId
     
 #爬头条评论
 def traversal_comment(openId, groupId):
     print("【遍历头条评论】")
-
     url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
     headers = {
         'Host': 'api.chehezhi.cn',
@@ -286,28 +286,26 @@ def traversal_comment(openId, groupId):
     }
     params = {
         'page': '1',
-        'pageSize': '100',
+        'pageSize': '100',#评论数量
         'groupId': groupId,
         'openId': openId,
         'generateType': 'ugc_api'
     }
-    for i in range(3):
-        response = requests.get(url=url, params=params, headers=headers)
-        if response.status_code == 200:
-            break
-        else:
-            print(f'请求失败，响应状态码为{response.status_code}')
+    response = requests.get(url=url, params=params, headers=headers)
     result = response.json()
 #    print(result)
     content_list = []
     for item in result['data']['rows']:
         content_list.append(item['content'])
-    print(f"评论列表：\n{content_list}\n")
+    content = random.choice(content_list)
+    
+    print(f"评论内容：{content}")
     if len(content_list) > 0:
-        return random.choice(content_list)
+        return content
     else:
-        print(f"获取评论出错：\n{result}\n")
-        return content_list
+        send(title_name, f"账号{index + 1}：遍历评论报错")
+        print(result)
+        random_sleep(10, 20) 
 
 #签到
 def sign():
@@ -417,7 +415,8 @@ def information():
 #评论帖子
 def insertArtComment():
     print("\n【【【【【【【评论】】】】】】】\n")
-    openId_id_list,group_id_list = traversal_toutiao()
+    openId, groupId = traversal_toutiao()
+    content = traversal_comment(openId, groupId)
     url = 'https://api.chehezhi.cn/hznz/app_article_comment/insertArtComment'
     headers = {
         'Host': 'api.chehezhi.cn',
@@ -435,16 +434,6 @@ def insertArtComment():
         'accept-encoding': 'gzip, deflate',
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     }
-    for i in range(3):
-        index = random.randint(0, len(openId_id_list)-1)#把随机序列号存入变量
-        openId = openId_id_list[index]
-        groupId = group_id_list[index]
-        content = traversal_comment(openId, groupId)
-        openId_id_list.pop(index)
-        group_id_list.pop(index)
-        if len(content) > 0:
-            break   
-    print(f"获取随机评论内容：{content}")
     data = {
         "content": content,
         "parentId": None,
