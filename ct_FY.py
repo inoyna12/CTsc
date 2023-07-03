@@ -65,7 +65,7 @@ def activate():
         except requests.exceptions.RequestException as e:
             # 其他异常处理代码
             print("请求发生错误:", e)
-            random_sleep(60, 120)
+        random_sleep(60, 120)
     result = response.json()
 #    print(result)
     return result['msg']
@@ -302,7 +302,7 @@ def recommendPosts():
         except requests.exceptions.RequestException as e:
             # 其他异常处理代码
             print("请求发生错误:", e)
-            random_sleep(60, 100)
+        random_sleep(60, 120)
     result = response.json()
     result_data = decrypt_data(result['data'], timestamp, letters)
 #    print(result_data)
