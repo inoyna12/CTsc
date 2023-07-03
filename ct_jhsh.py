@@ -33,7 +33,7 @@ def sign():
     response = requests.post(url=url, headers = headers, json = json)
     result = response.json()
     print(result)
-    if result['errMsg'] == None:
+    if result['errMsg'] == '':
         msgs += f"{Phones}：签到成功！\n"
         if result['data']['IS_AWARD'] == 1:
             COUP_TITLE = result['data']['COUP_TITLE']#获得奖励
