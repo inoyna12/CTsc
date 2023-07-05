@@ -291,7 +291,7 @@ def traversal_comment(openId, groupId):
     content_list = []
     for item in result['data']['rows']:
         content_list.append(item['content'])
-    print(f"评论列表：\n{content_list}")
+#    print(f"评论列表：\n{content_list}")
     if len(content_list) > 0:
         content = random.choice(content_list)
         print(f"评论内容：{content}")
