@@ -296,6 +296,9 @@ def traversal_comment(openId, groupId):
         content = random.choice(content_list)
         print(f"评论内容：{content}")
         return content
+    else:
+        print(result)
+        send("获取评论出错", f"账号{index + 1}")
 
 #签到
 def sign():
