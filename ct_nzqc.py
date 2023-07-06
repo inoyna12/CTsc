@@ -369,7 +369,7 @@ def Share_essay():
         message = f"{result['message']}\n"
     elif result['message'] == "转发成功" or "成功":
         message = "重复转发或当日任务已完成，未获得积分\n"
-    print(message)
+    print(result)
 
 #查询
 def information():
