@@ -329,48 +329,50 @@ def sign():
 #    print(result)
     print(result['message'])
   
-# 分享   
+# 转发  
 def Share_essay():
-    print("\n【【【【【【【分享】】】】】】】\n")
-    groupId = traversal_xiaoquan()#小圈板块
-    url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
-    nonce = random.randint(1000000000, 9999999999)
-    timestamp = str(int(time.time() * 1000))
-    sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-    sign_sha256 = sha256_encode(sign)
-    headers = {
-        'Accept': 'application/json',
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': '5.2.3',
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': f"{nonce}",
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': f"{timestamp}",
-        'sign': sign_sha256,
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization_new}",
-        'devicemac': '3e755c2e-1dc9-3f31-93e0-ecba7a567e1e',
-        'Content-Type': 'application/json',
-        'Content-Length': '48',
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    data = {
-        'articleId': random.choice(groupId),
-        'forwardTo': '1'
-    }
-    response = requests.put(url, headers=headers, json=data)
-    result = response.json()
-#        print(result)
-    if result['message'] == "转发成功，获得1积分":
-        message = f"{result['message']}\n"
-    elif result['message'] == "转发成功" or "成功":
-        message = "重复转发或当日任务已完成，未获得积分\n"
-    print(result)
-
+    print("\n【【【【【【【转发】】】】】】】\n")
+    groupId_list = traversal_xiaoquan()#小圈板块
+    for i in range(3):
+        groupId = groupId_list.pop(0)
+        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
+        nonce = random.randint(1000000000, 9999999999)
+        timestamp = str(int(time.time() * 1000))
+        sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        sign_sha256 = sha256_encode(sign)
+        headers = {
+            'Accept': 'application/json',
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': appKey,
+            'appVersion': '5.2.3',
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': f"{nonce}",
+            'phoneModel': 'Redmi 22081212C',
+            'timestamp': f"{timestamp}",
+            'sign': sign_sha256,
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {Authorization_new}",
+            'devicemac': '3e755c2e-1dc9-3f31-93e0-ecba7a567e1e',
+            'Content-Type': 'application/json',
+            'Content-Length': '48',
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
+        }
+        data = {
+            'articleId': groupId,
+            'forwardTo': '1'
+        }
+        response = requests.put(url, headers=headers, json=data)
+        result = response.json()
+        print(f"转发{groupId}：{result['message']}")
+        if result['message'] == "转发成功，获得1积分":
+            break
+        else:
+            send("转发", f"账号{index + 1}")
+            print(result)
+    
 #查询
 def information():
     print("\n【【【【【【【查询】】】】】】】\n")
@@ -408,7 +410,7 @@ def information():
 #评论帖子
 def insertArtComment():
     print("\n【【【【【【【评论】】】】】】】\n")
-    for i in range(10):
+    for i in range(3):
         if callable(traversal_toutiao):
             openId, groupId = traversal_toutiao()
             if callable(traversal_comment):
