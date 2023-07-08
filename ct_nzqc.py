@@ -378,6 +378,7 @@ def Share_essay():
         else:
             send("转发", f"账号{index + 1}")
             print(result)
+            random_sleep(20, 50)
     
 #查询
 def information():
