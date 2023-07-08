@@ -28,7 +28,7 @@ def headers_new(content, timestamp, letters):
     body = body_new(content)
     seccode = seccode_new(timestamp, letters)
     headers = {
-        'appVersion': '1.2.9',
+        'appVersion': '1.3.2',
         'os': 'Android',
         'loginChannel': 'baidu',
         'sign': sign,
@@ -92,9 +92,12 @@ def addPosts():
     headers, data = headers_new(content, timestamp, letters)
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json()
-#    print(result)
-    result_data = decrypt_data(result['data'], timestamp, letters)
-    print(result_data)
+    if result['msg'] == '操作成功':
+        result_data = decrypt_data(result['data'], timestamp, letters)
+        print(result_data)
+    else:
+        send("福域发帖", f"账号{index + 1}")
+        print(result)
 
 def actionLike():
     print("\n【【【【【【【点赞】】】】】】】\n")
@@ -179,7 +182,7 @@ def addComment():
             if i < 4:
                 random_sleep(2, 5)
     else:
-        print("请发帖后做此任务")
+        print("请发帖后做此任务\n", result)
 
 def luckDraw():
     print("\n【【【【【签到7天抽奖】】】】】\n")
