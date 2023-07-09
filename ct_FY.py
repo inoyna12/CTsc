@@ -61,14 +61,12 @@ def activate():
             response = requests.post(url=url, headers=headers, data=data, timeout=5)
             break
         except requests.exceptions.Timeout:
-            print(f"第 {i + 1} 次请求超时") 
+            print(f"第 {i + 1} 次请求超时")
+            random_sleep(60, 120)
         except requests.exceptions.RequestException as e:
             # 其他异常处理代码
             print("请求发生错误:", e)
         random_sleep(60, 120)
-    result = response.json()
-    print(result)
-    return result['msg']
 
 def signIn():
     print("\n【【【【【【【签到】】】】】】】\n")
@@ -80,6 +78,7 @@ def signIn():
     response = requests.post(url=url, headers=headers, data=data)
     result = response.json()
     print(result['msg'])
+    return result['msg']
 
 def addPosts():
     print("\n【【【【【【【发帖】】】】】】】\n")
@@ -462,9 +461,8 @@ if __name__ == '__main__':
     for token in quantity:
         userid = token.split(':')[3]
         print (f"------------正在执行第{index + 1}个账号----------------")
-#        msg += f"第{index + 1}个账号运行结果: \n"
-        if activate() == '操作成功':
-            signIn()
+        activate()
+        if signIn() =! '未授权':
             addPosts()
             actionLike()
             callback_post()
@@ -483,7 +481,7 @@ if __name__ == '__main__':
                 phone_list += info[1]
             print(f"第{index + 1}个账号运行完成\n")
         else:
-            msg += "token失效或脚本待更新\n" 
+            msg += f"账号{index + 1}：token失效\n" 
         index += 1
         if index < len(quantity):
             random_sleep(20, 40)
