@@ -462,7 +462,7 @@ if __name__ == '__main__':
         userid = token.split(':')[3]
         print (f"------------正在执行第{index + 1}个账号----------------")
         activate()
-        if signIn() =! '未授权':
+        if signIn() != '未授权':
             addPosts()
             actionLike()
             callback_post()
