@@ -82,21 +82,25 @@ def signIn():
 
 def addPosts():
     print("\n【【【【【【【发帖】】】】】】】\n")
-    timestamp = (int(time.time() * 1000))
-    letters = get_random_letters()
-    pics, title = recommendPosts_a()
-    print(f"\n封面：{pics}\n标题：{title}\n")
-    content = f'{{"actionCode":"community_post","content":"","imgUrl":[],"isPublish":2,"pics":"{pics}","plate":2,"tagIds":"","title":"{title}","type":4}}'
-    url = 'https://evosapi.changanford.cn/con/posts/addPosts'
-    headers, data = headers_new(content, timestamp, letters)
-    response = requests.post(url=url, headers=headers, data=data)
-    result = response.json()
-    if result['msg'] == '操作成功':
-        result_data = decrypt_data(result['data'], timestamp, letters)
-        print(result_data)
-    else:
-        send("福域发帖", f"账号{index + 1}")
-        print(result)
+    for i in range(3):
+        timestamp = (int(time.time() * 1000))
+        letters = get_random_letters()
+        pics, title = recommendPosts_a()
+        print(f"\n封面：{pics}\n标题：{title}\n")
+        content = f'{{"actionCode":"community_post","content":"","imgUrl":[],"isPublish":2,"pics":"{pics}","plate":2,"tagIds":"","title":"{title}","type":4}}'
+        url = 'https://evosapi.changanford.cn/con/posts/addPosts'
+        headers, data = headers_new(content, timestamp, letters)
+        response = requests.post(url=url, headers=headers, data=data)
+        result = response.json()
+        if result['msg'] == '操作成功':
+            break
+        else:
+            send("福域发帖", f"账号{index + 1}")
+            print(result)
+            random_sleep(20, 40)
+    result_data = decrypt_data(result['data'], timestamp, letters)
+    print(result_data)
+    
 
 def actionLike():
     print("\n【【【【【【【点赞】】】】】】】\n")
@@ -481,7 +485,10 @@ if __name__ == '__main__':
                 phone_list += info[1]
             print(f"第{index + 1}个账号运行完成\n")
         else:
-            msg += f"账号{index + 1}：token失效\n" 
+            msg2 = f"账号{index + 1}：token失效\n"
+            print(msg2)
+            msg += msg2
+            send(title_name, msg2)
         index += 1
         if index < len(quantity):
             random_sleep(20, 40)
