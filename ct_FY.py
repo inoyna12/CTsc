@@ -67,7 +67,7 @@ def activate():
             print("请求发生错误:", e)
         random_sleep(60, 120)
     result = response.json()
-#    print(result)
+    print(result)
     return result['msg']
 
 def signIn():
