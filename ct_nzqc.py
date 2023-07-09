@@ -410,10 +410,10 @@ def information():
             response = requests.get(url=url, headers=headers)
             response.raise_for_status()
             break
-            except requests.exceptions.RequestException as e:
-                print("请求失败:", e)
-                send("nz查询", f"账号{index + 1}")
-                random_sleep(20, 50)
+        except requests.exceptions.RequestException as e:
+            print("请求失败:", e)
+            send("nz查询", f"账号{index + 1}")
+            random_sleep(20, 50)
     result = response.json()
     creditScore = result['data']['creditScore']
     phone = result['data']['phone']
