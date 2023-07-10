@@ -126,32 +126,40 @@ def sha256_encode(string):
 
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    nonce = random.randint(1000000000, 9999999999)
-    timestamp = str(int(time.time() * 1000))
-    sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-    sign_sha256 = sha256_encode(sign)
-    headers = {
-        "Authorization": Authorization,
-        "appId": "HOZON-B-xKrgEvMt",
-        "appKey": appKey,
-        "appVersion": "5.2.3",
-        "login_channel": "1",
-        "channel": "android",
-        "nonce": f"{nonce}",
-        "phoneModel": "Redmi 22081212C",
-        "timestamp": f"{timestamp}",
-        "sign": sign_sha256,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Content-Length": "613",
-        "Host": "appapi-pki.chehezhi.cn:18443",
-        "Connection": "Keep-Alive",
-        "Accept-Encoding": "gzip",
-        "User-Agent": "okhttp/4.9.3"
-    }
-    data = {
-        "refreshToken": f"{Authorization}"
-    }
-    response = requests.post(url=url, headers=headers, data=data)
+    for i in range(5):
+        try:
+            nonce = random.randint(1000000000, 9999999999)
+            timestamp = str(int(time.time() * 1000))
+            sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+            sign_sha256 = sha256_encode(sign)
+            headers = {
+                "Authorization": Authorization,
+                "appId": "HOZON-B-xKrgEvMt",
+                "appKey": appKey,
+                "appVersion": "5.2.3",
+                "login_channel": "1",
+                "channel": "android",
+                "nonce": f"{nonce}",
+                "phoneModel": "Redmi 22081212C",
+                "timestamp": f"{timestamp}",
+                "sign": sign_sha256,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": "613",
+                "Host": "appapi-pki.chehezhi.cn:18443",
+                "Connection": "Keep-Alive",
+                "Accept-Encoding": "gzip",
+                "User-Agent": "okhttp/4.9.3"
+            }
+            data = {
+                "refreshToken": f"{Authorization}"
+            }
+            response = requests.post(url=url, headers=headers, data=data)
+            response.raise_for_status()
+            break
+        except requests.exceptions.RequestException as e:
+            print("请求失败:", e)
+            send("刷新Authorization失败", f"账号{index + 1}")
+            random_sleep(30, 60)
     result = response.json()
     if "code" in result and result['code'] == 20000:
         print("刷新Authorization成功")
@@ -161,6 +169,7 @@ def refresh_Authorization():
     else:
         print("刷新Authorization失败")
         print(result)
+        send("刷新Authorization失败", f"账号{index + 1}")
         return None
 
 #爬取小圈   
