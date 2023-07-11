@@ -348,7 +348,7 @@ def sign():
 def Share_essay():
     print("\n【【【【【【【转发】】】】】】】\n")
     groupId_list = traversal_xiaoquan()#小圈板块
-    for i in range(3):
+    for i in range(2):
         groupId = random.choice(groupId_list)
         groupId_list.remove(groupId)
         url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
@@ -388,7 +388,7 @@ def Share_essay():
         else:
             send("转发", f"账号{index + 1}")
             print(result)
-            random_sleep(20, 50)
+            random_sleep(40, 60)
     
 #查询
 def information():
