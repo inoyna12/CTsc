@@ -487,7 +487,6 @@ if __name__ == '__main__':
             msg2 = f"账号{index + 1}：token失效\n"
             print(msg2)
             msg += msg2
-            send(title_name, msg2)
         index += 1
         if index < len(quantity):
             random_sleep(20, 40)
