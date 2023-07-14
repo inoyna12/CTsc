@@ -176,57 +176,44 @@ def refresh_Authorization():
 def traversal_xiaoquan():
     print("【遍历首页小圈板块】")
     for i in range(3):
-        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#首页  
-    #    url2 = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=refresh&category=xiaoquan'#首页下滑刷新
-        nonce = random.randint(1000000000, 9999999999)
-        timestamp = str(int(time.time() * 1000))
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
-    #    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈翻页    
-    #    sign =f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Drefreshcategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#首页下滑刷新    
-        sign_sha256 = sha256_encode(sign)
-        headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
-            'appVersion': '5.2.3',
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': f"{nonce}",
-            'phoneModel': 'Redmi 22081212C',
-            'timestamp': f"{timestamp}",
-            'sign': sign_sha256,
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {Authorization_new}",
-            'Host': 'appapi-pki.chehezhi.cn:18443',
-            'Connection': 'Keep-Alive'
-        }
-        response = requests.get(url=url, headers=headers)
-        result = response.json()
-        articleSubType_list = []
-        group_id_list = []
-        url_imgs_list = []
-        createTime_list = []
-        title_list = []
-        content_list = []
-        for item in result['data']:
-            group_id_list.append(item['article']['groupId'])
-    #        articleSubType_list.append(item['volcExtra']['articleSubType'])  
-    #        url_imgs_list.append(item['volcExtra']['imgs'])
-    #        createTime_list.append(item['volcExtra']['createTime'])
-    #        title_list.append(item['article']['title'])
-    #        content_list.append(item['content'])
-        # print(f"Type列表(动态=1，文章=2)：\n{articleSubType_list}\n")
-        # print(f"groupId列表：\n{group_id_list}\n")
-        # print(f"url_imgs列表：\n{url_imgs_list}\n")
-        # print(f"发帖时间列表：\n{createTime_list}\n")
-        # print(f"标题列表：\n{title_list}\n")
-        # print(f"内容列表：\n{content_list}\n")
-        if len(group_id_list) > 2:
-            break
-        else:
-            print(result)
-            send("哪吒遍历首页小圈", f"账号{index + 1}")
-            random_sleep(20, 40)
+        try:
+            url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#首页
+            nonce = random.randint(1000000000, 9999999999)
+            timestamp = str(int(time.time() * 1000))
+            sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
+            sign_sha256 = sha256_encode(sign)
+            headers = {
+                'appId': 'HOZON-B-xKrgEvMt',
+                'appKey': appKey,
+                'appVersion': '5.2.3',
+                'login_channel': '1',
+                'channel': 'android',
+                'nonce': f"{nonce}",
+                'phoneModel': 'Redmi 22081212C',
+                'timestamp': f"{timestamp}",
+                'sign': sign_sha256,
+                'Accept-Language': 'zh-CN,zh;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+                'Authorization': f"Bearer {Authorization_new}",
+                'Host': 'appapi-pki.chehezhi.cn:18443',
+                'Connection': 'Keep-Alive'
+            }
+            response = requests.get(url=url, headers=headers)
+            response.raise_for_status()
+            result = response.json()
+            group_id_list = []
+            for item in result['data']:
+                group_id_list.append(item['article']['groupId'])
+            if len(group_id_list) > 2:
+                break
+            else:
+                print(result)
+                send("遍历首页小圈", f"账号{index + 1}")
+                random_sleep(30, 60)
+        except requests.exceptions.RequestException as e:
+            print("请求失败:", e)
+            send("遍历小圈失败", f"账号{index + 1}")
+            random_sleep(30, 60)
     return group_id_list
 
 #爬取头条翻页
