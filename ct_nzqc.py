@@ -20,99 +20,6 @@ from utils.github_api import update_github_file
 
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 
-#发布文章标题不能少于5个字
-#发布后审核中的文章动态会导致爬取小圈失败
-articleStatus = 1#不删除
-#articleStatus=2 审核通过
-#articleStatus=3 审核未通过
-#articleStatus=1 审核中
-
-#图片url
-img_url_list = [
-'https://netaprod-static.hozonauto.com/prod/20230517/16132798144353353.jpg', 
-'https://netaprod-static.hozonauto.com/prod/20230522/16514711515740895.jpg', 
-'https://netaprod-static.hozonauto.com/prod/20230521/16461068345723048.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230521/16461067622375569.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230521/16461153452870671.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230518/16189995439662051.png',
-'https://netaprod-static.hozonauto.com/f5/20230518/16166942859436635.png',
-'https://netaprod-static.hozonauto.com/f5/20230524/16707968178729987.png',
-'https://netaprod-static.hozonauto.com/f5/20230524/16707968226329724.png',
-'https://netaprod-static.hozonauto.com/prod/20230524/16707771648482323.JPEG',
-'https://netaprod-static.hozonauto.com/f5/20230524/16694422469325242.png',
-'https://netaprod-static.hozonauto.com/f5/20230524/16694422539069658.png',
-'https://netaprod-static.hozonauto.com/f5/20230524/16728853079399074.png',
-'https://netaprod-static.hozonauto.com/prod/20230524/16726654887463964.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230524/16725792513329671.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230524/16725792772811866.jpg',
-'https://netaprod-static.hozonauto.com/f4/20230525/16793187981771182.jpg',
-'https://netaprod-static.hozonauto.com/prod/20230525/16791266038117651.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230525/16772208898293088.JPEG',
-'https://netaprod-static.hozonauto.com/prod/20230521/16432907577221826.jpg',
-'https://netaprod-static.hozonauto.com/prod/20230525/16772269475936553.JPEG'
-]
-
-#标题
-title_list = [
-'开车出行，驾轻就熟',
-'驾车游玩，发现更多精彩',
-'行走大地，与开车为伴',
-'见证美好，从开车开始',
-'最美风景，都在开车路上',
-'开着车，放飞心情',
-'自由行走，开车是最佳出行方式',
-'驾车出行，拥抱生活的美好',
-'哪吒出行🚗',
-'出发，顺利🚗',
-'哪吒日常✨',
-'出门全靠哪吒',
-'开着哪吒去旅游',
-'出发啦🙏🏻🙏🏻🙏🏻',
-'哪吒汽车，让你的生活更美好',
-'智慧出行，从哪吒开始',
-'哪吒伴你，畅游城市',
-'分享美好生活，哪吒与你同行',
-'出发吧！和哪吒一起探索城市的美好',
-'选择哪吒，留下精彩的回忆',
-'品质生活，从哪吒开始',
-'简单出行，贴心哪吒',
-'未来智行，哪吒助你',
-'哪吒出行，畅游城市',
-'哪吒智能出行，新体验',
-'哪吒智造，品质出行',
-'哪吒共享，美好旅程',
-'哪吒智慧，安心出行'
-]
-
-#内容
-content_list = [
-'与哪吒同行，发现城市之美',
-'哪吒，开启城市出行的轻松模式'
-'开着我的哪吒，又是愉快的一天',
-'哪吒出行成本是真低',
-'舒服的天气，美丽的心情，美好的一天',
-'哪吒汽车丰富多彩',
-'谁懂啊，哪吒真好。',
-'哪吒车型布局还是那么的好看，双联平的设计，增添了车辆的科技感',
-'我带着哪吒一起溜',
-'哪吒车真是越看越喜欢',
-'沿途风景美如画',
-'开着哪吒每天在路上，心情真的不错呦',
-'快乐出行，畅享美好',
-'高性价比，哪吒值得拥有',
-'天气宜人，心情满满，出行无忧',
-'哪吒汽车多彩多姿，让你的出行更有趣',
-'哪吒，一种绝妙的选择',
-'科技感十足，哪吒汽车好评如潮',
-'哪吒陪伴左右，幸福始终相随',
-'哪吒车型设计感强，让你爱不释手',
-'美景相伴，哪吒出行视野开阔',
-'哪吒车上心情大好，驾驶更加愉快',
-'哪吒汽车：让你的出行不再单调，感受别样人生',
-'探索未知，迎接挑战，选择哪吒，开启新的出行旅程',
-'一辆哪吒汽车，让你享受不一样的生活品质与驾驶乐趣'
-]
-
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
     print(f"等待{num}秒后继续>>>>>>>>>>>")
@@ -252,57 +159,63 @@ def traversal_toutiao():
             break
         else:
             print(result)
-            print(f"group_id_list：\n{group_id_list}\nopenId_id_list：\n{openId_id_list}")
+            print(f"group_id_list：\n{group_id_list}")
+            print(f"openId_id_list：\n{openId_id_list}")
             send("哪吒遍历头条翻页", f"账号{index + 1}")
             random_sleep(20, 40)
-    indexs = random.randint(0, len(openId_id_list)-1)#把随机序列号存入变量
-    openId = openId_id_list[indexs]
-    groupId = group_id_list[indexs]
-    print(f"帖子ID：{openId}，{groupId}")
-    return openId,groupId
+    return openId_id_list, group_id_list
     
 #爬头条评论
-def traversal_comment(openId, groupId):
+def traversal_comment():
     print("【遍历头条评论】")
-    url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
-    headers = {
-        'Host': 'api.chehezhi.cn',
-        'accept': 'application/json, text/plain, */*',
-        'channel': 'h5',
-        'authorization': f"Bearer {Authorization_new}",
-        'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
-        'origin': 'https://hozon-h5-prod.hozonauto.com',
-        'x-requested-with': 'com.hezhong.nezha',
-        'sec-fetch-site': 'cross-site',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-dest': 'empty',
-        'accept-encoding': 'gzip, deflate',
-        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-    }
-    params = {
-        'page': '1',
-        'pageSize': '100',#评论数量
-        'groupId': groupId,
-        'openId': openId,
-        'generateType': 'ugc_api'
-    }
-    response = requests.get(url=url, params=params, headers=headers)
-    result = response.json()
-    content_list = []
-    for item in result['data']['rows']:
-        content_list.append(item['content'])
-#    print(f"评论列表：\n{content_list}")
-    if len(content_list) > 0:
-        content = random.choice(content_list)
-        print(f"评论内容：{content}")
-        return content
-    else:
-        print(result)
-        send("获取评论出错", f"账号{index + 1}")
+    openId_id_list, group_id_list = traversal_toutiao()
+    for i in range(3):
+        indexs = random.randint(0, len(openId_id_list)-1)
+        openId = openId_id_list[indexs]
+        groupId = group_id_list[indexs]
+        openId_id_list.remove(openId)
+        group_id_list.remove(groupId)
+        url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
+        headers = {
+            'Host': 'api.chehezhi.cn',
+            'accept': 'application/json, text/plain, */*',
+            'channel': 'h5',
+            'authorization': f"Bearer {Authorization_new}",
+            'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
+            'origin': 'https://hozon-h5-prod.hozonauto.com',
+            'x-requested-with': 'com.hezhong.nezha',
+            'sec-fetch-site': 'cross-site',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-dest': 'empty',
+            'accept-encoding': 'gzip, deflate',
+            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+        }
+        params = {
+            'page': '1',
+            'pageSize': '100',#评论数量
+            'groupId': groupId,
+            'openId': openId,
+            'generateType': 'ugc_api'
+        }
+        response = requests.get(url=url, params=params, headers=headers)
+        result = response.json()
+        content_list = []
+        for item in result['data']['rows']:
+            content_list.append(item['content'])
+        if len(content_list) > 0:
+            content = random.choice(content_list)
+            print(f"帖子ID：{openId}，{groupId}")
+            print(f"评论内容：{content}")
+            break
+        else:
+            print(result)
+            random_sleep(40, 60)
+            send("获取评论出错", f"账号{index + 1}")
+    return openId, groupId, content
 
 #签到
 def sign():
-    print("\n【【【【【【【签到】】】】】】】\n")
+    print("【【【【【【【签到】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
     nonce = random.randint(1000000000, 9999999999)
     timestamp = str(int(time.time() * 1000))
@@ -331,7 +244,7 @@ def sign():
   
 # 转发  
 def Share_essay():
-    print("\n【【【【【【【转发】】】】】】】\n")
+    print("【【【【【【【转发】】】】】】】")
     groupId_list = traversal_xiaoquan()#小圈板块
     for i in range(2):
         groupId = random.choice(groupId_list)
@@ -377,7 +290,7 @@ def Share_essay():
     
 #查询
 def information():
-    print("\n【【【【【【【查询】】】】】】】\n")
+    print("【【【【【【【查询】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
     for i in range(3):
         try:
@@ -418,9 +331,8 @@ def information():
 
 #评论帖子
 def insertArtComment():
-    print("\n【【【【【【【评论】】】】】】】\n")
-    openId, groupId = traversal_toutiao()
-    content = traversal_comment(openId, groupId)
+    print("【【【【【【【评论】】】】】】】")
+    openId, groupId, content = traversal_comment()
     url = 'https://api.chehezhi.cn/hznz/app_article_comment/insertArtComment'
     headers = {
         'Host': 'api.chehezhi.cn',
@@ -445,12 +357,10 @@ def insertArtComment():
         "groupId": groupId,
         "generateType": "ugc_api"
     }
-#        print(data)
     response = requests.post(url, headers=headers, json=data)
     result = response.json()
 #    print(result)
-    message = f"评论{openId}：{result['message']}\n"
-    print(message)
+    print(result['message'])
 
 #发布动态
 def addArticle_1():
