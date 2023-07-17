@@ -549,6 +549,7 @@ def ql_env_put(name, data, Remarks=None):
 
 if __name__ == '__main__':
     env_name = "NZtoken"#变量名
+    env_phone = "NZphone"#变量名
     title_name = '哪吒汽车'
     msg = ""
     token_list = ""
@@ -581,6 +582,7 @@ if __name__ == '__main__':
             random_sleep(1, 200)
 #    print(msg)
     msg += ql_env_put(env_name, token_list, title_name)
+    msg += ql_env_put(env_phone, phone_list, title_name)
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
     send(title_name, msg)
