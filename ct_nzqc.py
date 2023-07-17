@@ -1,6 +1,3 @@
-#抓取https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken中body里refreshToken值，多个换行隔开
-
-#10积分=1元
 '''
 cron: 36 9,12,14 * * *
 new Env('哪吒汽车');
@@ -207,6 +204,9 @@ def traversal_comment():
             print(f"帖子ID：{openId}，{groupId}")
             print(f"评论内容：{content}")
             break
+        elif len(content_list) == 0:
+            print("评论内容为空")
+            random_sleep(10, 20)
         else:
             print(result)
             random_sleep(40, 60)
@@ -557,7 +557,7 @@ if __name__ == '__main__':
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
     for Authorization in quantity:
-        print(f"------------正在执行第{index + 1}个账号----------------")
+        print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
         if func is not None:
             sign()
@@ -573,7 +573,7 @@ if __name__ == '__main__':
                 phone_list += '\n' + phones
             else:
                 phone_list += phones
-            print(f"第{index + 1}个账号运行完成\n")
+            print(f"第{index + 1}个账号运行完成")
         else:
             msg += "token失效或脚本待更新\n"
         index += 1
