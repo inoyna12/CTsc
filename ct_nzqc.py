@@ -205,8 +205,9 @@ def traversal_comment():
             print(f"评论内容：{content}")
             break
         elif len(content_list) == 0:
-            print("评论内容为空")
-            random_sleep(10, 20)
+            print("评论内容为空", '\n', result)
+            print(openId_id_list, '\n', group_id_list)
+            random_sleep(20, 40)
         else:
             print(result)
             random_sleep(40, 60)
@@ -278,15 +279,18 @@ def Share_essay():
             'articleId': groupId,
             'forwardTo': '1'
         }
-        response = requests.put(url, headers=headers, json=data)
-        result = response.json()
+        try:
+            response = requests.put(url, headers=headers, json=data)
+            result = response.json()
+        except Exception as e:
+            print("发生了异常:", str(e))
+            continue
         print(f"转发{groupId}：{result['message']}")
         if result['message'] == "转发成功，获得1积分":
             break
         else:
-            send("转发", f"账号{index + 1}")
             print(result)
-            random_sleep(40, 60)
+            random_sleep(20, 40)
     
 #查询
 def information():
