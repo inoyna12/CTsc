@@ -141,12 +141,13 @@ if __name__ == '__main__':
     Authorization_list = []
     msg = ''
     quantity1 = ql_env("NZmy_phone")
-    quantity2 = ql_env("NZtoken")
-    quantity3 = ql_env("NZphone")
+    quantity2 = ql_env("NZphone")
+    quantity3 = ql_env("NZtoken")
     if len(quantity2) != len(quantity3):
         print("变量列表数量不相等")
         exit() # 停止运行
     credentials = dict(zip(quantity2, quantity3))
+    print(credentials)
     for phone in quantity1:
         if phone in credentials:
             Authorization_list.append(credentials[phone])
