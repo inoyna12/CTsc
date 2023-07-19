@@ -176,9 +176,12 @@ def addComment():
             content = f'{{"bizId":"{bizId}","content":"{contents}","groupId":"","phoneModel":"22081212C","pid":"0"}}'
             url = 'https://evosapi.changanford.cn/con/posts/addComment'
             headers, data = headers_new(content, timestamp, letters)
-            response = requests.post(url=url, headers=headers, data=data)
-            result = response.json()
-        #    print(result)
+            try:
+                response = requests.post(url=url, headers=headers, data=data)
+                result = response.json()
+            except Exception as e:
+                print("发生了异常:", str(e))
+                continue
             result_data = decrypt_data(result['data'], timestamp, letters)
             print(f"评论帖子：{bizId}，内容：{contents}\n{result_data}")
             if i < 4:
