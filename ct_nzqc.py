@@ -72,7 +72,7 @@ def refresh_Authorization():
                 break
                 print("刷新Authorization成功")
                 global Authorization_new
-            Authorization_new = result['data']['access_token']
+                Authorization_new = result['data']['access_token']
                 return result['data']['refresh_token']
             else:
                 print("刷新Authorization失败")
