@@ -361,10 +361,19 @@ def insertArtComment():
         "groupId": groupId,
         "generateType": "ugc_api"
     }
-    response = requests.post(url, headers=headers, json=data)
-    result = response.json()
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+    except Exception as e:
+        print("其他异常:", e)
+    else:
+        print(result['message'])
 #    print(result)
-    print(result['message'])
 
 #发布动态
 def addArticle_1():
