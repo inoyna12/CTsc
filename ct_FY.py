@@ -113,8 +113,12 @@ def actionLike():
         content = f'{{"postsId":"{postsId}"}}'
         url = 'https://evosapi.changanford.cn/con/posts/actionLike'
         headers, data = headers_new(content, timestamp, letters)
-        response = requests.post(url=url, headers=headers, data=data)
-        result = response.json()
+        try:
+            response = requests.post(url=url, headers=headers, data=data)
+            result = response.json()
+        except Exception as e:
+            print("异常:", e)
+            continue
         print(f"点赞{postsId}：{result['msg']}")
         if '点赞成功' in result['msg']:
             success_count += 1
