@@ -23,6 +23,10 @@ def random_sleep(min_val, max_val):
     time.sleep(num)
     return num
 
+def generate_random_number():
+    random_number = ''.join(random.choices('0123456789', k=10))
+    return random_number
+
 def sha256_encode(string):
     hash_object = hashlib.sha256(string.encode('utf-8'))
     hex_dig = hash_object.hexdigest()
@@ -31,7 +35,7 @@ def sha256_encode(string):
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
     for i in range(5):
-        nonce = random.randint(1000000000, 9999999999)
+        nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
         sign_sha256 = sha256_encode(sign)
@@ -39,7 +43,7 @@ def refresh_Authorization():
             "Authorization": Authorization,
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": "5.2.3",
+            "appVersion": "5.4.2",
             "login_channel": "1",
             "channel": "android",
             "nonce": f"{nonce}",
@@ -86,14 +90,14 @@ def traversal_xiaoquan():
     for i in range(3):
         try:
             url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#首页
-            nonce = random.randint(1000000000, 9999999999)
+            nonce = generate_random_number()
             timestamp = str(int(time.time() * 1000))
             sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
             sign_sha256 = sha256_encode(sign)
             headers = {
                 'appId': 'HOZON-B-xKrgEvMt',
                 'appKey': appKey,
-                'appVersion': '5.2.3',
+                'appVersion': '5.4.2',
                 'login_channel': '1',
                 'channel': 'android',
                 'nonce': f"{nonce}",
@@ -129,14 +133,14 @@ def traversal_toutiao():
     print("【遍历头条翻页】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao'
     for i in range(3):
-        nonce = random.randint(1000000000, 9999999999)
+        nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiao8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
         sign_sha256 = sha256_encode(sign)
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.2.3',
+            'appVersion': '5.4.2',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -149,22 +153,32 @@ def traversal_toutiao():
             'Host': 'appapi-pki.chehezhi.cn:18443',
             'Connection': 'Keep-Alive'
         }
-        response = requests.get(url=url, headers=headers)
-        result = response.json()
-        group_id_list = []
-        openId_id_list = []
-        for item in result['data']:
-            group_id_list.append(item['article']['groupId'])
-            openId_id_list.append(item['article']['openId'])
-        if len(group_id_list) > 3:
-            break
+        try:
+            response = requests.get(url=url, headers=headers)
+            result = response.json()
+        except requests.exceptions.RequestException as e:
+            print("请求异常:", e)
+            random_sleep(10, 20)
+        except json.JSONDecodeError as e:
+            print("JSON 解码异常:", e)
+            random_sleep(10, 20)
+        except Exception as e:
+            print("其他异常:", e)
+            random_sleep(10, 20)
         else:
-            print(result)
-            print(f"group_id_list：\n{group_id_list}")
-            print(f"openId_id_list：\n{openId_id_list}")
-            send("哪吒遍历头条翻页", f"账号{index + 1}")
-            random_sleep(20, 40)
-    return openId_id_list, group_id_list
+            group_id_list = []
+            openId_id_list = []
+            for item in result['data']:
+                group_id_list.append(item['article']['groupId'])
+                openId_id_list.append(item['article']['openId'])
+            if len(group_id_list) > 3:
+                return openId_id_list, group_id_list
+            else:
+                print(result)
+                print(f"group_id_list：\n{group_id_list}")
+                print(f"openId_id_list：\n{openId_id_list}")
+                send("哪吒遍历头条翻页", f"账号{index + 1}")
+                random_sleep(20, 40)
     
 #爬头条评论
 def traversal_comment():
@@ -222,14 +236,14 @@ def traversal_comment():
 def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-    nonce = random.randint(1000000000, 9999999999)
+    nonce = generate_random_number()
     timestamp = str(int(time.time() * 1000))
     sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
     sign_sha256 = sha256_encode(sign)
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': '5.2.3',
+        'appVersion': '5.4.2',
         'login_channel': '1',
         'channel': 'android',
         'nonce': f"{nonce}",
@@ -242,10 +256,21 @@ def sign():
         'Host': 'appapi-pki.chehezhi.cn:18443',
         'Connection': 'Keep-Alive'
     }
-    response = requests.get(url=url, headers=headers)
-    result = response.json()
-#    print(result)
-    print(result['message'])
+    try:
+        response = requests.get(url=url, headers=headers)
+        response.raise_for_status()
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        print(result['message'])
   
 # 转发  
 def Share_essay():
@@ -255,7 +280,7 @@ def Share_essay():
         groupId = random.choice(groupId_list)
         groupId_list.remove(groupId)
         url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
-        nonce = random.randint(1000000000, 9999999999)
+        nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
         sign_sha256 = sha256_encode(sign)
@@ -263,7 +288,7 @@ def Share_essay():
             'Accept': 'application/json',
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.2.3',
+            'appVersion': '5.4.2',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -302,14 +327,14 @@ def information():
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
     for i in range(3):
         try:
-            nonce = random.randint(1000000000, 9999999999)
+            nonce = generate_random_number()
             timestamp = str(int(time.time() * 1000))
             sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
             sign_sha256 = sha256_encode(sign)
             headers = {
                 'appId': 'HOZON-B-xKrgEvMt',
                 'appKey': appKey,
-                'appVersion': '5.2.3',
+                'appVersion': '5.4.2',
                 'login_channel': '1',
                 'channel': 'android',
                 'nonce': f"{nonce}",
