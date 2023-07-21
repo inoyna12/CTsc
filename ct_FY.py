@@ -282,21 +282,31 @@ def myInfo():
 
 def myPostsList():
     print("【查询自己帖子ID】")
-    timestamp = (int(time.time() * 1000))
-    letters = get_random_letters()
-    content = f'{{"pageNo":1,"pageSize":"20","queryParams":{{"userId":"{userid}"}}}}'
-    url = 'https://evosapi.changanford.cn/con/posts/myPostsList'
-    headers, data = headers_new(content, timestamp, letters)
-    response = requests.post(url=url, headers=headers, data=data)
-    result = response.json()
-#    print(result)
-    result_data = decrypt_data(result['data'], timestamp, letters)
-#    print(result_data)
-    postsId_list = []
-    for item in result_data['dataList']:
-        postsId_list.append(item['postsId'])
-    print(postsId_list)
-    return postsId_list 
+    for i in range(5):
+        timestamp = (int(time.time() * 1000))
+        letters = get_random_letters()
+        content = f'{{"pageNo":1,"pageSize":"20","queryParams":{{"userId":"{userid}"}}}}'
+        url = 'https://evosapi.changanford.cn/con/posts/myPostsList'
+        headers, data = headers_new(content, timestamp, letters)
+        try:
+            response = requests.post(url=url, headers=headers, data=data)
+            result = response.json()
+            result_data = decrypt_data(result['data'], timestamp, letters)
+        except requests.exceptions.RequestException as e:
+            print("请求异常:", e)
+            random_sleep(10, 20)
+        except json.JSONDecodeError as e:
+            print("JSON 解码异常:", e)
+            random_sleep(10, 20)
+        except Exception as e:
+            print("其他异常:", e)
+            random_sleep(10, 20)
+        else:
+            postsId_list = []
+            for item in result_data['dataList']:
+                postsId_list.append(item['postsId'])
+            print(postsId_list)
+            return postsId_list 
 
 def recommendPosts():
     print("【爬取推荐帖子】")
