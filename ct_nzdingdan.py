@@ -109,9 +109,9 @@ def orderinfo():
         order_logistics = order['orderLogistics']  # 获取订单物流信息
         results += "商品名称：{}\n".format(order_item['spuName'])
         results += "收货地址：{}，{}，{}\n".format(order_logistics['userName'], order_logistics['telNum'], order_logistics['address'])
-        results += "订单状态：{}\n".format(order['statusDesc'])
+        results += "快递状态：{}\n".format(order['statusDesc'])
         results += "快递单号：{}\n".format(order_logistics['logisticsNo'])
-        results += "状态：{}\n\n".format(order_item['statusDesc'])
+        results += "订单状态：{}\n\n".format(order_item['statusDesc'])
     print(results)
     return results
 
