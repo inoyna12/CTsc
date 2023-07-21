@@ -147,7 +147,6 @@ if __name__ == '__main__':
         print("变量列表数量不相等")
         exit() # 停止运行
     credentials = dict(zip(quantity2, quantity3))
-    print(credentials)
     for phone in quantity1:
         if phone in credentials:
             Authorization_list.append(credentials[phone])
