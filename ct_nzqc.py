@@ -82,7 +82,7 @@ def refresh_Authorization():
                 print(result)
                 send("刷新Authorization失败", f"账号{index + 1}")
                 random_sleep(60, 80)
-    return None
+    return ''
 
 #爬取小圈   
 def traversal_xiaoquan():
@@ -131,7 +131,7 @@ def traversal_xiaoquan():
             else:
                 print(result)
                 random_sleep(20, 40)
-    return None
+    return []
     
 
 #爬取头条翻页
@@ -185,13 +185,13 @@ def traversal_toutiao():
                 print(f"openId_id_list：\n{openId_id_list}")
                 send("哪吒遍历头条翻页", f"账号{index + 1}")
                 random_sleep(20, 40)
-    return None
+    return []
     
 #爬头条评论
 def traversal_comment():
     print("【遍历头条评论】")
     openId_id_list, group_id_list = traversal_toutiao()
-    if openId_id_list != None:
+    if openId_id_list is not None:
         for i in range(3):
             indexs = random.randint(0, len(openId_id_list)-1)
             openId = openId_id_list[indexs]
@@ -242,8 +242,8 @@ def traversal_comment():
                     print("评论内容为空", '\n', result)
                     print(f"帖子ID：{openId}，{groupId}")
                     print(openId_id_list, '\n', group_id_list)
-                    random_sleep(20, 40)
-    return None
+                    random_sleep(60, 80)
+    return []
     
 
 #签到
@@ -290,7 +290,7 @@ def sign():
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
     groupId_list = traversal_xiaoquan()#小圈板块
-    if groupId_list != None:
+    if groupId_list is not None:
         for i in range(2):
             groupId = random.choice(groupId_list)
             groupId_list.remove(groupId)
@@ -350,7 +350,7 @@ def Share_essay():
 def information():
     print("【【【【【【【查询】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
-    for i in range(3):
+    for i in range(5):
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -393,13 +393,13 @@ def information():
             return msg, phone
     print(result)
     send("查询失败", f"账号{index + 1}")
-    return None
+    return ''
 
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
     openId, groupId, content = traversal_comment()
-    if content != None:
+    if content is not None:
         url = 'https://api.chehezhi.cn/hznz/app_article_comment/insertArtComment'
         headers = {
             'Host': 'api.chehezhi.cn',
