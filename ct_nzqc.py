@@ -59,7 +59,7 @@ def refresh_Authorization():
             "refreshToken": f"{Authorization}"
         }
         try:
-            response = requests.post(url=url, headers=headers, data=data)
+            response = requests.post(url=url, headers=headers, data=data, timeout=10)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.RequestException as e:
@@ -110,7 +110,7 @@ def traversal_xiaoquan():
             'Connection': 'Keep-Alive'
         }
         try:
-            response = requests.get(url=url, headers=headers)
+            response = requests.get(url=url, headers=headers, timeout=10)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.RequestException as e:
@@ -160,7 +160,7 @@ def traversal_toutiao():
             'Connection': 'Keep-Alive'
         }
         try:
-            response = requests.get(url=url, headers=headers)
+            response = requests.get(url=url, headers=headers, timeout=10)
             result = response.json()
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
@@ -217,7 +217,7 @@ def traversal_comment():
                 'generateType': 'ugc_api'
             }
             try:
-                response = requests.get(url=url, params=params, headers=headers)
+                response = requests.get(url=url, params=params, headers=headers, timeout=10)
                 response.raise_for_status()
                 result = response.json()
             except requests.exceptions.RequestException as e:
@@ -271,7 +271,7 @@ def sign():
         'Connection': 'Keep-Alive'
     }
     try:
-        response = requests.get(url=url, headers=headers)
+        response = requests.get(url=url, headers=headers, timeout=10)
         response.raise_for_status()
         result = response.json()
     except requests.exceptions.RequestException as e:
@@ -324,7 +324,7 @@ def Share_essay():
                 'forwardTo': '1'
             }
             try:
-                response = requests.put(url, headers=headers, json=data)
+                response = requests.put(url, headers=headers, json=data, timeout=10)
                 response.raise_for_status()
                 result = response.json()
             except requests.exceptions.RequestException as e:
@@ -372,7 +372,7 @@ def information():
             'Connection': 'Keep-Alive'
         }
         try:
-            response = requests.get(url=url, headers=headers)
+            response = requests.get(url=url, headers=headers, timeout=10)
             result = response.json()
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
@@ -421,7 +421,7 @@ def insertArtComment():
             "generateType": "ugc_api"
         }
         try:
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(url, headers=headers, json=data, timeout=10)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.RequestException as e:
