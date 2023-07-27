@@ -161,6 +161,7 @@ def traversal_toutiao():
         }
         try:
             response = requests.get(url=url, headers=headers, timeout=10)
+            response.raise_for_status()
             result = response.json()
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
