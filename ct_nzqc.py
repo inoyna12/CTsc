@@ -82,7 +82,7 @@ def refresh_Authorization():
                 print(result)
                 send("刷新Authorization失败", f"账号{index + 1}")
                 random_sleep(60, 80)
-    return ''
+    return None
 
 #爬取小圈   
 def traversal_xiaoquan():
@@ -186,13 +186,13 @@ def traversal_toutiao():
                 print(f"openId_id_list：\n{openId_id_list}")
                 send("哪吒遍历头条翻页", f"账号{index + 1}")
                 random_sleep(20, 40)
-    return []
+    return [],[]
     
 #爬头条评论
 def traversal_comment():
     print("【遍历头条评论】")
     openId_id_list, group_id_list = traversal_toutiao()
-    if openId_id_list is not None:
+    if len(openId_id_list) != 0:
         for i in range(3):
             indexs = random.randint(0, len(openId_id_list)-1)
             openId = openId_id_list[indexs]
@@ -244,7 +244,7 @@ def traversal_comment():
                     print(f"帖子ID：{openId}，{groupId}")
                     print(openId_id_list, '\n', group_id_list)
                     random_sleep(60, 80)
-    return []
+    return [],[],[]
     
 
 #签到
@@ -291,7 +291,7 @@ def sign():
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
     groupId_list = traversal_xiaoquan()#小圈板块
-    if groupId_list is not None:
+    if len(groupId_list) != 0:
         for i in range(2):
             groupId = random.choice(groupId_list)
             groupId_list.remove(groupId)
@@ -378,13 +378,13 @@ def information():
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
-            random_sleep(10, 20)
+            random_sleep(20, 40)
         except json.JSONDecodeError as e:
             print("JSON 解码异常:", e)
-            random_sleep(10, 20)
+            random_sleep(20, 40)
         except Exception as e:
             print("其他异常:", e)
-            random_sleep(10, 20)
+            random_sleep(20, 40)
         else:
             creditScore = result['data']['creditScore']
             phone = result['data']['phone']
@@ -400,7 +400,7 @@ def information():
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
     openId, groupId, content = traversal_comment()
-    if content is not None:
+    if len(content) != 0:
         url = 'https://api.chehezhi.cn/hznz/app_article_comment/insertArtComment'
         headers = {
             'Host': 'api.chehezhi.cn',
@@ -432,7 +432,7 @@ def insertArtComment():
         except Exception as e:
             print("其他异常:", e)
         else:
-            print("评论结果：", result['message'])
+            print(f"评论结果：{result['message']}")
     else:
         send("评论失败", f"账号{index + 1}")
 
