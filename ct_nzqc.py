@@ -88,10 +88,13 @@ def refresh_Authorization():
 def traversal_xiaoquan():
     print("【遍历首页小圈板块】")
     for i in range(3):
-        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#首页
+#        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#小圈首页
+        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=refresh&category=xiaoquan'#小圈下滑刷新
+        
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
+#        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Drefreshcategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈下滑刷新
         sign_sha256 = sha256_encode(sign)
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
@@ -133,7 +136,6 @@ def traversal_xiaoquan():
                 random_sleep(20, 40)
     return []
     
-
 #爬取头条翻页
 def traversal_toutiao():
     print("【遍历头条翻页】")
@@ -637,7 +639,7 @@ if __name__ == '__main__':
         if func is not None:
             sign()
             Share_essay()
-            insertArtComment()
+# 暂时关闭评论            insertArtComment()
             creditScore, phones = information()
             msg += creditScore
             if len(token_list) > 0:
