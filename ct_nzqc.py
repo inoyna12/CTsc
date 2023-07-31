@@ -10,12 +10,19 @@ import time
 import datetime
 import hashlib
 import urllib.parse
+import uuid
 from sendNotify import send
 from os import environ
 from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 from utils.github_api import update_github_file
 
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
+openId_list = []
+groupId_list = []
+
+def generate_random_uuid():
+    random_uuid = str(uuid.uuid4())
+    return random_uuid
 
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
@@ -43,7 +50,7 @@ def refresh_Authorization():
             "Authorization": Authorization,
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": "5.4.2",
+            "appVersion": "5.4.3",
             "login_channel": "1",
             "channel": "android",
             "nonce": f"{nonce}",
@@ -84,6 +91,59 @@ def refresh_Authorization():
                 random_sleep(60, 80)
     return None
 
+def traversal_toutiao_1():
+    print("【遍历头条翻页】")
+    uuid = generate_random_uuid()
+    print(uuid)
+    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
+    for i in range(20):
+        nonce = generate_random_number()
+        timestamp = str(int(time.time() * 1000))
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+    #  下滑3Drefreshcategory  
+    # 翻页   3Dloadmorecategory
+        headers = {
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': appKey,
+            'appVersion': '5.4.3',
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': f"{nonce}",
+            'phoneModel': 'Redmi 22081212C',
+            'timestamp': f"{timestamp}",
+            'sign': sha256_encode(sign),
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
+        }
+        try:
+            response = requests.get(url=url, headers=headers, timeout=20)
+            response.raise_for_status()
+            result = response.json()
+        except requests.exceptions.RequestException as e:
+            print("请求异常:", e)
+            random_sleep(10, 20)
+        except json.JSONDecodeError as e:
+            print("JSON 解码异常:", e)
+            random_sleep(10, 20)
+        except Exception as e:
+            print("其他异常:", e)
+            random_sleep(10, 20)
+        else:
+            for item in result['data']:
+                print("发帖时间：",item['volcExtra']['createTime'])
+                if item['commentCount'] > 10:
+                    openId_list.append(item['article']['openId'])
+                    groupId_list.append(item['article']['groupId'])
+                else:
+                    print(f"当前评论数量：{item['commentCount']}")
+            if len(openId_list) > 100:
+                break
+            random_sleep(10, 20)
+    print(openId_list,len(openId_list))
+    print(groupId_list,len(groupId_list))
+
 #爬取小圈   
 def traversal_xiaoquan():
     print("【遍历首页小圈板块】")
@@ -99,7 +159,7 @@ def traversal_xiaoquan():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.4.2',
+            'appVersion': '5.4.3',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -148,7 +208,7 @@ def traversal_toutiao():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.4.2',
+            'appVersion': '5.4.3',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -192,15 +252,12 @@ def traversal_toutiao():
     
 #爬头条评论
 def traversal_comment():
-    print("【遍历头条评论】")
-    openId_id_list, group_id_list = traversal_toutiao()
-    if len(openId_id_list) != 0:
+    print("【遍历评论】")
+    if len(openId_list) > 100:
+        indexs = random.randint(0, len(openId_id_list)-1)
+        openId = openId_list[indexs]
+        groupId = groupId_list[indexs]
         for i in range(3):
-            indexs = random.randint(0, len(openId_id_list)-1)
-            openId = openId_id_list[indexs]
-            groupId = group_id_list[indexs]
-            openId_id_list.remove(openId)
-            group_id_list.remove(groupId)
             url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
             headers = {
                 'Host': 'api.chehezhi.cn',
@@ -246,8 +303,7 @@ def traversal_comment():
                     print(f"帖子ID：{openId}，{groupId}")
                     print(openId_id_list, '\n', group_id_list)
                     random_sleep(60, 80)
-    return [],[],[]
-    
+    return [],[],[] 
 
 #签到
 def sign():
@@ -260,7 +316,7 @@ def sign():
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': '5.4.2',
+        'appVersion': '5.4.3',
         'login_channel': '1',
         'channel': 'android',
         'nonce': f"{nonce}",
@@ -292,11 +348,9 @@ def sign():
 # 转发  
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
-    groupId_list = traversal_xiaoquan()#小圈板块
-    if len(groupId_list) != 0:
+    if len(groupId_list) > 100:
         for i in range(2):
             groupId = random.choice(groupId_list)
-            groupId_list.remove(groupId)
             url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
             nonce = generate_random_number()
             timestamp = str(int(time.time() * 1000))
@@ -306,7 +360,7 @@ def Share_essay():
                 'Accept': 'application/json',
                 'appId': 'HOZON-B-xKrgEvMt',
                 'appKey': appKey,
-                'appVersion': '5.4.2',
+                'appVersion': '5.4.3',
                 'login_channel': '1',
                 'channel': 'android',
                 'nonce': f"{nonce}",
@@ -361,7 +415,7 @@ def information():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.4.2',
+            'appVersion': '5.4.3',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -633,13 +687,14 @@ if __name__ == '__main__':
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
+    traversal_toutiao_1()
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
         if func is not None:
             sign()
             Share_essay()
-# 暂时关闭评论            insertArtComment()
+            insertArtComment()
             creditScore, phones = information()
             msg += creditScore
             if len(token_list) > 0:
