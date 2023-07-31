@@ -254,7 +254,7 @@ def traversal_toutiao():
 def traversal_comment():
     print("【遍历评论】")
     if len(openId_list) > 100:
-        indexs = random.randint(0, len(openId_id_list)-1)
+        indexs = random.randint(0, len(openId_list)-1)
         openId = openId_list[indexs]
         groupId = groupId_list[indexs]
         for i in range(3):
