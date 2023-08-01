@@ -483,14 +483,14 @@ if __name__ == '__main__':
         print (f"------------正在执行第{index + 1}个账号----------------")
         activate()
         if signIn() != '未授权':
-            addPosts()
-            actionLike()
+#            addPosts()
+#            actionLike()
             callback_post()
-            callback_information()
-            addComment()
+#            callback_information()
+#            addComment()
 #活动结束            luckDraw()
-            delete()
-            getAllTasks()
+#            delete()
+#            getAllTasks()
             info = myInfo()
             msg += info[0]
             if len(token_list) > 0 and len(phone_list) > 0:
