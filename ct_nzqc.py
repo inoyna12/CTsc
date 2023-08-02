@@ -131,6 +131,9 @@ def traversal_toutiao_1():
             print("其他异常:", e)
             random_sleep(10, 20)
         else:
+            if 'data' not in result:
+                random_sleep(10, 20)
+                continue
             for item in result['data']:
                 print("发帖时间：",item['volcExtra']['createTime'])
                 if item['commentCount'] > 10:
