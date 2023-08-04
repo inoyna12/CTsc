@@ -448,7 +448,7 @@ def information():
             creditScore = result['data']['creditScore']
             phone = result['data']['phone']
             Phone = phone[:3] + "****" + phone[7:]
-            msg = f"{Phone}：{creditScore}积分\n"
+            msg = f"{phone}：{creditScore}积分\n"
             print(msg)
             return msg, phone
     print(result)
