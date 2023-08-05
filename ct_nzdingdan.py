@@ -132,6 +132,10 @@ def sha256_encode(string):
     hex_dig = hash_object.hexdigest()
     return hex_dig
 
+def generate_random_number():
+    random_number = ''.join(random.choices('0123456789', k=10))
+    return random_number
+
 def ql_env(name):
     if name in os.environ:
         token_list = os.environ[name].split('\n')
