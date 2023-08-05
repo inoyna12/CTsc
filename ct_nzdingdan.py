@@ -176,6 +176,7 @@ if __name__ == '__main__':
             index += 1
             if index < len(quantity1):
                 random_sleep(1, 200)
+        now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         update_github_file(f"token/{title_name}/{current_time}.txt", msg)
         send('哪吒订单查询', msg)
