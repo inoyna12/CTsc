@@ -175,7 +175,7 @@ if __name__ == '__main__':
             msg += orderinfo()
             index += 1
             if index < len(quantity1):
-                random_sleep(1, 200)
+                random_sleep(10, 20)
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         update_github_file(f"token/{title_name}/{current_time}.txt", msg)
