@@ -135,12 +135,12 @@ def traversal_toutiao_1():
                 random_sleep(10, 20)
                 continue
             for item in result['data']:
-                print("发帖时间：",item['volcExtra']['createTime'])
+                print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
                     openId_list.append(item['article']['openId'])
                     groupId_list.append(item['article']['groupId'])
                 else:
-                    print(f"当前评论数量：{item['commentCount']}")
+                    print(f"当前评论数量：{item['commentCount']}小于10")
             if len(openId_list) > 150:
                 break
             random_sleep(10, 20)
