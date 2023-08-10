@@ -141,7 +141,7 @@ def traversal_toutiao_1():
                     groupId_list.append(item['article']['groupId'])
                 else:
                     print(f"当前评论数量：{item['commentCount']}小于10")
-            if len(openId_list) > 150:
+            if len(openId_list) > 200:
                 break
             random_sleep(10, 20)
     print(openId_list,len(openId_list))
