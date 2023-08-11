@@ -221,7 +221,7 @@ def access():
         "pageIndex": "1",
         "pageSize": "20"
     }
-    response = requests.get(url, headers=headers, json=data)
+    response = requests.post(url, headers=headers, json=data)
     result = response.json()
     if result['code'] == 'success':
         for item in result['data']['dataList']:
