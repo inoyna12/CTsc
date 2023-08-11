@@ -45,7 +45,7 @@ def sign():
     result = response.json()
     if result['code'] == 'success':
         print(result['code'])
-        if result['data']['prizeName'] in result['data']:
+        if 'prizeName' in result['data']:
             print(result['data']['prizeName'])
     else:
         print(result)
