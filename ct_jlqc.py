@@ -200,6 +200,32 @@ def available():
         return assets
     else:
         print(result)
+
+#查询任务状态
+def access():
+    print("【【【【【【【查询任务状态】】】】】】】")
+    url = 'https://app.geely.com/api/v1/point/access'
+    headers = {
+        "Host": "app.geely.com",
+        "accept": "application/json, text/plain, */*",
+        "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp",
+        "token": token,
+        "referer": "https://app.geely.com/app-h5/grow-up/?showTitleBar=0&needLogin=1&tabsIndex=0",
+        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+    }
+    data = {
+        "classify": 1,
+        "taskClassifyId": 5,
+        "pageIndex": "1",
+        "pageSize": "20"
+    }
+    response = requests.get(url, headers=headers, json=data)
+    result = response.json()
+    if result['code'] == 'success':
+        for item in result['data']['dataList']:
+            print(f"{item['taskName']}：{item['isFinish']}")
+    else:
+        print(result)
     
 def ql_env_put(name, data, Remarks=None):
     fetch_env = get_envs(name)#查询环境变量信息
@@ -249,6 +275,7 @@ if __name__ == '__main__':
         create()
         random_sleep(10, 20)
         deleteContent()
+        access()
         msg += available()
         if len(token_list) > 0 and len(phone_list) > 0:
             token_list += '\n' + token
@@ -263,4 +290,3 @@ if __name__ == '__main__':
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
     send(title_name, msg)
-        
