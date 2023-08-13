@@ -713,7 +713,7 @@ if __name__ == '__main__':
             msg += "token失效或脚本待更新\n"
         index += 1
         if index < len(quantity):
-            random_sleep(1, 200)
+            random_sleep(1, 100)
 #    print(msg)
     msg += ql_env_put(env_name, token_list, title_name)
     msg += ql_env_put(env_phone, phone_list, title_name)
