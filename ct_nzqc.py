@@ -93,10 +93,12 @@ def refresh_Authorization():
 
 def traversal_toutiao_1():
     print("【遍历头条翻页】")
+    random_number = random.randint(300, 500)
+    print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
-    for i in range(20):
+    for i in range(50):
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -141,7 +143,7 @@ def traversal_toutiao_1():
                     groupId_list.append(item['article']['groupId'])
                 else:
                     print(f"当前评论数量：{item['commentCount']}小于10")
-            if len(openId_list) > 200:
+            if len(openId_list) > random_number:
                 break
             random_sleep(10, 20)
     print(openId_list,len(openId_list))
