@@ -93,7 +93,7 @@ def refresh_Authorization():
 
 def traversal_toutiao_1():
     print("【遍历头条翻页】")
-    random_number = random.randint(300, 500)
+    random_number = random.randint(280, 320)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
