@@ -59,9 +59,9 @@ def sign():
                 print(result['code'])
                 if 'prizeName' in result['data']:
                     print(result['data']['prizeName'])
-                break
             else:
                 print(result)
+            break
 
 #遍历
 def queryByCircleOrTopic():
