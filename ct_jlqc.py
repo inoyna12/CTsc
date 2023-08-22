@@ -64,9 +64,9 @@ def sign():
             break
 
 #遍历
-def queryByCircleOrTopic():
+def queryForFollow():
     print("【遍历动态】")
-    url = 'https://app.geely.com/api/v2/topicContent/queryByCircleOrTopic'
+    url = 'https://app.geely.com/api/v2/topicContent/queryForFollow'
     headers = {
         "Host": "app.geely.com",
         "accept": "application/json",
@@ -74,11 +74,8 @@ def queryByCircleOrTopic():
         "devicesn": "356596585696247"
     }
     data = {
-        "topicId": None,
-        "searchSource": 2,
         "pageSize": 100,
-        "auditStatus": 3,
-        "circleId": "1595443865836462081",
+        "followQueryType": 3,
         "pageNum": 1
     }
     for i in range(5):
@@ -98,7 +95,7 @@ def queryByCircleOrTopic():
             for item in result['data']['list']:
                 print("帖子内容：", item['content'])
                 print(f"发帖时间：{item['createdTime']}，内容长度：{len(item['content'])}")
-                if len(item['content']) < 10:
+                if len(item['content']) > 5:
                     content_list.append(item['content'])
                 else:
                     print("不加入")
@@ -370,7 +367,7 @@ if __name__ == '__main__':
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
-    queryByCircleOrTopic()
+    queryForFollow()
     for token in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         userId, phone = current()
