@@ -74,7 +74,7 @@ def queryForFollow():
         "devicesn": "356596585696247"
     }
     data = {
-        "pageSize": 100,
+        "pageSize": 150,
         "followQueryType": 3,
         "pageNum": 1
     }
@@ -95,7 +95,7 @@ def queryForFollow():
             for item in result['data']['list']:
                 print("帖子内容：", item['content'])
                 print(f"发帖时间：{item['createdTime']}，内容长度：{len(item['content'])}")
-                if len(item['content']) > 5:
+                if len(item['content']) > 5 and len(item['content']) < 25:
                     content_list.append(item['content'])
                 else:
                     print("不加入")
