@@ -93,7 +93,7 @@ def refresh_Authorization():
 
 def traversal_toutiao_1():
     print("【遍历头条翻页】")
-    random_number = random.randint(280, 320)
+    random_number = random.randint(300, 400)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
@@ -139,15 +139,18 @@ def traversal_toutiao_1():
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
-                    openId_list.append(item['article']['openId'])
-                    groupId_list.append(item['article']['groupId'])
+                    if item['article']['openId'] not in openId_list:
+                        openId_list.append(item['article']['openId'])
+                        groupId_list.append(item['article']['groupId'])
+                    else:
+                        print("已存在，不进行加入")
                 else:
-                    print(f"当前评论数量：{item['commentCount']}小于10")
+                    print("评论数量小于10，不进行加入")
             if len(openId_list) > random_number:
                 break
             random_sleep(10, 20)
-    print(openId_list,len(openId_list))
-    print(groupId_list,len(groupId_list))
+    print(f"openId_list数量："{len(openId_list)}")
+    print(f"groupId_list数量："{len(groupId_list)}")
 
 #爬取小圈   
 def traversal_xiaoquan():
