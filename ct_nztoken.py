@@ -32,3 +32,4 @@ if __name__ == '__main__':
             print(credentials[phone])
         else:
             print(phone, "未找到此号码")
+        print("\n" + "-------------------------------------------" + "\n")
