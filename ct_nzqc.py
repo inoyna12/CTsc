@@ -149,8 +149,8 @@ def traversal_toutiao_1():
             if len(openId_list) > random_number:
                 break
             random_sleep(10, 20)
-    print(f"openId_list数量："{len(openId_list)}")
-    print(f"groupId_list数量："{len(groupId_list)}")
+    print(f"openId_list数量：{len(openId_list)}")
+    print(f"groupId_list数量：{len(groupId_list)}")
 
 #爬取小圈   
 def traversal_xiaoquan():
