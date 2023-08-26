@@ -149,6 +149,8 @@ def traversal_toutiao_1():
                         print("已存在，不进行加入")
                 else:
                     print("评论数量小于10，不进行加入")
+            print(f"openId_list数量：{len(openId_list)}")
+            print(f"groupId_list数量：{len(groupId_list)}")
             if len(openId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(10, 20)
@@ -181,7 +183,6 @@ def traversal_xiaoquan():
             'sign': sign_sha256,
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {Authorization_new}",
             'Host': 'appapi-pki.chehezhi.cn:18443',
             'Connection': 'Keep-Alive'
         }
@@ -209,6 +210,7 @@ def traversal_xiaoquan():
                 else:
                     createTime_index += 1
                     print("已存在，不进行加入")
+            print(f"xiaoquan_groupId_list数量：{len(xiaoquan_groupId_list)}")
             if len(xiaoquan_groupId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(10, 20)
