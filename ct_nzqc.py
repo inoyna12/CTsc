@@ -93,6 +93,7 @@ def refresh_Authorization():
 
 def traversal_toutiao_1():
     print("【遍历头条翻页】")
+    createTime_index = 0
     random_number = random.randint(300, 400)
     print(random_number)
     uuid = generate_random_uuid()
@@ -143,10 +144,11 @@ def traversal_toutiao_1():
                         openId_list.append(item['article']['openId'])
                         groupId_list.append(item['article']['groupId'])
                     else:
+                        createTime_index += 1
                         print("已存在，不进行加入")
                 else:
                     print("评论数量小于10，不进行加入")
-            if len(openId_list) > random_number:
+            if len(openId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(10, 20)
     print(f"openId_list数量：{len(openId_list)}")
