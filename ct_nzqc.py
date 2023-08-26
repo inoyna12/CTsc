@@ -19,6 +19,7 @@ from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 openId_list = []
 groupId_list = []
+xiaoquan_groupId_list = []
 
 def generate_random_uuid():
     random_uuid = str(uuid.uuid4())
@@ -157,14 +158,16 @@ def traversal_toutiao_1():
 #爬取小圈   
 def traversal_xiaoquan():
     print("【遍历首页小圈板块】")
-    for i in range(3):
-#        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=xiaoquan'#小圈首页
-        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=refresh&category=xiaoquan'#小圈下滑刷新
-        
+    createTime_index = 0
+    random_number = random.randint(100, 200)
+    print(random_number)
+    uuid = generate_random_uuid()
+    print(uuid)
+    for i in range(50):
+        url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
-#        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈首页
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Drefreshcategory%3Dxiaoquan8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈下滑刷新
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈下滑刷新
         sign_sha256 = sha256_encode(sign)
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
@@ -183,7 +186,7 @@ def traversal_xiaoquan():
             'Connection': 'Keep-Alive'
         }
         try:
-            response = requests.get(url=url, headers=headers, timeout=10)
+            response = requests.get(url=url, headers=headers, timeout=20)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.RequestException as e:
@@ -196,15 +199,20 @@ def traversal_xiaoquan():
             print("其他异常:", e)
             random_sleep(10, 20)
         else:
-            group_id_list = []
+            if 'data' not in result:
+                random_sleep(10, 20)
+                continue
             for item in result['data']:
-                group_id_list.append(item['article']['groupId'])
-            if len(group_id_list) > 2:
-                return group_id_list
-            else:
-                print(result)
-                random_sleep(20, 40)
-    return []
+                print(f"发帖时间：{item['volcExtra']['createTime']}")
+                if item['article']['groupId'] not in openId_list:
+                    xiaoquan_groupId_list.append(item['article']['groupId'])
+                else:
+                    createTime_index += 1
+                    print("已存在，不进行加入")
+            if len(xiaoquan_groupId_list) > random_number or createTime_index > 5:
+                break
+            random_sleep(10, 20)
+    print(f"xiaoquan_groupId_list数量：{len(xiaoquan_groupId_list)}")
     
 #爬取头条翻页
 def traversal_toutiao():
@@ -358,9 +366,9 @@ def sign():
 # 转发  
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
-    if len(groupId_list) > 100:
+    if len(xiaoquan_groupId_list) > 100:
         for i in range(2):
-            groupId = random.choice(groupId_list)
+            groupId = random.choice(xiaoquan_groupId_list)
             url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
             nonce = generate_random_number()
             timestamp = str(int(time.time() * 1000))
@@ -698,6 +706,7 @@ if __name__ == '__main__':
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
     traversal_toutiao_1()
+    traversal_xiaoquan()
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
