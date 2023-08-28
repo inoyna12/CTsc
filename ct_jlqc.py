@@ -325,7 +325,7 @@ def access():
                 for item in result['data']['dataList']:
                     print(f"{item['taskName']}：{item['isFinish']}")
                     if item['taskName'] == '发布动态/长图文' and item['isFinish'] != True:
-                        send(f"账号{index + 1}", "发布动态失败")
+                        send(f"账号{index + 1}", f"{item['taskName']}：{item['isFinish']}")
             else:
                 print(result)
             break
