@@ -90,6 +90,7 @@ def refresh_Authorization():
                 print(result)
                 send("刷新Authorization失败", f"账号{index + 1}")
                 random_sleep(60, 80)
+    send("刷新Authorization失败", f"账号{index + 1}")
     return None
 
 def traversal_toutiao_1():
