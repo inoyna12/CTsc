@@ -42,7 +42,7 @@ def sha256_encode(string):
 
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    for i in range(5):
+    for i in range(50):
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -72,13 +72,13 @@ def refresh_Authorization():
             result = response.json()
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         except json.JSONDecodeError as e:
             print("JSON 解码异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         except Exception as e:
             print("其他异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         else:
             if "code" in result and result['code'] == 20000:
                 print("刷新Authorization成功")
