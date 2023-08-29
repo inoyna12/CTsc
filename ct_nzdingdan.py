@@ -107,7 +107,7 @@ def orderinfo():
     }
     response = requests.get(url=url, params=params, headers=headers)
     result = response.json()
-#    print(result)
+    print(result)
     orders = result['data']['records']  # 获取订单列表
     results = ''  # 初始化保存结果的变量
     for order in orders:
