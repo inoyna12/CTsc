@@ -312,18 +312,19 @@ def traversal_comment():
                 random_sleep(10, 20)
             else:
                 content_list = []
-                for item in result['data']['rows']:
-                    content_list.append(item['content'])
-                if len(content_list) > 0:
-                    content = random.choice(content_list)
-                    print(f"帖子ID：{openId}，{groupId}")
-                    print(f"评论内容：{content}")
-                    return openId, groupId, content
-                else:
-                    print("评论内容为空", '\n', result)
-                    print(f"帖子ID：{openId}，{groupId}")
-                    print(openId_id_list, '\n', group_id_list)
-                    random_sleep(60, 80)
+                if 'data' in result and 'rows' in result['data']:
+                    for item in result['data']['rows']:
+                        content_list.append(item['content'])
+                    if len(content_list) > 0:
+                        content = random.choice(content_list)
+                        print(f"帖子ID：{openId}，{groupId}")
+                        print(f"评论内容：{content}")
+                        return openId, groupId, content
+                    else:
+                        print("评论内容为空", '\n', result)
+                        print(f"帖子ID：{openId}，{groupId}")
+                        print(openId_id_list, '\n', group_id_list)
+                        random_sleep(60, 80)
     return [],[],[] 
 
 #签到
