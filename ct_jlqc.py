@@ -74,7 +74,7 @@ def queryForFollow():
         "devicesn": "356596585696247"
     }
     data = {
-        "pageSize": 150,
+        "pageSize": 250,
         "followQueryType": 3,
         "pageNum": 1
     }
@@ -136,7 +136,7 @@ def create():
             random_sleep(10, 20)
         else:
             if result['code'] == 'success':
-                print(f"内容：{content}，发布结果：{result['code']}")
+                print(f"内容：{content} 发布结果：{result['code']}")
             else:
                 print(result)
             break
