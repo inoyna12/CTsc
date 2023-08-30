@@ -51,17 +51,13 @@ def refresh_Authorization():
             "Authorization": Authorization,
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": "5.5.0",
-            "login_channel": "1",
-            "channel": "android",
+            "appVersion": "5.5.1",
             "nonce": f"{nonce}",
             "phoneModel": "Redmi 22081212C",
             "timestamp": f"{timestamp}",
             "sign": sign_sha256,
             "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": "613",
-            "Host": "appapi-pki.chehezhi.cn:18443",
-            "User-Agent": "okhttp/4.9.3"
+            "Host": "appapi-pki.chehezhi.cn:18443"
         }
         data = {
             "refreshToken": f"{Authorization}"
