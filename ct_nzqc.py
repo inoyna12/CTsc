@@ -52,6 +52,8 @@ def refresh_Authorization():
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
             "appVersion": "5.5.1",
+            'login_channel': '1',
+            'channel': 'android',
             "nonce": f"{nonce}",
             "phoneModel": "Redmi 22081212C",
             "timestamp": f"{timestamp}",
@@ -106,7 +108,7 @@ def traversal_toutiao_1():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.0',
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -171,7 +173,7 @@ def traversal_xiaoquan():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.0',
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -225,7 +227,7 @@ def traversal_toutiao():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.0',
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
@@ -334,7 +336,7 @@ def sign():
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': '5.5.0',
+        'appVersion': '5.5.1',
         'login_channel': '1',
         'channel': 'android',
         'nonce': f"{nonce}",
@@ -378,7 +380,7 @@ def Share_essay():
                 'Accept': 'application/json',
                 'appId': 'HOZON-B-xKrgEvMt',
                 'appKey': appKey,
-                'appVersion': '5.5.0',
+                'appVersion': '5.5.1',
                 'login_channel': '1',
                 'channel': 'android',
                 'nonce': f"{nonce}",
@@ -433,7 +435,7 @@ def information():
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.0',
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
             'nonce': f"{nonce}",
