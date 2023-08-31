@@ -141,6 +141,7 @@ def traversal_toutiao_1():
             elif len(result['data']) == 0:
                 data_index += 1
                 print(result)
+                print(data_index)
             elif data_index > 5:
                 print("ip地址被拉黑")
                 return
@@ -217,11 +218,11 @@ def traversal_xiaoquan():
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}")
                 if item['article']['openId'] not in xiaoquan_openId_list:
-                    xiaoquan_groupId_list.append(item['article']['openId'])
+                    xiaoquan_openId_list.append(item['article']['openId'])
                 else:
                     createTime_index += 1
                     print("已存在，不进行加入")
-            print(f"xiaoquan_openId_list数量：{len(xiaoquan_groupId_list)}")
+            print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
             if len(xiaoquan_openId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(20, 40)
