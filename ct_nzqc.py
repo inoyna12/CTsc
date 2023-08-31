@@ -262,7 +262,7 @@ def traversal_comment():
                     content_list.append(item['content'])
                 if len(content_list) > 0:
                     content = random.choice(content_list)
-                    print(f"帖子ID：{openId} 评论内容：{content}")
+                    print(f"帖子ID：{articleId} 评论内容：{content}")
                     return articleId, content
                 else:
                     print("评论内容为空", '\n', result)
