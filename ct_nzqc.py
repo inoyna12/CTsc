@@ -421,7 +421,7 @@ def information():
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
     if len(toutiao_openId_list) < 100:
-        print("toutiao_openId_list数量小于100，不进行遍历评论")
+        print("toutiao_openId_list数量小于100，不进行评论")
         return
     articleId, content = traversal_comment()
     if len(content) == 0:
