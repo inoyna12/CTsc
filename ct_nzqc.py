@@ -240,7 +240,7 @@ def traversal_comment():
         params = {
             'page': '1',
             'pageSize': '100',#评论数量
-            'articleId': articleId,
+            'articleId': articleId
         }
         try:
             response = requests.get(url=url, params=params, headers=headers, timeout=10)
