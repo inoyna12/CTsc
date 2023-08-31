@@ -154,7 +154,7 @@ def traversal_toutiao_1():
             print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
             if len(toutiao_openId_list) > random_number or createTime_index > 5 or data_index > 5:
                 break
-            random_sleep(20, 40)
+            random_sleep(5, 10)
     print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
 
 #爬取小圈   
@@ -246,6 +246,7 @@ def traversal_comment():
             response = requests.get(url=url, params=params, headers=headers, timeout=10)
             response.raise_for_status()
             result = response.json()
+            print(result)
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
             random_sleep(10, 20)
@@ -652,7 +653,7 @@ if __name__ == '__main__':
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
     traversal_toutiao_1()
-    traversal_xiaoquan()
+#    traversal_xiaoquan()
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
