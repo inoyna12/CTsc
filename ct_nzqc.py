@@ -137,7 +137,10 @@ def traversal_toutiao_1():
                 print("result中不存在data键值")
                 random_sleep(10, 20)
                 continue
-            print(result)
+            elif len(result['data']) == 0:
+                print(result)
+                random_sleep(10, 20)
+                continue
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
