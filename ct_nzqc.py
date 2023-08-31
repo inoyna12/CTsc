@@ -89,22 +89,18 @@ def refresh_Authorization():
     send("刷新Authorization失败", f"账号{index + 1}")
     return None
 
-def traversal_toutiao_1():
+def toutiao_loadmore():
     print("【遍历头条翻页】")
-    data_index = 0
     createTime_index = 0
-    random_number = random.randint(50, 80)
-    print(random_number)
+    random_number = random.randint(300, 500)
     uuid = generate_random_uuid()
-    print(uuid)
+    print(uuid, random_number)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
     for i in range(50):
         print(f"第{i + 1}次请求")
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-    #  下滑3Drefreshcategory  
-    # 翻页   3Dloadmorecategory
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
@@ -139,8 +135,8 @@ def traversal_toutiao_1():
                 random_sleep(20, 40)
                 continue
             elif len(result['data']) == 0:
-                data_index += 1
                 print(result)
+                return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
@@ -152,14 +148,52 @@ def traversal_toutiao_1():
                 else:
                     print("评论数量小于10，不进行加入")
             print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
-            if len(toutiao_openId_list) > random_number or createTime_index > 5 or data_index > 5:
-                break
-            random_sleep(5, 10)
-    print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
+            if len(toutiao_openId_list) > random_number or createTime_index > 5:
+                return
+            random_sleep(30, 50)
+
+def toutiao_open():
+    print("【遍历头条首页】")
+    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
+    uuid = generate_random_uuid()
+    print(uuid)
+    nonce = generate_random_number()
+    timestamp = str(int(time.time() * 1000))
+    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+    headers = {
+        'appId': 'HOZON-B-xKrgEvMt',
+        'appKey': appKey,
+        'appVersion': '5.5.1',
+        'login_channel': '1',
+        'channel': 'android',
+        'nonce': f"{nonce}",
+        'phoneModel': 'Redmi 22081212C',
+        'timestamp': f"{timestamp}",
+        'sign': sha256_encode(sign),
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+        'Host': 'appapi-pki.chehezhi.cn:18443',
+        'Connection': 'Keep-Alive'
+    }
+    try:
+        response = requests.get(url=url, headers=headers, timeout=20)
+        response.raise_for_status()
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        print(result)
 
 #爬取小圈   
-def traversal_xiaoquan():
-    print("【遍历首页小圈板块】")
+def xiaoquan_loadmore():
+    print("【遍历小圈翻页】")
     data_index = 0
     createTime_index = 0
     random_number = random.randint(100, 200)
@@ -245,7 +279,6 @@ def traversal_comment():
             response = requests.get(url=url, params=params, headers=headers, timeout=10)
             response.raise_for_status()
             result = response.json()
-            print(result)
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
             random_sleep(10, 20)
@@ -367,7 +400,46 @@ def Share_essay():
             else:
                 print(result)
                 random_sleep(20, 40)
-    
+
+#评论帖子
+def insertArtComment():
+    print("【【【【【【【评论】】】】】】】")
+    if len(toutiao_openId_list) < 100:
+        print("toutiao_openId_list数量小于100，不进行评论")
+        return
+    articleId, content = traversal_comment()
+    if len(content) == 0:
+        print("content数量为0，不进行评论")
+        return
+    url = 'https://api.chehezhi.cn/hznz/app_article/insertArtComment'
+    headers = {
+        'Host': 'api.chehezhi.cn',
+        'accept': 'application/json, text/plain, */*',
+        'channel': 'h5',
+        'authorization': f"Bearer {Authorization_new}",
+        'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
+        'content-type': 'application/json;',
+        'origin': 'https://hozon-h5-prod.hozonauto.com',
+        'x-requested-with': 'com.hezhong.nezha',
+        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+    }
+    data = {
+        "articleId": articleId,
+        "content": content
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+    except Exception as e:
+        print("其他异常:", e)
+    else:
+        print(f"评论结果：{result['message']}")
+
 #查询
 def information():
     print("【【【【【【【查询】】】】】】】")
@@ -416,45 +488,6 @@ def information():
     print(result)
     send("查询失败", f"账号{index + 1}")
     return ''
-
-#评论帖子
-def insertArtComment():
-    print("【【【【【【【评论】】】】】】】")
-    if len(toutiao_openId_list) < 50:
-        print("toutiao_openId_list数量小于100，不进行评论")
-        return
-    articleId, content = traversal_comment()
-    if len(content) == 0:
-        print("content数量为0，不进行评论")
-        return
-    url = 'https://api.chehezhi.cn/hznz/app_article/insertArtComment'
-    headers = {
-        'Host': 'api.chehezhi.cn',
-        'accept': 'application/json, text/plain, */*',
-        'channel': 'h5',
-        'authorization': f"Bearer {Authorization_new}",
-        'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
-        'content-type': 'application/json;',
-        'origin': 'https://hozon-h5-prod.hozonauto.com',
-        'x-requested-with': 'com.hezhong.nezha',
-        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
-    }
-    data = {
-        "articleId": articleId,
-        "content": content
-    }
-    try:
-        response = requests.post(url, headers=headers, json=data, timeout=10)
-        response.raise_for_status()
-        result = response.json()
-    except requests.exceptions.RequestException as e:
-        print("请求异常:", e)
-    except json.JSONDecodeError as e:
-        print("JSON 解码异常:", e)
-    except Exception as e:
-        print("其他异常:", e)
-    else:
-        print(f"评论结果：{result['message']}")
 
 #发布动态
 def addArticle_1():
@@ -651,8 +684,9 @@ if __name__ == '__main__':
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
-    traversal_toutiao_1()
-#    traversal_xiaoquan()
+    toutiao_open()
+    toutiao_loadmore()
+    xiaoquan_loadmore()
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
@@ -676,7 +710,6 @@ if __name__ == '__main__':
         index += 1
         if index < len(quantity):
             random_sleep(1, 100)
-#    print(msg)
     msg += ql_env_put(env_name, token_list, title_name)
     msg += ql_env_put(env_phone, phone_list, title_name)
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
