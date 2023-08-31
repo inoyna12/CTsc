@@ -141,10 +141,6 @@ def traversal_toutiao_1():
             elif len(result['data']) == 0:
                 data_index += 1
                 print(result)
-                print(data_index)
-            elif data_index > 5:
-                print("ip地址被拉黑")
-                return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
@@ -156,7 +152,7 @@ def traversal_toutiao_1():
                 else:
                     print("评论数量小于10，不进行加入")
             print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
-            if len(toutiao_openId_list) > random_number or createTime_index > 5:
+            if len(toutiao_openId_list) > random_number or createTime_index > 5 or data_index > 5:
                 break
             random_sleep(20, 40)
     print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
@@ -212,9 +208,6 @@ def traversal_xiaoquan():
             elif len(result['data']) == 0:
                 data_index += 1
                 print(result)
-            elif data_index > 5:
-                print("ip地址被拉黑")
-                return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}")
                 if item['article']['openId'] not in xiaoquan_openId_list:
@@ -223,7 +216,7 @@ def traversal_xiaoquan():
                     createTime_index += 1
                     print("已存在，不进行加入")
             print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
-            if len(xiaoquan_openId_list) > random_number or createTime_index > 5:
+            if len(xiaoquan_openId_list) > random_number or createTime_index > 5 or data_index > 5:
                 break
             random_sleep(20, 40)
     print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
