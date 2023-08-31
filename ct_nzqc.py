@@ -141,7 +141,7 @@ def traversal_toutiao_1():
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
-                    if item['article']['openId'] not in openId_list:
+                    if item['article']['openId'] not in toutiao_openId_list:
                         toutiao_openId_list.append(item['article']['openId'])
                     else:
                         createTime_index += 1
