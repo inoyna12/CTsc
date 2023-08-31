@@ -154,8 +154,8 @@ def toutiao_loadmore():
 
 def toutiao_open():
     print("【遍历头条首页】")
-    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
     uuid = generate_random_uuid()
+    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
     print(uuid)
     nonce = generate_random_number()
     timestamp = str(int(time.time() * 1000))
