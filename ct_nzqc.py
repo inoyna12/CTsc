@@ -99,7 +99,7 @@ def traversal_toutiao_1():
     print(uuid)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
     for i in range(50):
-        print(f"第{i + 1}请求")
+        print(f"第{i + 1}次请求")
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -170,7 +170,7 @@ def traversal_xiaoquan():
     uuid = generate_random_uuid()
     print(uuid)
     for i in range(50):
-        print(f"第{i + 1}请求")
+        print(f"第{i + 1}次请求")
         url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
