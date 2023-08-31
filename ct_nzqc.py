@@ -226,12 +226,11 @@ def traversal_comment():
     print("【遍历评论】")
     articleId = random.choice(toutiao_openId_list)
     for i in range(3):
-        url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
+        url = 'https://api.chehezhi.cn/hznz/app_article/listParentComment'
         headers = {
             'Host': 'api.chehezhi.cn',
             'accept': 'application/json, text/plain, */*',
             'channel': 'h5',
-            'authorization': f"Bearer {Authorization_new}",
             'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
             'origin': 'https://hozon-h5-prod.hozonauto.com',
             'x-requested-with': 'com.hezhong.nezha',
