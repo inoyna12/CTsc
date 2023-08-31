@@ -206,7 +206,7 @@ def traversal_xiaoquan():
             random_sleep(10, 20)
         else:
             if 'data' not in result:
-                random_sleep(10, 20)
+                random_sleep(20, 40)
                 continue
             elif len(result['data']) == 0:
                 data_index += 1
@@ -224,7 +224,7 @@ def traversal_xiaoquan():
             print(f"xiaoquan_openId_list数量：{len(xiaoquan_groupId_list)}")
             if len(xiaoquan_openId_list) > random_number or createTime_index > 5:
                 break
-            random_sleep(10, 20)
+            random_sleep(20, 40)
     print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
     
 #爬头条评论
