@@ -19,7 +19,7 @@ from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 openId_list = []
 groupId_list = []
-xiaoquan_groupId_list = []
+xiaoquan_openId_list = []
 
 def generate_random_uuid():
     random_uuid = str(uuid.uuid4())
@@ -204,16 +204,16 @@ def traversal_xiaoquan():
                 continue
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}")
-                if item['article']['groupId'] not in openId_list:
-                    xiaoquan_groupId_list.append(item['article']['groupId'])
+                if item['article']['openId'] not in xiaoquan_openId_list:
+                    xiaoquan_groupId_list.append(item['article']['openId'])
                 else:
                     createTime_index += 1
                     print("已存在，不进行加入")
-            print(f"xiaoquan_groupId_list数量：{len(xiaoquan_groupId_list)}")
-            if len(xiaoquan_groupId_list) > random_number or createTime_index > 5:
+            print(f"xiaoquan_openId_list数量：{len(xiaoquan_groupId_list)}")
+            if len(xiaoquan_openId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(10, 20)
-    print(f"xiaoquan_groupId_list数量：{len(xiaoquan_groupId_list)}")
+    print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
     
 #爬取头条翻页
 def traversal_toutiao():
