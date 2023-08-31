@@ -368,7 +368,7 @@ def sign():
 # 转发  
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
-    if len(xiaoquan_groupId_list) > 100:
+    if len(xiaoquan_openId_list) > 100:
         for i in range(2):
             groupId = random.choice(xiaoquan_groupId_list)
             url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
