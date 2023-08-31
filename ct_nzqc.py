@@ -93,7 +93,7 @@ def traversal_toutiao_1():
     print("【遍历头条翻页】")
     data_index = 0
     createTime_index = 0
-    random_number = random.randint(300, 400)
+    random_number = random.randint(50, 80)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
@@ -421,7 +421,7 @@ def information():
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
-    if len(toutiao_openId_list) < 100:
+    if len(toutiao_openId_list) < 50:
         print("toutiao_openId_list数量小于100，不进行评论")
         return
     articleId, content = traversal_comment()
