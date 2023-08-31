@@ -151,7 +151,7 @@ def traversal_toutiao_1():
                         print("已存在，不进行加入")
                 else:
                     print("评论数量小于10，不进行加入")
-            print(f"openId_list数量：{len(toutiao_openId_list)}")
+            print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
             if len(toutiao_openId_list) > random_number or createTime_index > 5:
                 break
             random_sleep(10, 20)
