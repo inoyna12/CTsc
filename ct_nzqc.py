@@ -427,7 +427,7 @@ def insertArtComment():
     if len(content) == 0:
         print("content数量为0，不进行评论")
         return
-    url = 'https://api.chehezhi.cn/hznz/app_article_comment/insertArtComment'
+    url = 'https://api.chehezhi.cn/hznz/app_article/insertArtComment'
     headers = {
         'Host': 'api.chehezhi.cn',
         'accept': 'application/json, text/plain, */*',
