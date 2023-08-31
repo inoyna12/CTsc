@@ -28,7 +28,6 @@ def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
     print(f"等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
-    return num
 
 def generate_random_number():
     random_number = ''.join(random.choices('0123456789', k=10))
@@ -92,6 +91,7 @@ def refresh_Authorization():
 
 def traversal_toutiao_1():
     print("【遍历头条翻页】")
+    data_index = 0
     createTime_index = 0
     random_number = random.randint(300, 400)
     print(random_number)
@@ -99,6 +99,7 @@ def traversal_toutiao_1():
     print(uuid)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
     for i in range(50):
+        print(f"第{i + 1}请求")
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
         sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -135,12 +136,14 @@ def traversal_toutiao_1():
         else:
             if 'data' not in result:
                 print("result中不存在data键值")
-                random_sleep(10, 20)
+                random_sleep(20, 40)
                 continue
             elif len(result['data']) == 0:
+                data_index += 1
                 print(result)
-                random_sleep(10, 20)
-                continue
+            elif data_index > 5:
+                print("ip地址被拉黑")
+                return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
                 if item['commentCount'] > 10:
@@ -154,18 +157,20 @@ def traversal_toutiao_1():
             print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
             if len(toutiao_openId_list) > random_number or createTime_index > 5:
                 break
-            random_sleep(10, 20)
+            random_sleep(20, 40)
     print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
 
 #爬取小圈   
 def traversal_xiaoquan():
     print("【遍历首页小圈板块】")
+    data_index = 0
     createTime_index = 0
     random_number = random.randint(100, 200)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
     for i in range(50):
+        print(f"第{i + 1}请求")
         url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
         timestamp = str(int(time.time() * 1000))
@@ -203,6 +208,12 @@ def traversal_xiaoquan():
             if 'data' not in result:
                 random_sleep(10, 20)
                 continue
+            elif len(result['data']) == 0:
+                data_index += 1
+                print(result)
+            elif data_index > 5:
+                print("ip地址被拉黑")
+                return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}")
                 if item['article']['openId'] not in xiaoquan_openId_list:
@@ -219,9 +230,6 @@ def traversal_xiaoquan():
 #爬头条评论
 def traversal_comment():
     print("【遍历评论】")
-    if len(toutiao_openId_list) < 100:
-        print("toutiao_openId_list数量小于100，不进行遍历评论")
-        return [],[]
     articleId = random.choice(toutiao_openId_list)
     for i in range(3):
         url = 'https://api.chehezhi.cn/hznz/app_article_comment/listParentComment'
@@ -418,6 +426,9 @@ def information():
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
+    if len(toutiao_openId_list) < 100:
+        print("toutiao_openId_list数量小于100，不进行遍历评论")
+        return
     articleId, content = traversal_comment()
     if len(content) == 0:
         print("content数量为0，不进行评论")
