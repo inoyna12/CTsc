@@ -189,7 +189,7 @@ def toutiao_open():
         print("其他异常:", e)
         random_sleep(10, 20)
     else:
-        print(result)
+        print(result['message'])
 
 #爬取小圈   
 def xiaoquan_loadmore():
@@ -250,7 +250,7 @@ def xiaoquan_loadmore():
                     createTime_index += 1
                     print("已存在，不进行加入")
             print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
-            if len(xiaoquan_openId_list) > random_number or createTime_index > 5 or data_index > 5:
+            if len(xiaoquan_openId_list) > random_number or createTime_index > 20 or data_index > 5:
                 break
             random_sleep(20, 40)
     print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
