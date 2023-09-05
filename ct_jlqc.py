@@ -390,6 +390,10 @@ if __name__ == '__main__':
         index += 1
         if index < len(quantity):
             random_sleep(1, 200)
+    token_index = token_list.split('\n')
+    phone_index = phone_list.split('\n')
+    msg += ql_env_put(env_name, token_list, title_name)
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
+    msg += f"token_list数量：{len(token_index)} phone_list数量：{len(phone_index)}"
     send(title_name, msg)
