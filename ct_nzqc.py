@@ -349,8 +349,8 @@ def sign():
 # 转发  
 def Share_essay():
     print("【【【【【【【转发】】】】】】】")
-    if len(xiaoquan_openId_list) < 100:
-        print("xiaoquan_openId_list数量小于100，不进行转发")
+    if len(xiaoquan_openId_list) < 50:
+        print("xiaoquan_openId_list数量小于50，不进行转发")
         return
     for i in range(2):
         articleId = random.choice(xiaoquan_openId_list)
