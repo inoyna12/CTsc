@@ -142,7 +142,7 @@ def toutiao_loadmore():
                 return
             for item in result['data']:
                 print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
-                if item['commentCount'] > 10:
+                if item['commentCount'] >= 10:
                     if item['article']['openId'] not in toutiao_openId_list:
                         toutiao_openId_list.append(item['article']['openId'])
                     else:
@@ -151,7 +151,7 @@ def toutiao_loadmore():
                 else:
                     print("评论数量小于10，不进行加入")
             print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
-            if len(toutiao_openId_list) > random_number or createTime_index > 5:
+            if len(toutiao_openId_list) > random_number or createTime_index >= 5:
                 return
             random_sleep(30, 50)
 
@@ -488,6 +488,8 @@ def information():
             print(account_bp)
             if int(creditScore_bp) >= C_creditScore and phone not in oneself:
                 can_account += phone + "\n"
+            else:
+                print("不满足条件，不进行加入")
             return account_bp, phone
     print(result)
     send("查询失败", f"账号{index + 1}")
