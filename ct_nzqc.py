@@ -19,6 +19,9 @@ from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 toutiao_openId_list = []
 xiaoquan_openId_list = []
+oneself = ["15050425338", "13291164580", "19941326235"]
+can_account = ""
+C_creditScore = 690
 
 def generate_random_uuid():
     random_uuid = str(uuid.uuid4())
@@ -479,12 +482,13 @@ def information():
             print("其他异常:", e)
             random_sleep(20, 40)
         else:
-            creditScore = result['data']['creditScore']
+            creditScore_bp = result['data']['creditScore']
             phone = result['data']['phone']
-            Phone = phone[:3] + "****" + phone[7:]
-            msg = f"{phone}：{creditScore}积分\n"
+            account_bp = f"{phone}：{creditScore_bp}积分\n"
             print(msg)
-            return msg, phone
+            if int(creditScore_bp) >= C_creditScore and phone not in oneself:
+                can_account += phone + "\n"
+            return account_bp, phone
     print(result)
     send("查询失败", f"账号{index + 1}")
     return ''
@@ -687,6 +691,7 @@ if __name__ == '__main__':
     toutiao_open()
     toutiao_loadmore()
     xiaoquan_loadmore()
+    send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         func = refresh_Authorization()
@@ -696,13 +701,11 @@ if __name__ == '__main__':
             insertArtComment()
             creditScore, phones = information()
             msg += creditScore
-            if len(token_list) > 0:
+            if len(token_list) > 0 and len(phone_list) > 0:
                 token_list += '\n' + func
-            else:
-                token_list += func
-            if len(phone_list) > 0:
                 phone_list += '\n' + phones
             else:
+                token_list += func
                 phone_list += phones
             print(f"第{index + 1}个账号运行完成")
         else:
@@ -710,8 +713,12 @@ if __name__ == '__main__':
         index += 1
         if index < len(quantity):
             random_sleep(1, 100)
+    token_index = token_list.split('\n')
+    phone_index = phone_list.split('\n')
     msg += ql_env_put(env_name, token_list, title_name)
     msg += ql_env_put(env_phone, phone_list, title_name)
     msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
+    msg += f"总账号数量：{len(quantity)} token_list数量：{len(token_index)} phone_list数量：{len(phone_index)}"
     send(title_name, msg)
+    send(f"{title_name}待下单账号", can_account)
