@@ -485,7 +485,7 @@ def information():
             creditScore_bp = result['data']['creditScore']
             phone = result['data']['phone']
             account_bp = f"{phone}：{creditScore_bp}积分\n"
-            print(msg)
+            print(account_bp)
             if int(creditScore_bp) >= C_creditScore and phone not in oneself:
                 can_account += phone + "\n"
             return account_bp, phone
