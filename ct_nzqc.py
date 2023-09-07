@@ -19,8 +19,7 @@ from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 toutiao_openId_list = []
 xiaoquan_openId_list = []
-oneself = ["15050425338", "13291164580", "19941326235"]
-can_account = ""
+oneself = ["19941326235"]
 C_creditScore = 690
 
 def generate_random_uuid():
@@ -487,176 +486,14 @@ def information():
             account_bp = f"{phone}：{creditScore_bp}积分\n"
             print(account_bp)
             if int(creditScore_bp) >= C_creditScore and phone not in oneself:
-                can_account += phone + "\n"
+                can_account.append(phone)
+                print(can_account)
             else:
                 print("不满足条件，不进行加入")
             return account_bp, phone
     print(result)
     send("查询失败", f"账号{index + 1}")
     return ''
-
-#发布动态
-def addArticle_1():
-    img_url = random.choice(img_url_list)
-    img_url_list.remove(img_url)
-    title = random.choice(title_list)
-    title_list.remove(title)
-    content = random.choice(content_list)
-    content_list.remove(content)
-    data = {
-        "article_sub_type": 1,
-        "content": content,
-        "title": title,
-        "img_url": img_url,
-    }
-    data_json = json.dumps(data)
-    encoded_data = urllib.parse.quote(data_json)
-    url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/customer/addArticle'
-    nonce = random.randint(1000000000, 9999999999)
-    timestamp = str(int(time.time() * 1000))
-    sign = f'POST%2Fhznz%2Fapp_article%2Fcustomer%2FaddArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}json%3A{encoded_data}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-    sign_sha256 = sha256_encode(sign)
-    headers = {
-        'Accept': 'application/json',
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': '5.2.3',
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': f"{nonce}",
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': f"{timestamp}",
-        'sign': sign_sha256,
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization_new}",
-        'Content-Type': 'application/json',
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive',
-        'Accept-Encoding': 'gzip',
-        'Cache-Control': 'no-cache'
-    }
-    response = requests.post(url, headers=headers, data=data_json)
-    result = response.json()
-#    print(result)
-    print(f"发布动态：\n\n标题：{title}\n内容：{content}\nimg：{img_url}\n\n发布结果：{result['message']}\n")
-    message = f"发布动态：{result['message']}\n"
-    return message
-
-#发布文章
-def addArticle_2():
-    img_url = random.choice(img_url_list)
-    img_url_list.remove(img_url)
-    title = random.choice(title_list)
-    title_list.remove(title)
-    content = random.choice(content_list)
-    content_list.remove(content)
-    data = {
-        "article_sub_type": 2,
-        "img_url": img_url,
-        "title": title,
-        "content": f"<p>{content}</p>"
-    }
-    data_json = json.dumps(data)
-    encoded_data = urllib.parse.quote(data_json)
-    url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/customer/addArticle'
-    nonce = random.randint(1000000000, 9999999999)
-    timestamp = str(int(time.time() * 1000))
-    sign = f'POST%2Fhznz%2Fapp_article%2Fcustomer%2FaddArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}json%3A{encoded_data}'
-    sign_sha256 = sha256_encode(sign)
-    headers = {
-        'Accept': 'application/json',
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': '5.2.3',
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': f"{nonce}",
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': f"{timestamp}",
-        'sign': sign_sha256,
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization_new}",
-        'Content-Type': 'application/json',
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive',
-        'Accept-Encoding': 'gzip',
-        'Cache-Control': 'no-cache'
-    }
-    response = requests.post(url, headers=headers, data=data_json)
-    result = response.json()
-#    print(result)
-    print(f"发布文章：\n\n标题：{title}\n内容：{content}\nimg：{img_url}\n\n发布结果：{result['message']}\n")
-    message = f"发布文章：{result['message']}\n"
-    return message
-
-#删除
-def del_article():
-    id_list = article_id_list()
-    url = "https://api.chehezhi.cn/hznz/app_article/delArticle"
-    headers = {
-        "Host": "api.chehezhi.cn",
-        "content-length": "16",
-        "accept": "application/json, text/plain, */*",
-        "channel": "h5",
-        "authorization": f"Bearer {Authorization_new}",
-        "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36",
-        "content-type": "application/json;",
-        "origin": "https://hozon-h5-prod.hozonauto.com",
-        "x-requested-with": "com.hezhong.nezha",
-        "sec-fetch-site": "cross-site",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-dest": "empty",
-        "accept-encoding": "gzip, deflate",
-        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-    }
-    for ids in id_list:
-        data = {"ids": [ids]}
-        response = requests.post(url=url, headers=headers, json=data)
-        result = response.json()
-#        print(result)
-        print(f"删除{ids}：{result['message']}")
-
-#遍历个人主页 动态，文章id
-def article_id_list():
-    url = 'https://api.chehezhi.cn/hznz/app_article/customer/article/list?page=1&pageSize=10&articleSubType=1'#动态
-    url2 = 'https://api.chehezhi.cn/hznz/app_article/customer/article/list?page=1&pageSize=10&articleSubType=2'#文章
-    headers = {
-        "Host": "api.chehezhi.cn",
-        "accept": "application/json, text/plain, */*",
-        "channel": "h5",
-        "authorization": f"Bearer {Authorization_new}",
-        "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36",
-        "origin": "https://hozon-h5-prod.hozonauto.com",
-        "x-requested-with": "com.hezhong.nezha",
-        "sec-fetch-site": "cross-site",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-dest": "empty",
-        "accept-encoding": "gzip, deflate",
-        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-    }
-    
-    response = requests.get(url=url, headers=headers)
-    response2 = requests.get(url=url2, headers=headers)
-    result = response.json()
-    result2 = response2.json()
-#    print(result)
-    id_list = []#id列表
-    for item in result['data']['rows']:
-        id_list.append(item['id'])
-    for item in result2['data']['rows']:
-        id_list.append(item['id'])   
-    articleStatus_list = []#审核状态列表
-    for item in result['data']['rows']:
-        articleStatus_list.append(item['articleStatus'])
-    for item in result2['data']['rows']:
-        articleStatus_list.append(item['articleStatus'])
-    print(id_list)
-    print(articleStatus_list)
-    del_id_list = [id_list[i] for i in range(len(articleStatus_list)) if articleStatus_list[i] != articleStatus]
-    print(f"需要删除的列表ID：{del_id_list}\n")
-    return del_id_list
 
 def ql_env(name):
     if name in os.environ:
@@ -687,6 +524,7 @@ if __name__ == '__main__':
     msg = ""
     token_list = ""
     phone_list = ""
+    can_account = []
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
@@ -723,4 +561,5 @@ if __name__ == '__main__':
     msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
     msg += f"总账号数量：{len(quantity)} token_list数量：{len(token_index)} phone_list数量：{len(phone_index)}"
     send(title_name, msg)
-    send(f"{title_name}待下单账号", can_account)
+    can_accounts = '\n'.join(can_account)
+    send(f"{title_name}待下单账号", can_accounts)
