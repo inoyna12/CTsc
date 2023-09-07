@@ -1,4 +1,3 @@
-#10/8
 import requests
 import base64
 from datetime import datetime
@@ -9,7 +8,7 @@ def update_github_file(
     username="inoyna12",
     repository_name="CTsc",
     branch_name="master",
-    access_token="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",
+    access_token="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",#10/8过期
     committer_name="inoyna12",
     committer_email="inoyna12@163.com"
     ):
@@ -40,13 +39,12 @@ def update_github_file(
         }
         response = requests.put(create_url, headers=headers, json=payload)
         if response.status_code == 201:
-            msg = f"{file_path} 文件创建成功\n"
+            print(f"{file_path} 文件创建成功")
+            return 1
         else:
             print(response.text)
-            msg = f"{file_path} 文件创建失败\n"
-
-        return msg
-        
+            print(f"{file_path} 文件创建失败")
+            return None 
     data = response.json()
     payload = {
         "message": f"Update {file_path}\n{current_time}",
@@ -58,12 +56,10 @@ def update_github_file(
         "sha": data['sha']
     }
     response = requests.put(url, headers=headers, json=payload)
-
-    # 打印结果
     if response.status_code == 200:
-        msg = f"{file_path} 文件更新成功\n"
+        print(f"{file_path} 文件更新成功")
+        return 1
     else:
         print(response.text)
-        msg = f"{file_path} 文件更新失败\n"
-
-    return msg
+        print(f"{file_path} 文件更新失败")
+        return None
