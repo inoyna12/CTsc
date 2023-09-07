@@ -252,7 +252,7 @@ def current():
             else:
                 send(title_name, f"账号{index + 1}：查询用户信息失败")
                 print(result)
-                return '', ''
+                return "", ""
     
 #查询吉分
 def available():
@@ -279,9 +279,10 @@ def available():
             random_sleep(10, 20)
         else:
             if result['code'] == 'success':
-                assets = f"{phone}：{result['data']['availablePoint']}吉分\n"
+                assets = f"{phone}：{result['data']['availablePoint']}吉分"
                 print(assets)
-                return assets
+                msg.append(assets)
+                return
             else:
                 print(result)
                 send(f"账号{index + 1}", "查询吉分失败")
@@ -335,10 +336,12 @@ def ql_env_put(name, data, Remarks=None):
     if fetch_env:
         put_envs(fetch_env[0].get('id'), fetch_env[0].get('name'), data, Remarks)
         fetch2_env = get_envs(name)
-        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp') + "\n"
+        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp')
+        print(str_time)
         return str_time
     else:
         print(f"未找到 {name} 变量")
+        return None
 
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
@@ -356,14 +359,28 @@ def ql_env(name):
     else:
         print("未添加变量")
         sys.exit(0)    
+
+def warn():
+    if ql_env_put(env_name, msg_token_list, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量更新失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/token_list.txt", msg_token_list) is None:
+        send(f"{title_name}预警", "token上传github失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/phone_list.txt", msg_phone_list) is None:
+        send(f"{title_name}预警", "phone上传github失败")
+    else:
+        print("正常")
     
 if __name__ == '__main__':
     env_name = "JLtoken"#变量名
     env_phone = "JLphone"#变量名
     title_name = '吉利汽车'
-    msg = ""
-    token_list = ""
-    phone_list = ""
+    msg = []
+    token_list = []
+    phone_list = []
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
@@ -379,21 +396,15 @@ if __name__ == '__main__':
         random_sleep(10, 20)
         deleteContent()
         access()
-        msg += available()
-        if len(token_list) > 0 and len(phone_list) > 0:
-            token_list += '\n' + token
-            phone_list += '\n' + phone
-        else:
-            token_list += token
-            phone_list += phone
+        available()
+        token_list.append(token)
+        phone_list.append(phone)
         print(f"第{index + 1}个账号运行完成")
         index += 1
         if index < len(quantity):
             random_sleep(1, 200)
-    token_index = token_list.split('\n')
-    phone_index = phone_list.split('\n')
-    msg += ql_env_put(env_name, token_list, title_name)
-    msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
-    msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
-    msg += f"总账号数量：{len(quantity)} token_list数量：{len(token_index)} phone_list数量：{len(phone_index)}"
-    send(title_name, msg)
+    msg_token_list = '\n'.join(token_list)
+    msg_phone_list = '\n'.join(phone_list)
+    msg_msg = '\n'.join(msg)
+    warn()
+    send(title_name, msg_msg)
