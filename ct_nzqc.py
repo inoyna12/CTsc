@@ -525,7 +525,7 @@ def warn():
         send(f"{title_name}预警", "青龙环境变量token更新失败")
     else:
         print("正常")
-    if ql_env_put(env_name, msg_phone_list, title_name) is None:
+    if ql_env_put(env_phone, msg_phone_list, title_name) is None:
         send(f"{title_name}预警", "青龙环境变量phone更新失败")
     else:
         print("正常")
