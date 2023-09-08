@@ -19,8 +19,8 @@ from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 toutiao_openId_list = []
 xiaoquan_openId_list = []
-oneself = ["19941326235"]
-C_creditScore = 690
+oneself = ["15050425338", "13291164580", "19941326235"]
+fixed_creditScore = 690
 
 def generate_random_uuid():
     random_uuid = str(uuid.uuid4())
@@ -82,7 +82,8 @@ def refresh_Authorization():
                 print("刷新Authorization成功")
                 global Authorization_new
                 Authorization_new = result['data']['access_token']
-                return result['data']['refresh_token']
+                token_list.append(result['data']['refresh_token'])
+                return 1
             else:
                 print("刷新Authorization失败")
                 print(result)
@@ -481,19 +482,19 @@ def information():
             print("其他异常:", e)
             random_sleep(20, 40)
         else:
-            creditScore_bp = result['data']['creditScore']
+            creditScore = result['data']['creditScore']
             phone = result['data']['phone']
-            account_bp = f"{phone}：{creditScore_bp}积分\n"
-            print(account_bp)
-            if int(creditScore_bp) >= C_creditScore and phone not in oneself:
-                can_account.append(phone)
-                print(can_account)
-            else:
-                print("不满足条件，不进行加入")
-            return account_bp, phone
+            user_info = f"{phone}：{creditScore}积分"
+            print(user_info)
+            msg.append(user_info)
+            phone_list.append(phone)
+            if int(creditScore) >= fixed_creditScore and phone not in oneself:
+                use_phone.append(phone)
+                print(use_phone)
+            return
     print(result)
     send("查询失败", f"账号{index + 1}")
-    return ''
+    return None
 
 def ql_env(name):
     if name in os.environ:
@@ -512,19 +513,39 @@ def ql_env_put(name, data, Remarks=None):
     if fetch_env:
         put_envs(fetch_env[0].get('id'), fetch_env[0].get('name'), data, Remarks)
         fetch2_env = get_envs(name)
-        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp') + "\n"
+        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp')
+        print(str_time)
         return str_time
     else:
         print(f"未找到 {name} 变量")
+        return None
+
+def warn():
+    if ql_env_put(env_name, msg_token_list, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量token更新失败")
+    else:
+        print("正常")
+    if ql_env_put(env_name, msg_phone_list, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量phone更新失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/token_list.txt", msg_token_list) is None:
+        send(f"{title_name}预警", "token上传github失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/phone_list.txt", msg_phone_list) is None:
+        send(f"{title_name}预警", "phone上传github失败")
+    else:
+        print("正常")
 
 if __name__ == '__main__':
     env_name = "NZtoken"#变量名
     env_phone = "NZphone"#变量名
     title_name = '哪吒汽车'
-    msg = ""
-    token_list = ""
-    phone_list = ""
-    can_account = []
+    msg = []
+    token_list = []
+    phone_list = []
+    use_phone = []
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
@@ -534,32 +555,21 @@ if __name__ == '__main__':
     send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
-        func = refresh_Authorization()
-        if func is not None:
+        if refresh_Authorization() is not None:
             sign()
             Share_essay()
             insertArtComment()
-            creditScore, phones = information()
-            msg += creditScore
-            if len(token_list) > 0 and len(phone_list) > 0:
-                token_list += '\n' + func
-                phone_list += '\n' + phones
-            else:
-                token_list += func
-                phone_list += phones
+            information()
             print(f"第{index + 1}个账号运行完成")
         else:
-            msg += "token失效或脚本待更新\n"
+            msg.append("token失效或脚本待更新")
         index += 1
         if index < len(quantity):
             random_sleep(1, 100)
-    token_index = token_list.split('\n')
-    phone_index = phone_list.split('\n')
-    msg += ql_env_put(env_name, token_list, title_name)
-    msg += ql_env_put(env_phone, phone_list, title_name)
-    msg += update_github_file(f"token/{title_name}/token_list.txt", token_list)
-    msg += update_github_file(f"token/{title_name}/phone_list.txt", phone_list)
-    msg += f"总账号数量：{len(quantity)} token_list数量：{len(token_index)} phone_list数量：{len(phone_index)}"
-    send(title_name, msg)
-    can_accounts = '\n'.join(can_account)
-    send(f"{title_name}待下单账号", can_accounts)
+    msg_msg = '\n'.join(msg)
+    msg_token_list = '\n'.join(token_list)
+    msg_phone_list = '\n'.join(phone_list)
+    msg_use_phone = '\n'.join(use_phone)
+    warn()
+    send(title_name, msg_msg)
+    send(f"{title_name}待下单账号", msg_use_phone)
