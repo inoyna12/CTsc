@@ -250,7 +250,7 @@ def current():
                 print(f"手机号：{result['data']['ucMemberProfileDto']['mobile']}")
                 return result['data']['userId'], result['data']['ucMemberProfileDto']['mobile']
             else:
-                send(title_name, f"账号{index + 1}：查询用户信息失败")
+              #  send(title_name, f"账号{index + 1}：查询用户信息失败")
                 print(result)
                 return "", ""
     
@@ -285,7 +285,7 @@ def available():
                 return
             else:
                 print(result)
-              #  send(f"账号{index + 1}", "查询吉分失败")
+                send(f"账号{index + 1}", "查询吉分失败")
             break
 
 #查询任务状态
