@@ -390,6 +390,7 @@ if __name__ == '__main__':
         userId, phone = current()
         if len(userId) == 0:
             index += 1
+            random_sleep(1, 200)
             continue
         sign()
         create()
