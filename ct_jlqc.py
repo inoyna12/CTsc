@@ -285,7 +285,7 @@ def available():
                 return
             else:
                 print(result)
-                send(f"账号{index + 1}", "查询吉分失败")
+              #  send(f"账号{index + 1}", "查询吉分失败")
             break
 
 #查询任务状态
