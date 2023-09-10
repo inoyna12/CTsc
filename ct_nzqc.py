@@ -545,7 +545,7 @@ if __name__ == '__main__':
     msg = []
     token_list = []
     phone_list = []
-    use_phone = []
+    use_phone = []  #待下单账号
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
@@ -571,5 +571,5 @@ if __name__ == '__main__':
     msg_phone_list = '\n'.join(phone_list)
     msg_use_phone = '\n'.join(use_phone)
     warn()
-    send(title_name, msg_msg)
-    send(f"{title_name}待下单账号", msg_use_phone)
+    send(f"{title_name}：{len(token_list)}", msg_msg)
+    send(f"{title_name}待下单账号：{len(use_phone)}", msg_use_phone)
