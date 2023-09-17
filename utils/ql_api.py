@@ -5,7 +5,7 @@ import requests
 
 ql_auth_path = '/ql/data/config/auth.json'
 # ql_auth_path = r'D:\Docker\ql\config\auth.json'
-ql_url = 'http://localhost:5600'
+ql_url = 'http://localhost:5700'
 
 
 def __get_token() -> str or None:
