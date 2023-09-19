@@ -408,4 +408,4 @@ if __name__ == '__main__':
     msg_phone_list = '\n'.join(phone_list)
     msg_msg = '\n'.join(msg)
     warn()
-    send(title_name, msg_msg)
+    send(f"{title_name}：{len(token_list)}", msg_msg)
