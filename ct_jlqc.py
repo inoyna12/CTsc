@@ -105,6 +105,10 @@ def queryForFollow():
 #发动态    
 def create():
     print("【【【【【【【发布动态】】】】】】】")
+    content = jinrishici()
+    if content is None:
+        print("随机一言获取失败，跳过发布动态")
+        return
     url = 'https://app.geely.com/api/v2/topicContent/create'
     headers = {
         "Host": "app.geely.com",
@@ -113,33 +117,31 @@ def create():
         "devicesn": "356596585696247",
         "token": token
     }
-    for i in range(5):
-        content = random.choice(content_list)
-        data = {
-            "circleId": None,
-            "contentType": 1,
-            "content": content,
-            "fileList": [],
-            "topicList": []
-        }
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(10, 20)
+    data = {
+        "circleId": None,
+        "contentType": 1,
+        "content": content,
+        "fileList": [],
+        "topicList": []
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        if result['code'] == 'success':
+            print(f"内容：{content} 发布结果：{result['code']}")
         else:
-            if result['code'] == 'success':
-                print(f"内容：{content} 发布结果：{result['code']}")
-            else:
-                print(result)
-            break
+            print(result)
+        break
     
 #遍历我的动态数量
 def queryMy():
@@ -360,6 +362,17 @@ def ql_env(name):
         print("未添加变量")
         sys.exit(0)    
 
+def jinrishici():
+    print("随机一言")
+    url = "https://v1.jinrishici.com/all.json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        print(response['content'])
+        return response['content']
+    else:
+        print(f"随机一言获取失败，状态码：{response.status_code}")
+        return None
+        
 def warn():
     if ql_env_put(env_name, msg_token_list, title_name) is None:
         send(f"{title_name}预警", "青龙环境变量更新失败")
@@ -384,7 +397,6 @@ if __name__ == '__main__':
     index = 0
     quantity = ql_env(env_name)
     print (f"共找到{len(quantity)}个账号")
-    queryForFollow()
     for token in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         userId, phone = current()
@@ -393,10 +405,10 @@ if __name__ == '__main__':
             random_sleep(1, 200)
             continue
         sign()
-    #    create()
-    #    random_sleep(10, 20)
-    #    deleteContent()
-    #    access()
+        if index < 10:
+            create()
+            random_sleep(20, 30)
+            access()
         available()
         token_list.append(token)
         phone_list.append(phone)
