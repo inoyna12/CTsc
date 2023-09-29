@@ -141,7 +141,6 @@ def create():
             print(f"内容：{content} 发布结果：{result['code']}")
         else:
             print(result)
-        break
     
 #遍历我的动态数量
 def queryMy():
