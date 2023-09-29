@@ -365,9 +365,10 @@ def jinrishici():
     print("随机一言")
     url = "https://v1.jinrishici.com/all.json"
     response = requests.get(url)
+    result = response.json()
     if response.status_code == 200:
-        print(response['content'])
-        return response['content']
+        print(result['content'])
+        return result['content']
     else:
         print(f"随机一言获取失败，状态码：{response.status_code}")
         return None
