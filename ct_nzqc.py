@@ -557,7 +557,7 @@ if __name__ == '__main__':
     toutiao_open()
     toutiao_loadmore()
     xiaoquan_loadmore()
-    if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list < 50:
+    if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list) < 50:
         send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
