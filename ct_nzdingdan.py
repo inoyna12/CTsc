@@ -113,7 +113,7 @@ def orderinfo():
     records = result['data']['records'][0]
     total = result['data']['total']
     print("总订单数：" + str(total))
-    printc(f"下单号码：{phone} 总：{total}")
+    printc(f"下单号码：{phone}({total})")
     printc(f"下单时间：{records['createTime']}")
     printc(f"商品名称：{records['name']}")
     printc("收货地址：{}，{}，{}".format(records['orderLogistics']['userName'], records['orderLogistics']['telNum'], records['orderLogistics']['address']))
