@@ -261,8 +261,8 @@ def xiaoquan_loadmore():
 #爬头条评论
 def traversal_comment():
     print("【遍历评论】")
-    articleId = random.choice(toutiao_openId_list)
     for i in range(3):
+        articleId = random.choice(toutiao_openId_list)
         url = 'https://api.chehezhi.cn/hznz/app_article/listParentComment'
         headers = {
             'Host': 'api.chehezhi.cn',
@@ -407,7 +407,7 @@ def Share_essay():
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
-    if len(toutiao_openId_list) < 100:
+    if len(toutiao_openId_list) < 200:
         print("toutiao_openId_list数量小于100，不进行评论")
         return
     articleId, content = traversal_comment()
@@ -521,7 +521,11 @@ def ql_env_put(name, data, Remarks=None):
         return None
 
 def warn():
-    if ql_env_put(env_name, msg_token_list, title_name) is None:
+    if ql_env_put(env_name, msg_token_list1, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量token更新失败")
+    else:
+        print("正常")
+    if ql_env_put(env_name1, msg_token_list2, title_name) is None:
         send(f"{title_name}预警", "青龙环境变量token更新失败")
     else:
         print("正常")
@@ -540,6 +544,7 @@ def warn():
 
 if __name__ == '__main__':
     env_name = "NZtoken"#变量名
+    env_name1 = "NZtoken1"#变量名
     env_phone = "NZphone"#变量名
     title_name = '哪吒汽车'
     msg = []
@@ -547,12 +552,13 @@ if __name__ == '__main__':
     phone_list = []
     use_phone = []  #待下单账号
     index = 0
-    quantity = ql_env(env_name)
+    quantity = ql_env(env_name) + ql_env(env_name1)
     print (f"共找到{len(quantity)}个账号")
     toutiao_open()
     toutiao_loadmore()
     xiaoquan_loadmore()
-    send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
+    if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list < 50:
+        send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
     for Authorization in quantity:
         print(f"\n------------正在执行第{index + 1}个账号----------------")
         if refresh_Authorization() is not None:
@@ -568,6 +574,8 @@ if __name__ == '__main__':
             random_sleep(1, 100)
     msg_msg = '\n'.join(msg)
     msg_token_list = '\n'.join(token_list)
+    msg_token_list1 = '\n'.join(token_list[:200])
+    msg_token_list2 = '\n'.join(token_list[200:])
     msg_phone_list = '\n'.join(phone_list)
     msg_use_phone = '\n'.join(use_phone)
     warn()
