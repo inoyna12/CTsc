@@ -8,6 +8,7 @@ import json
 import time
 import random
 import hashlib
+import io
 from sendNotify import send
 from os import environ
 from datetime import datetime
@@ -26,7 +27,7 @@ def refresh_Authorization():
             "Authorization": Authorization,
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": "5.5.0",
+            "appVersion": "5.5.2",
             "login_channel": "1",
             "channel": "android",
             "nonce": f"{nonce}",
@@ -107,20 +108,17 @@ def orderinfo():
     }
     response = requests.get(url=url, params=params, headers=headers)
     result = response.json()
-    print(result)
-    orders = result['data']['records']  # 获取订单列表
-    results = ''  # 初始化保存结果的变量
-    for order in orders:
-        order_item = order['listOrderItem'][0]  # 获取订单商品信息
-        order_logistics = order['orderLogistics']  # 获取订单物流信息
-        results += "下单时间：{}\n".format(order_item['createTime'])
-        results += "商品名称：{}\n".format(order_item['spuName'])
-        results += "收货地址：{}，{}，{}\n".format(order_logistics['userName'], order_logistics['telNum'], order_logistics['address'])
-        results += "快递状态：{}\n".format(order['statusDesc'])
-        results += "快递单号：{}\n".format(order_logistics['logisticsNo'])
-        results += "订单状态：{}\n\n".format(order_item['statusDesc'])
-    print(results)
-    return results
+    # print(result)
+    records = result['data']['records'][0]
+    total = result['data']['total']
+    print("总订单数：" + str(total))
+    printc(f"下单号码：{phone}   总：{total}")
+    printc(f"下单时间：{records['createTime']}")
+    printc(f"商品名称：{records['name']}")
+    printc("收货地址：{}，{}，{}".format(records['orderLogistics']['userName'], records['orderLogistics']['telNum'], records['orderLogistics']['address']))
+    printc(f"快递状态：{records['statusDesc']}")
+    printc(f"订单状态：{records['listOrderItem'][0]['statusDesc']}")
+    printc(f"快递单号：{records['orderLogistics']['logisticsNo']}\n")
 
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
@@ -147,19 +145,23 @@ def ql_env(name):
     else:
         print("未添加变量")
         sys.exit(0)
+
+def printc(text):
+    print(text)  # 实时打印到控制台
+    print(text, file=output)  # 存储到文件对象中
         
 if __name__ == '__main__':
+    output = io.StringIO()
     title_name = '哪吒汽车/下单日志'
     Authorization_list = []
     phone_list = []
-    msg = ''
     index = 0
     quantity1 = ql_env("NZmy_phone")
     quantity2 = ql_env("NZphone")
     quantity3 = ql_env("NZtoken")
     if len(quantity2) != len(quantity3):
         print("变量列表数量不相等")
-        exit() # 停止运行
+        exit()
     credentials = dict(zip(quantity2, quantity3))
     for phone in quantity1:
         if phone in credentials:
@@ -171,11 +173,11 @@ if __name__ == '__main__':
         print (f"共找到{len(Authorization_list)}个账号")
         for phone, Authorization in zip(phone_list, Authorization_list):
             refresh_Authorization()
-            msg += f"下单号码：{phone}\n"
-            msg += orderinfo()
+            orderinfo()
             index += 1
             if index < len(quantity1):
                 random_sleep(10, 20)
+        msg = output.getvalue()
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         update_github_file(f"token/{title_name}/{current_time}.txt", msg)
