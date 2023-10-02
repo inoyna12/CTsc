@@ -9,6 +9,7 @@ import time
 import random
 import hashlib
 import io
+import sys
 from sendNotify import send
 from os import environ
 from datetime import datetime
@@ -112,7 +113,7 @@ def orderinfo():
     records = result['data']['records'][0]
     total = result['data']['total']
     print("总订单数：" + str(total))
-    printc(f"下单号码：{phone}   总：{total}")
+    printc(f"下单号码：{phone} 总：{total}")
     printc(f"下单时间：{records['createTime']}")
     printc(f"商品名称：{records['name']}")
     printc("收货地址：{}，{}，{}".format(records['orderLogistics']['userName'], records['orderLogistics']['telNum'], records['orderLogistics']['address']))
@@ -148,6 +149,7 @@ def ql_env(name):
 
 def printc(text):
     print(text)  # 实时打印到控制台
+    sys.stdout.flush()
     print(text, file=output)  # 存储到文件对象中
         
 if __name__ == '__main__':
