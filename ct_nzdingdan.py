@@ -160,7 +160,7 @@ if __name__ == '__main__':
     index = 0
     quantity1 = ql_env("NZmy_phone")
     quantity2 = ql_env("NZphone")
-    quantity3 = ql_env("NZtoken")
+    quantity3 = ql_env("NZtoken") + ql_env("NZtoken1")
     if len(quantity2) != len(quantity3):
         print("变量列表数量不相等")
         exit()
