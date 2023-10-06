@@ -564,7 +564,7 @@ if __name__ == '__main__':
         if refresh_Authorization() is not None:
             sign()
             Share_essay()
-            insertArtComment()
+     #       insertArtComment()
             information()
             print(f"第{index + 1}个账号运行完成")
         else:
