@@ -19,7 +19,7 @@ def ql_env(name):
 if __name__ == '__main__':
     quantity1 = ql_env("NZmy_phone")
     quantity2 = ql_env("NZphone")
-    quantity3 = ql_env("NZtoken")
+    quantity3 = ql_env("NZtoken") + ql_env("NZtoken1")
     print(len(quantity1))
     print(len(quantity2), len(quantity3))
     if len(quantity2) != len(quantity3):
