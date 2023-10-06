@@ -95,7 +95,7 @@ def refresh_Authorization():
 def toutiao_loadmore():
     print("【遍历头条翻页】")
     createTime_index = 0
-    random_number = random.randint(300, 500)
+    random_number = random.randint(400, 600)
     uuid = generate_random_uuid()
     print(uuid, random_number)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
@@ -199,7 +199,7 @@ def xiaoquan_loadmore():
     print("【遍历小圈翻页】")
     data_index = 0
     createTime_index = 0
-    random_number = random.randint(100, 200)
+    random_number = random.randint(200, 300)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
