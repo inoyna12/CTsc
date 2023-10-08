@@ -409,7 +409,7 @@ if __name__ == '__main__':
             random_sleep(1, 200)
             continue
         sign()
-        if index < 10:
+        if index < 20:
             create()
             random_sleep(20, 30)
             access()
@@ -419,7 +419,7 @@ if __name__ == '__main__':
         print(f"第{index + 1}个账号运行完成")
         index += 1
         if index < len(quantity):
-            random_sleep(1, 200)
+            random_sleep(100, 300)
     msg_token_list = '\n'.join(token_list)
     msg_phone_list = '\n'.join(phone_list)
     msg_msg = '\n'.join(msg)
