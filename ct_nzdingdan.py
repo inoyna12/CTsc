@@ -109,7 +109,7 @@ def orderinfo():
     }
     response = requests.get(url=url, params=params, headers=headers)
     result = response.json()
-    # print(result)
+    print(result)
     records = result['data']['records'][0]
     total = result['data']['total']
     print("总订单数：" + str(total))
