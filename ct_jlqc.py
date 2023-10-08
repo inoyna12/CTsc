@@ -378,6 +378,10 @@ def warn():
         send(f"{title_name}预警", "青龙环境变量更新失败")
     else:
         print("正常")
+    if ql_env_put(env_phone, msg_phone_list, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量更新失败")
+    else:
+        print("正常")
     if update_github_file(f"token/{title_name}/token_list.txt", msg_token_list) is None:
         send(f"{title_name}预警", "token上传github失败")
     else:
