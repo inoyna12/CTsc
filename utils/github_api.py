@@ -8,7 +8,7 @@ def update_github_file(
     username="inoyna12",
     repository_name="CTsc",
     branch_name="master",
-    access_token="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",#10/8过期
+    access_token="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",#1/1过期
     committer_name="inoyna12",
     committer_email="inoyna12@163.com"
     ):
