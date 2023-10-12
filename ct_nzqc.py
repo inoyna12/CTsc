@@ -103,17 +103,17 @@ def toutiao_loadmore():
     for i in range(50):
         print(f"第{i + 1}次请求")
         nonce = generate_random_number()
-        timestamp = str(int(time.time() * 1000))
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        timestamp = int(time.time() * 1000)
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.1',
+            'appVersion': appVersion,
             'login_channel': '1',
             'channel': 'android',
-            'nonce': f"{nonce}",
+            'nonce': str(nonce),
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': f"{timestamp}",
+            'timestamp': str(timestamp),
             'sign': sha256_encode(sign),
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
@@ -162,17 +162,17 @@ def toutiao_open():
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
     print(uuid)
     nonce = generate_random_number()
-    timestamp = str(int(time.time() * 1000))
-    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+    timestamp = int(time.time() * 1000)
+    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': '5.5.1',
+        'appVersion': appVersion,
         'login_channel': '1',
         'channel': 'android',
-        'nonce': f"{nonce}",
+        'nonce': str(nonce),
         'phoneModel': 'Redmi 22081212C',
-        'timestamp': f"{timestamp}",
+        'timestamp': str(timestamp),
         'sign': sha256_encode(sign),
         'Accept-Language': 'zh-CN,zh;q=0.8',
         'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
@@ -208,19 +208,18 @@ def xiaoquan_loadmore():
         print(f"第{i + 1}次请求")
         url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
-        timestamp = str(int(time.time() * 1000))
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈下滑刷新
-        sign_sha256 = sha256_encode(sign)
+        timestamp = int(time.time() * 1000)
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}{sign_string}'#小圈下滑刷新
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': '5.5.1',
+            'appVersion': appVersion,
             'login_channel': '1',
             'channel': 'android',
-            'nonce': f"{nonce}",
+            'nonce': str(nonce),
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': f"{timestamp}",
-            'sign': sign_sha256,
+            'timestamp': str(timestamp),
+            'sign': sha256_encode(sign),
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
             'Host': 'appapi-pki.chehezhi.cn:18443',
@@ -312,7 +311,7 @@ def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
     nonce = generate_random_number()
-    timestamp = str(int(time.time() * 1000))
+    timestamp = int(time.time() * 1000)
     sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
@@ -357,7 +356,7 @@ def forwarArticle():
         articleId = random.choice(xiaoquan_openId_list)
         url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
         nonce = generate_random_number()
-        timestamp = str(int(time.time() * 1000))
+        timestamp = int(time.time() * 1000)
         sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
         headers = {
             'Accept': 'application/json',
