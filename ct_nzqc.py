@@ -44,7 +44,7 @@ def refresh_Authorization():
         formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
         nonce = generate_random_number()
         timestamp = int(time.time() * 1000)
-        sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}{sign_string}'
+        sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{info['refresh_token']}{sign_string}'
         headers = {
             "Authorization": info['refresh_token'],
             "appId": "HOZON-B-xKrgEvMt",
