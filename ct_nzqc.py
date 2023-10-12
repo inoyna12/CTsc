@@ -511,18 +511,18 @@ if __name__ == '__main__':
     toutiao_openId_list = []
     xiaoquan_openId_list = []
     index = 0
-    toutiao_open()
-    toutiao_loadmore()
-    xiaoquan_loadmore()
     with open(filepath, "r") as f:
         info_new = json.load(f)
     print(f"共找到{len(info_new)}个账号")
+    toutiao_open()
+    toutiao_loadmore()
+    xiaoquan_loadmore()
     for info in info_new:
         print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
         refresh_Authorization()
         sign() if not info['sign'] else print("已签到")
-        forwarArticle() if i['share'] < 3 else print("转发已完成")
-        insertArtComment() if i['comment'] < 3 else print("评论已完成")
+        forwarArticle() if info['share'] < 3 else print("转发已完成")
+        insertArtComment() if info['comment'] < 3 else print("评论已完成")
         getCustomer()
         with open(filepath, "w") as f:
             json.dump(info_new, f)
