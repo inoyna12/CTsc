@@ -1,3 +1,8 @@
+'''
+cron: 36 0 * * *
+new Env('哪吒汽车重置json');
+'''
+
 import os,json
 # 假设有两个列表，分别存储了账号和密码
 accounts = os.environ['NZphone'].split('\n')
