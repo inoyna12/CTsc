@@ -4,6 +4,7 @@ new Env('哪吒汽车');
 '''
 import requests
 import json
+import os
 import random
 import time
 import datetime
@@ -11,11 +12,13 @@ import hashlib
 import urllib.parse
 import uuid
 from sendNotify import send
+from os import environ
+from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 from utils.github_api import update_github_file
 
-appVersion = "5.5.1"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
-sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+toutiao_openId_list = []
+xiaoquan_openId_list = []
 oneself = ["15050425338", "13291164580", "19941326235"]
 fixed_creditScore = 690
 
@@ -40,27 +43,26 @@ def sha256_encode(string):
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
     for i in range(50):
-        now = datetime.datetime.now()
-        formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
         nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{info['refresh_token']}{sign_string}"
+        timestamp = str(int(time.time() * 1000))
+        sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        sign_sha256 = sha256_encode(sign)
         headers = {
-            "Authorization": info['refresh_token'],
+            "Authorization": Authorization,
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": appVersion,
+            "appVersion": "5.5.1",
             'login_channel': '1',
             'channel': 'android',
-            "nonce": str(nonce),
+            "nonce": f"{nonce}",
             "phoneModel": "Redmi 22081212C",
-            "timestamp": str(timestamp),
-            "sign": sha256_encode(sign),
+            "timestamp": f"{timestamp}",
+            "sign": sign_sha256,
             "Content-Type": "application/x-www-form-urlencoded",
             "Host": "appapi-pki.chehezhi.cn:18443"
         }
         data = {
-            "refreshToken": info['refresh_token']
+            "refreshToken": f"{Authorization}"
         }
         try:
             response = requests.post(url=url, headers=headers, data=data, timeout=10)
@@ -78,13 +80,10 @@ def refresh_Authorization():
         else:
             if "code" in result and result['code'] == 20000:
                 print("刷新Authorization成功")
-                global Authorization
-                Authorization = result['data']['access_token']
-                info['access_token'] = result['data']['access_token']
-                info['access_token_time'] = str(formatted_time)
-                info['refresh_token'] = result['data']['refresh_token']
-                info['refresh_token_time'] = str(formatted_time)
-                return
+                global Authorization_new
+                Authorization_new = result['data']['access_token']
+                token_list.append(result['data']['refresh_token'])
+                return 1
             else:
                 print("刷新Authorization失败")
                 print(result)
@@ -96,24 +95,24 @@ def refresh_Authorization():
 def toutiao_loadmore():
     print("【遍历头条翻页】")
     createTime_index = 0
-    random_number = random.randint(100, 200)
+    random_number = random.randint(400, 600)
     uuid = generate_random_uuid()
     print(uuid, random_number)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
     for i in range(50):
         print(f"第{i + 1}次请求")
         nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
+        timestamp = str(int(time.time() * 1000))
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': appVersion,
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
-            'nonce': str(nonce),
+            'nonce': f"{nonce}",
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
+            'timestamp': f"{timestamp}",
             'sign': sha256_encode(sign),
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
@@ -162,17 +161,17 @@ def toutiao_open():
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
     print(uuid)
     nonce = generate_random_number()
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
+    timestamp = str(int(time.time() * 1000))
+    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': appVersion,
+        'appVersion': '5.5.1',
         'login_channel': '1',
         'channel': 'android',
-        'nonce': str(nonce),
+        'nonce': f"{nonce}",
         'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
+        'timestamp': f"{timestamp}",
         'sign': sha256_encode(sign),
         'Accept-Language': 'zh-CN,zh;q=0.8',
         'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
@@ -200,7 +199,7 @@ def xiaoquan_loadmore():
     print("【遍历小圈翻页】")
     data_index = 0
     createTime_index = 0
-    random_number = random.randint(100, 200)
+    random_number = random.randint(200, 300)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
@@ -208,18 +207,19 @@ def xiaoquan_loadmore():
         print(f"第{i + 1}次请求")
         url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}{sign_string}'#小圈下滑刷新
+        timestamp = str(int(time.time() * 1000))
+        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'#小圈下滑刷新
+        sign_sha256 = sha256_encode(sign)
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': appVersion,
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
-            'nonce': str(nonce),
+            'nonce': f"{nonce}",
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
+            'timestamp': f"{timestamp}",
+            'sign': sign_sha256,
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
             'Host': 'appapi-pki.chehezhi.cn:18443',
@@ -311,21 +311,22 @@ def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
     nonce = generate_random_number()
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+    timestamp = str(int(time.time() * 1000))
+    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+    sign_sha256 = sha256_encode(sign)
     headers = {
         'appId': 'HOZON-B-xKrgEvMt',
         'appKey': appKey,
-        'appVersion': appVersion,
+        'appVersion': '5.5.1',
         'login_channel': '1',
         'channel': 'android',
-        'nonce': str(nonce),
+        'nonce': f"{nonce}",
         'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256_encode(sign),
+        'timestamp': f"{timestamp}",
+        'sign': sign_sha256,
         'Accept-Language': 'zh-CN,zh;q=0.8',
         'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization}",
+        'Authorization': f"Bearer {Authorization_new}",
         'Host': 'appapi-pki.chehezhi.cn:18443',
         'Connection': 'Keep-Alive'
     }
@@ -344,10 +345,9 @@ def sign():
         random_sleep(10, 20)
     else:
         print(result['message'])
-        info['sign'] = True
   
 # 转发  
-def forwarArticle():
+def Share_essay():
     print("【【【【【【【转发】】】】】】】")
     if len(xiaoquan_openId_list) < 50:
         print("xiaoquan_openId_list数量小于50，不进行转发")
@@ -356,22 +356,23 @@ def forwarArticle():
         articleId = random.choice(xiaoquan_openId_list)
         url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
         nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+        timestamp = str(int(time.time() * 1000))
+        sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        sign_sha256 = sha256_encode(sign)
         headers = {
             'Accept': 'application/json',
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': appVersion,
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
-            'nonce': str(nonce),
+            'nonce': f"{nonce}",
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
+            'timestamp': f"{timestamp}",
+            'sign': sign_sha256,
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {Authorization}",
+            'Authorization': f"Bearer {Authorization_new}",
             'devicemac': '3e755c2e-1dc9-3f31-93e0-ecba7a567e1e',
             'Content-Type': 'application/json',
             'Content-Length': '48',
@@ -398,8 +399,7 @@ def forwarArticle():
         else:
             print(f"转发{articleId}：{result['message']}")
             if result['message'] == "转发成功，获得1积分":
-                info['share'] = info['share'] + 1
-                return
+                break
             else:
                 print(result)
                 random_sleep(20, 40)
@@ -407,7 +407,7 @@ def forwarArticle():
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
-    if len(toutiao_openId_list) < 100:
+    if len(toutiao_openId_list) < 200:
         print("toutiao_openId_list数量小于100，不进行评论")
         return
     articleId, content = traversal_comment()
@@ -419,7 +419,7 @@ def insertArtComment():
         'Host': 'api.chehezhi.cn',
         'accept': 'application/json, text/plain, */*',
         'channel': 'h5',
-        'authorization': f"Bearer {Authorization}",
+        'authorization': f"Bearer {Authorization_new}",
         'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36',
         'content-type': 'application/json;',
         'origin': 'https://hozon-h5-prod.hozonauto.com',
@@ -442,32 +442,29 @@ def insertArtComment():
         print("其他异常:", e)
     else:
         print(f"评论结果：{result['message']}")
-        if result['message'] == "成功":
-            info['comment'] = info['comment'] + 1
-        else:
-            print(result)
 
 #查询
-def getCustomer():
+def information():
     print("【【【【【【【查询】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
     for i in range(5):
         nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+        timestamp = str(int(time.time() * 1000))
+        sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        sign_sha256 = sha256_encode(sign)
         headers = {
             'appId': 'HOZON-B-xKrgEvMt',
             'appKey': appKey,
-            'appVersion': appVersion,
+            'appVersion': '5.5.1',
             'login_channel': '1',
             'channel': 'android',
-            'nonce': str(nonce),
+            'nonce': f"{nonce}",
             'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
+            'timestamp': f"{timestamp}",
+            'sign': sign_sha256,
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {Authorization}",
+            'Authorization': f"Bearer {Authorization_new}",
             'Host': 'appapi-pki.chehezhi.cn:18443',
             'Connection': 'Keep-Alive'
         }
@@ -487,48 +484,100 @@ def getCustomer():
         else:
             creditScore = result['data']['creditScore']
             phone = result['data']['phone']
-            info['mobile'] = phone
-            info['creditScore'] = creditScore
             user_info = f"{phone}：{creditScore}积分"
             print(user_info)
             msg.append(user_info)
+            phone_list.append(phone)
             if int(creditScore) >= fixed_creditScore and phone not in oneself:
-                msg_phone.append(phone)
+                use_phone.append(phone)
+                print(use_phone)
             return
     print(result)
     send("查询失败", f"账号{index + 1}")
     return None
 
-# def send_new():
-    # if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list) < 50:
-        # send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
+def ql_env(name):
+    if name in os.environ:
+        token_list = os.environ[name].split('\n')
+        if len(token_list) > 0:
+            return token_list
+        else:
+            print("变量未启用")
+            sys.exit(1)
+    else:
+        print("未添加变量")
+        sys.exit(0)
+
+def ql_env_put(name, data, Remarks=None):
+    fetch_env = get_envs(name)#查询环境变量信息
+    if fetch_env:
+        put_envs(fetch_env[0].get('id'), fetch_env[0].get('name'), data, Remarks)
+        fetch2_env = get_envs(name)
+        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp')
+        print(str_time)
+        return str_time
+    else:
+        print(f"未找到 {name} 变量")
+        return None
+
+def warn():
+    if ql_env_put(env_name, msg_token_list1, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量token更新失败")
+    else:
+        print("正常")
+    if ql_env_put(env_name1, msg_token_list2, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量token更新失败")
+    else:
+        print("正常")
+    if ql_env_put(env_phone, msg_phone_list, title_name) is None:
+        send(f"{title_name}预警", "青龙环境变量phone更新失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/token_list.txt", msg_token_list) is None:
+        send(f"{title_name}预警", "token上传github失败")
+    else:
+        print("正常")
+    if update_github_file(f"token/{title_name}/phone_list.txt", msg_phone_list) is None:
+        send(f"{title_name}预警", "phone上传github失败")
+    else:
+        print("正常")
 
 if __name__ == '__main__':
+    env_name = "NZtoken"#变量名
+    env_name1 = "NZtoken1"#变量名
+    env_phone = "NZphone"#变量名
     title_name = '哪吒汽车'
-    filepath = "/ql/data/env/nzqc.json"
     msg = []
-    msg_phone = []
-    toutiao_openId_list = []
-    xiaoquan_openId_list = []
+    token_list = []
+    phone_list = []
+    use_phone = []  #待下单账号
     index = 0
-    with open(filepath, "r") as f:
-        info_new = json.load(f)
-    print(f"共找到{len(info_new)}个账号")
+    quantity = ql_env(env_name) + ql_env(env_name1)
+    print (f"共找到{len(quantity)}个账号")
     toutiao_open()
     toutiao_loadmore()
     xiaoquan_loadmore()
-    for info in info_new:
-        print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
-        refresh_Authorization()
-        sign() if not info['sign'] else print("已签到")
-        forwarArticle() if info['share'] < 3 else print("转发已完成")
-        insertArtComment() if info['comment'] < 3 else print("评论已完成")
-        getCustomer()
-        with open(filepath, "w") as f:
-            json.dump(info_new, f)
+    if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list) < 50:
+        send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
+    for Authorization in quantity:
+        print(f"\n------------正在执行第{index + 1}个账号----------------")
+        if refresh_Authorization() is not None:
+            sign()
+            Share_essay()
+            insertArtComment()
+            information()
+            print(f"第{index + 1}个账号运行完成")
+        else:
+            msg.append("token失效或脚本待更新")
         index += 1
-        if index < len(info_new):
+        if index < len(quantity):
             random_sleep(1, 100)
-    send(f"{title_name}：{index}", '\n'.join(msg))   
-    send(f"{title_name}待下单账号：{len(msg_phone)}", '\n'.join(msg_phone))
-    update_github_file(f"token/{title_name}/nzqc.json", info_new)
+    msg_msg = '\n'.join(msg)
+    msg_token_list = '\n'.join(token_list)
+    msg_token_list1 = '\n'.join(token_list[:200])
+    msg_token_list2 = '\n'.join(token_list[200:])
+    msg_phone_list = '\n'.join(phone_list)
+    msg_use_phone = '\n'.join(use_phone)
+    warn()
+    send(f"{title_name}：{len(token_list)}", msg_msg)
+    send(f"{title_name}待下单账号：{len(use_phone)}", msg_use_phone)
