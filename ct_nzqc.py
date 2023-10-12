@@ -96,7 +96,7 @@ def refresh_Authorization():
 def toutiao_loadmore():
     print("【遍历头条翻页】")
     createTime_index = 0
-    random_number = random.randint(400, 600)
+    random_number = random.randint(100, 200)
     uuid = generate_random_uuid()
     print(uuid, random_number)
     url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
@@ -200,7 +200,7 @@ def xiaoquan_loadmore():
     print("【遍历小圈翻页】")
     data_index = 0
     createTime_index = 0
-    random_number = random.randint(200, 300)
+    random_number = random.randint(100, 200)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
@@ -349,7 +349,7 @@ def sign():
 # 转发  
 def forwarArticle():
     print("【【【【【【【转发】】】】】】】")
-    if len(xiaoquan_openId_list) < 100:
+    if len(xiaoquan_openId_list) < 50:
         print("xiaoquan_openId_list数量小于50，不进行转发")
         return
     for i in range(2):
@@ -407,7 +407,7 @@ def forwarArticle():
 #评论帖子
 def insertArtComment():
     print("【【【【【【【评论】】】】】】】")
-    if len(toutiao_openId_list) < 200:
+    if len(toutiao_openId_list) < 100:
         print("toutiao_openId_list数量小于100，不进行评论")
         return
     articleId, content = traversal_comment()
