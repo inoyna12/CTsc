@@ -6,7 +6,7 @@ import os,json
 # 假设有两个列表，分别存储了账号和密码
 accounts = os.environ['NZphone'].split('\n')
 #passwords = os.environ['NZtoken'].split('\n')[:3]
-# passwords = os.environ['NZtoken'].split('\n') + os.environ['NZtoken1'].split('\n')
+passwords = os.environ['NZtoken'].split('\n') + os.environ['NZtoken1'].split('\n')
 
 # 初始化空列表
 account_list = []
