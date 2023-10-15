@@ -506,7 +506,7 @@ def openrw():
 
 def msg_send():
     # sorted_data = sorted(info_max, key=lambda x: x['creditScore'])#从小到大排序
-    sorted_data = sorted(data, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
+    sorted_data = sorted(info_max, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
     for item in sorted_data:
         phone = item['mobile']
         creditScore = item['creditScore']
@@ -544,6 +544,7 @@ if __name__ == '__main__':
         fcntl.flock(file.fileno(), fcntl.LOCK_EX)
         info_max = json.load(file)
         for info in info_max:
+            print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
             if info['mobile'] == max:
                 refresh_Authorization()
                 sign() if not info['sign'] else print("已签到")
