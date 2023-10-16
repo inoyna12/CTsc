@@ -125,6 +125,9 @@ def orderinfo():
     printc(f"快递状态：{records['statusDesc']}   {records['updateTime']}")
     printc(f"订单状态：{records['listOrderItem'][0]['statusDesc']}")
     printc(f"快递单号：{records['orderLogistics']['logisticsNo']}\n")
+    if records['statusDesc'] == '待收货':
+        global td_inx
+        td_inx = td_inx + 1
 
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
@@ -161,6 +164,7 @@ if __name__ == '__main__':
     output = io.StringIO()
     title_name = '哪吒汽车/下单日志'
     filepath = "/ql/data/env/nzqc.json"
+    td_inx = 0
     index = 0
     max_phone = ql_env("NZmy_phone")
     print(f"共找到{len(max_phone)}个账号")
@@ -186,4 +190,4 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
     update_github_file(f"token/{title_name}/{current_time}.txt", msg)
-    send('哪吒订单查询', msg)
+    send(f"哪吒订单查询：{len(max_phone)}---{td_inx}", msg)
