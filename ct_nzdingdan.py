@@ -65,7 +65,6 @@ def refresh_Authorization():
                 info['access_token'] = result['data']['access_token']
                 info['refresh_token'] = result['data']['refresh_token']
                 info['token_time'] = str(formatted_time)
-                git_token.append(result['data']['refresh_token'])
                 return
             else:
                 print("刷新Authorization失败")
