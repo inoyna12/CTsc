@@ -163,7 +163,7 @@ if __name__ == '__main__':
     filepath = "/ql/data/env/nzqc.json"
     index = 0
     max_phone = ql_env("NZmy_phone")
-    print(f"共找到{len(quantity1)}个账号")
+    print(f"共找到{len(max_phone)}个账号")
     for max in max_phone:
         print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
         file = open(filepath, 'r+')
