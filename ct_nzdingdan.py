@@ -181,7 +181,7 @@ if __name__ == '__main__':
                 break
         index += 1
         if index < len(max_phone):
-            random_sleep(1, 100)    
+            random_sleep(10, 20)    
     msg = output.getvalue()
     now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
