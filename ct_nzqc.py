@@ -540,7 +540,7 @@ if __name__ == '__main__':
     toutiao_loadmore()
     xiaoquan_loadmore()
     for max in max_phone:
-        print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
+        print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
         file = open(filepath, 'r+')
         fcntl.flock(file.fileno(), fcntl.LOCK_EX)
         info_max = json.load(file)
