@@ -10,38 +10,38 @@ import random
 import hashlib
 import io
 import sys
+import fcntl
 from sendNotify import send
-from os import environ
 from datetime import datetime
 from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 tenantid = '1501391403178266624'
+appVersion = "5.5.2"
 
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    for i in range(5):
+    for i in range(50):
+        now = datetime.datetime.now()
+        formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
         nonce = generate_random_number()
-        timestamp = str(int(time.time() * 1000))
-        sign = f'POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{Authorization}8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-        sign_sha256 = sha256_encode(sign)
+        timestamp = int(time.time() * 1000)
+        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{info['refresh_token']}{sign_string}"
         headers = {
-            "Authorization": Authorization,
+            "Authorization": info['refresh_token'],
             "appId": "HOZON-B-xKrgEvMt",
             "appKey": appKey,
-            "appVersion": "5.5.2",
-            "login_channel": "1",
-            "channel": "android",
-            "nonce": f"{nonce}",
+            "appVersion": appVersion,
+            'login_channel': '1',
+            'channel': 'android',
+            "nonce": str(nonce),
             "phoneModel": "Redmi 22081212C",
-            "timestamp": f"{timestamp}",
-            "sign": sign_sha256,
+            "timestamp": str(timestamp),
+            "sign": sha256_encode(sign),
             "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": "613",
-            "Host": "appapi-pki.chehezhi.cn:18443",
-            "User-Agent": "okhttp/4.9.3"
+            "Host": "appapi-pki.chehezhi.cn:18443"
         }
         data = {
-            "refreshToken": f"{Authorization}"
+            "refreshToken": info['refresh_token']
         }
         try:
             response = requests.post(url=url, headers=headers, data=data, timeout=10)
@@ -49,31 +49,36 @@ def refresh_Authorization():
             result = response.json()
         except requests.exceptions.RequestException as e:
             print("请求异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         except json.JSONDecodeError as e:
             print("JSON 解码异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         except Exception as e:
             print("其他异常:", e)
-            random_sleep(10, 20)
+            random_sleep(30, 50)
         else:
             if "code" in result and result['code'] == 20000:
                 print("刷新Authorization成功")
-                global Authorization_new
-                Authorization_new = result['data']['access_token']
-                return result['data']['refresh_token']
+                global Authorization
+                Authorization = result['data']['access_token']
+                info['access_token'] = result['data']['access_token']
+                info['refresh_token'] = result['data']['refresh_token']
+                info['token_time'] = str(formatted_time)
+                git_token.append(result['data']['refresh_token'])
+                return
             else:
                 print("刷新Authorization失败")
                 print(result)
                 send("刷新Authorization失败", f"账号{index + 1}")
                 random_sleep(60, 80)
+    send("刷新Authorization失败", f"账号{index + 1}")
     return None
 
 def getMallToken():
     url = 'https://shop-wap.hozonauto.com/gateway/mallapi/userinfo/getMallToken'
     headers = {
         "Host": "shop-wap.hozonauto.com",
-        "accessToken": f"Bearer {Authorization_new}",
+        "accessToken": f"Bearer {Authorization}",
         "tenant-id": tenantid,
         "User-Agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36",
         "client-type": "APP",
@@ -155,32 +160,30 @@ def printc(text):
 if __name__ == '__main__':
     output = io.StringIO()
     title_name = '哪吒汽车/下单日志'
-    Authorization_list = []
-    phone_list = []
+    filepath = "/ql/data/env/nzqc.json"
     index = 0
-    quantity1 = ql_env("NZmy_phone")
-    quantity2 = ql_env("NZphone")
-    quantity3 = ql_env("NZtoken") + ql_env("NZtoken1")
-    if len(quantity2) != len(quantity3):
-        print("变量列表数量不相等")
-        exit()
-    credentials = dict(zip(quantity2, quantity3))
-    for phone in quantity1:
-        if phone in credentials:
-            Authorization_list.append(credentials[phone])
-            phone_list.append(phone)
-        else:
-            print(phone, "未找到此号码")
-    if len(Authorization_list) > 0:
-        print (f"共找到{len(Authorization_list)}个账号")
-        for phone, Authorization in zip(phone_list, Authorization_list):
-            refresh_Authorization()
-            orderinfo()
-            index += 1
-            if index < len(quantity1):
-                random_sleep(10, 20)
-        msg = output.getvalue()
-        now = datetime.now()
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        update_github_file(f"token/{title_name}/{current_time}.txt", msg)
-        send('哪吒订单查询', msg)
+    max_phone = ql_env("NZmy_phone")
+    print(f"共找到{len(quantity1)}个账号")
+    for max in max_phone:
+        print(f"\n{'-' * 15}正在执行第{index + 1}个账号{'-' * 15}")
+        file = open(filepath, 'r+')
+        fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+        info_max = json.load(file)
+        for info in info_max:
+            if info['mobile'] == max:
+                refresh_Authorization()
+                file.seek(0)
+                file.write(json.dumps(info_max))
+                file.truncate()
+                fcntl.flock(file.fileno(), fcntl.LOCK_UN)
+                file.close()
+                orderinfo()
+                break
+        index += 1
+        if index < len(max_phone):
+            random_sleep(1, 100)    
+    msg = output.getvalue()
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    update_github_file(f"token/{title_name}/{current_time}.txt", msg)
+    send('哪吒订单查询', msg)
