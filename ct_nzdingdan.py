@@ -11,8 +11,8 @@ import hashlib
 import io
 import sys
 import fcntl
+import datetime
 from sendNotify import send
-from datetime import datetime
 from utils.github_api import update_github_file
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 tenantid = '1501391403178266624'
@@ -183,7 +183,7 @@ if __name__ == '__main__':
         if index < len(max_phone):
             random_sleep(1, 100)    
     msg = output.getvalue()
-    now = datetime.now()
+    now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
     update_github_file(f"token/{title_name}/{current_time}.txt", msg)
     send('哪吒订单查询', msg)
