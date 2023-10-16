@@ -2,7 +2,7 @@
 cron: 6 13 * * *
 new Env('哪吒token提取');
 '''
-import os
+import json,os,sys
 
 def ql_env(name):
     if name in os.environ:
@@ -16,20 +16,17 @@ def ql_env(name):
         print("未添加变量")
         sys.exit(0)
         
-if __name__ == '__main__':
-    quantity1 = ql_env("NZmy_phone")
-    quantity2 = ql_env("NZphone")
-    quantity3 = ql_env("NZtoken") + ql_env("NZtoken1")
-    print(len(quantity1))
-    print(len(quantity2), len(quantity3))
-    if len(quantity2) != len(quantity3):
-        print("变量列表数量不相等")
-        exit() # 停止运行
-    credentials = dict(zip(quantity2, quantity3))
-    for phone in quantity1:
-        if phone in credentials:
-            print(phone)
-            print(credentials[phone])
-        else:
-            print(phone, "未找到此号码")
-        print("\n" + "-------------------------------------------" + "\n")
+phone_list = ql_env("NZmy_phone")
+print(f"共找到{len(phone_list)}个账号\n\n")
+filepath = "/ql/data/env/nzqc.json"
+
+with open(filepath, "r") as f:
+    info_new = json.load(f)
+
+for phone in phone_list:
+    for info in info_new:
+        if info['mobile'] == phone:
+            print(phone + '\n')
+            print(info['refresh_token'])
+            print("\n" + "-------------------------------------------" + "\n")
+            break
