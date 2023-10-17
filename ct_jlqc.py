@@ -409,10 +409,9 @@ if __name__ == '__main__':
             random_sleep(1, 200)
             continue
         sign()
-        if index < 30:
-            create()
-            random_sleep(20, 30)
-            access()
+        create()
+        random_sleep(20, 30)
+        access()
         available()
         token_list.append(token)
         phone_list.append(phone)
