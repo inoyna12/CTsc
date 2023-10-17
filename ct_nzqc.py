@@ -304,6 +304,7 @@ def traversal_comment():
                 else:
                     print("评论内容为空", '\n', result)
                     print(f"帖子ID：{articleId}")
+                    toutiao_openId_list.remove(articleId)
                     random_sleep(10, 20)
     return [],[]
 
