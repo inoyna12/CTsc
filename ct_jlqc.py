@@ -364,14 +364,19 @@ def ql_env(name):
 def jinrishici():
     print("随机一言")
     url = "https://v1.jinrishici.com/all.json"
-    response = requests.get(url)
-    result = response.json()
-    if response.status_code == 200:
-        print(result['content'])
-        return result['content']
+    try:
+        response = requests.get(url)
+        result = response.json()
+    except Exception as e:
+        print("异常:", e)
+        random_sleep(10, 20)
     else:
-        print(f"随机一言获取失败，状态码：{response.status_code}")
-        return None
+        if response.status_code == 200:
+            print(result['content'])
+            return result['content']
+        else:
+            print(f"随机一言获取失败，状态码：{response.status_code}")
+            return None
         
 def warn():
     if ql_env_put(env_name, msg_token_list, title_name) is None:
