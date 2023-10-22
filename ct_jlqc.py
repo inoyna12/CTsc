@@ -288,7 +288,7 @@ def available():
         if result['code'] == 'success':
             availablePoint = result['data']['availablePoint']
             acinfo = f"{info['mobile']}：{availablePoint}吉分"
-            print(assets)
+            print(acinfo)
             info['availablePoint'] = availablePoint
             return
         else:
