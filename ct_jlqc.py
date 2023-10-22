@@ -3,66 +3,63 @@ cron: 36 9 * * *
 new Env('吉利汽车');
 '''
 import requests
-import os
 import json
 import time
 import random
 import datetime
 import execjs
 from sendNotify import send
-from utils.ql_api import get_envs, disable_env, post_envs, put_envs
 from utils.github_api import update_github_file
-
-content_list = []
 
 #签到
 def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://app.geely.com/api/v1/userSign/sign'
-    for i in range(5):
-        current_time = datetime.datetime.now()
-        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-        current_timestamp = int(time.time())
-        data = {
-            "signDate": str(formatted_time),
-            "ts": str(current_timestamp),
-            "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
-        }
-        js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
-        js = execjs.compile(js_code)
-        data_sign = js.call("enen", data)
-        headers = {
-            'Host': 'app.geely.com',
-            'accept': 'application/json, text/plain, */*',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp',
-            'token': token,
-            'x-data-sign': data_sign,
-            'content-type': 'application/json',
-            'origin': 'https://app.geely.com',
-            'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
-            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
-        }
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(10, 20)
+    current_time = datetime.datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    current_timestamp = int(time.time())
+    data = {
+        "signDate": str(formatted_time),
+        "ts": str(current_timestamp),
+        "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
+    }
+    js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
+    js = execjs.compile(js_code)
+    data_sign = js.call("enen", data)
+    headers = {
+        'Host': 'app.geely.com',
+        'accept': 'application/json, text/plain, */*',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp',
+        'token': info['token'],
+        'x-data-sign': data_sign,
+        'content-type': 'application/json',
+        'origin': 'https://app.geely.com',
+        'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
+        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        if result['code'] == 'success':
+            print(result['code'])
+            if 'prizeName' in result['data']:
+                print(result['data']['prizeName'])
+            info['sign'] = True
+            return
         else:
-            if result['code'] == 'success':
-                print(result['code'])
-                if 'prizeName' in result['data']:
-                    print(result['data']['prizeName'])
-            else:
-                print(result)
-            break
-
+            print(result)
+    msg_error.append(f"{index+1}签到异常")
+        
 #遍历
 def queryForFollow():
     print("【遍历动态】")
@@ -105,7 +102,7 @@ def queryForFollow():
 #发动态    
 def create():
     print("【【【【【【【发布动态】】】】】】】")
-    content = jinrishici()
+    content = shiciapi()
     if content is None:
         print("随机一言获取失败，跳过发布动态")
         return
@@ -115,7 +112,7 @@ def create():
         "accept": "application/json",
         "content-type": "application/json; charset=UTF-8",
         "devicesn": "356596585696247",
-        "token": token
+        "token": info['token']
     }
     data = {
         "circleId": None,
@@ -139,8 +136,10 @@ def create():
     else:
         if result['code'] == 'success':
             print(f"内容：{content} 发布结果：{result['code']}")
+            return
         else:
             print(result)
+    msg_error.append(f"{index+1}发布动态异常")
     
 #遍历我的动态数量
 def queryMy():
@@ -156,7 +155,7 @@ def queryMy():
     data = {
         "pageSize": 20,
         "contentType": 1,
-        "userId": "4634864725442756864",
+        "userId": "4634864725442756864",#需要改
         "pageNum": 1
     }
     for i in range(5):
@@ -228,7 +227,7 @@ def current():
         "Host": "app.geely.com",
         "accept": "application/json, text/plain, */*",
         "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp",
-        "token": token,
+        "token": info['token'],
         "referer": "https://app.geely.com/app-h5/grow-up/?showTitleBar=0&needLogin=1&tabsIndex=0",
         "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
     }
@@ -247,13 +246,21 @@ def current():
             random_sleep(10, 20)
         else:
             if result['code'] == 'success':
-                print(f"用户ID：{result['data']['userId']}")
-                print(f"手机号：{result['data']['ucMemberProfileDto']['mobile']}")
-                return result['data']['userId'], result['data']['ucMemberProfileDto']['mobile']
+                userId = result['data']['userId']#遍历发布的动态需要用到
+                mobile = result['data']['ucMemberProfileDto']['mobile']
+                print(f"用户ID：{userId}")
+                print(f"手机号：{mobile}")
+                info['mobile'] = mobile
+                git_token.append(info['token'])
+                git_phone.append(mobile)
+                return True
             else:
-              #  send(title_name, f"账号{index + 1}：查询用户信息失败")
                 print(result)
-                return "", ""
+                info['token_status'] = False
+                msg_back.append(f"{info['mobile']}----{info['password']}")
+                return False
+    msg_error.append(f"{index+1}查询用户信息异常")
+    return False
     
 #查询吉分
 def available():
@@ -263,31 +270,30 @@ def available():
         "Host": "app.geely.com",
         "accept": "application/json",
         "devicesn": "356596585696247",
-        "token": token
+        "token": info['token']
     }
-    for i in range(5):
-        try:
-            response = requests.get(url, headers=headers)
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(10, 20)
+    try:
+        response = requests.get(url, headers=headers)
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        if result['code'] == 'success':
+            availablePoint = result['data']['availablePoint']
+            acinfo = f"{info['mobile']}：{availablePoint}吉分"
+            print(assets)
+            info['availablePoint'] = availablePoint
+            return
         else:
-            if result['code'] == 'success':
-                assets = f"{phone}：{result['data']['availablePoint']}吉分"
-                print(assets)
-                msg.append(assets)
-                return
-            else:
-                print(result)
-                send(f"账号{index + 1}", "查询吉分失败")
-            break
+            print(result)
+    msg_error.append(f"{index+1}查询吉分异常")
 
 #查询任务状态
 def access():
@@ -297,7 +303,7 @@ def access():
         "Host": "app.geely.com",
         "accept": "application/json, text/plain, */*",
         "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp",
-        "token": token,
+        "token": info['token'],
         "content-type": "application/json",
         "origin": "https://app.geely.com",
         "referer": "https://app.geely.com/app-h5/grow-up/?showTitleBar=0&needLogin=1&tabsIndex=0",
@@ -326,42 +332,18 @@ def access():
             if result['code'] == 'success':
                 for item in result['data']['dataList']:
                     print(f"{item['taskName']}：{item['isFinish']}")
-                    if item['taskName'] == '发布动态/长图文' and item['isFinish'] != True:
-                        send(f"账号{index + 1}", f"{item['taskName']}：{item['isFinish']}")
+                    if item['taskName'] == '发布动态/长图文':
+                        info['create'] = item['isFinish'] 
             else:
                 print(result)
-            break
-    
-def ql_env_put(name, data, Remarks=None):
-    fetch_env = get_envs(name)#查询环境变量信息
-    if fetch_env:
-        put_envs(fetch_env[0].get('id'), fetch_env[0].get('name'), data, Remarks)
-        fetch2_env = get_envs(name)
-        str_time = "变量修改时间：" + fetch2_env[0].get('timestamp')
-        print(str_time)
-        return str_time
-    else:
-        print(f"未找到 {name} 变量")
-        return None
+            return
 
 def random_sleep(min_val, max_val):
     num = random.randint(min_val, max_val)
     print(f"等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
 
-def ql_env(name):
-    if name in os.environ:
-        token_list = os.environ[name].split('\n')
-        if len(token_list) > 0:
-            return token_list
-        else:
-            print("变量未启用")
-            sys.exit(1)
-    else:
-        print("未添加变量")
-        sys.exit(0)    
-
-def jinrishici():
+def shiciapi():
     print("随机一言")
     url = "https://v1.jinrishici.com/all.json"
     try:
@@ -369,63 +351,55 @@ def jinrishici():
         result = response.json()
     except Exception as e:
         print("异常:", e)
-        random_sleep(10, 20)
     else:
         if response.status_code == 200:
-            print(result['content'])
             return result['content']
         else:
             print(f"随机一言获取失败，状态码：{response.status_code}")
-            return None
-        
-def warn():
-    if ql_env_put(env_name, msg_token_list, title_name) is None:
-        send(f"{title_name}预警", "青龙环境变量更新失败")
-    else:
-        print("正常")
-    if ql_env_put(env_phone, msg_phone_list, title_name) is None:
-        send(f"{title_name}预警", "青龙环境变量更新失败")
-    else:
-        print("正常")
-    if update_github_file(f"token/{title_name}/token_list.txt", msg_token_list) is None:
-        send(f"{title_name}预警", "token上传github失败")
-    else:
-        print("正常")
-    if update_github_file(f"token/{title_name}/phone_list.txt", msg_phone_list) is None:
-        send(f"{title_name}预警", "phone上传github失败")
-    else:
-        print("正常")
+    return None
+
+def msg_send():
+    sorted_data = sorted(info_filtered, key=lambda x: x['availablePoint'], reverse=True)#从大到小排序
+    for item in sorted_data:
+        phone = item['mobile']
+        availablePoint = item['availablePoint']
+        msg.append(f"{phone}：{availablePoint}吉分")
+    send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
+    update_github_file(f"token/{title_name}/nzqc.json", info_max)
+    update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
+    update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
+    if len(msg_error) > 0:
+        send(f"{title_name}异常", '\n'.join(msg_error))
+    if len(msg_back) > 0:
+        send(f"{title_name}失效账号", '\n'.join(msg_back))
     
 if __name__ == '__main__':
-    env_name = "JLtoken"#变量名
-    env_phone = "JLphone"#变量名
     title_name = '吉利汽车'
+    filepath = "/ql/data/env/jlqc.json"
     msg = []
-    token_list = []
-    phone_list = []
+    msg_error = []
+    msg_back = []
+    git_token = []
+    git_phone = []
     index = 0
-    quantity = ql_env(env_name)
-    print (f"共找到{len(quantity)}个账号")
-    for token in quantity:
-        print(f"\n------------正在执行第{index + 1}个账号----------------")
-        userId, phone = current()
-        if len(userId) == 0:
-            index += 1
-            random_sleep(1, 200)
-            continue
-        sign()
-        create()
-        random_sleep(20, 30)
-        access()
-        available()
-        token_list.append(token)
-        phone_list.append(phone)
+    with open(filepath, 'r') as f:
+        info_new = json.load(f)
+    print(f"共找到{len(info_new)}个账号")
+    for info in info_new:
+        print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
+        if current():
+            sign() if not info['sign'] else print("已签到")
+            create() if not info['sign'] else print("已发布动态")
+            random_sleep(20, 30)
+            access()   
+            available()
+            with open(filepath, 'w') as f:
+                json.dump(info_new, f)
         print(f"第{index + 1}个账号运行完成")
         index += 1
-        if index < len(quantity):
-            random_sleep(100, 300)
-    msg_token_list = '\n'.join(token_list)
-    msg_phone_list = '\n'.join(phone_list)
-    msg_msg = '\n'.join(msg)
-    warn()
-    send(f"{title_name}：{len(token_list)}", msg_msg)
+        if index < len(info_new):
+            random_sleep(100, 200)
+    info_filtered = [info for info in info_new if info["token_status"]]
+    with open(filepath, 'w') as f:
+        json.dump(info_filtered, f)
+    msg_send()
