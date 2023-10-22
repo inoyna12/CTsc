@@ -389,7 +389,7 @@ if __name__ == '__main__':
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
         if current():
             sign() if not info['sign'] else print("已签到")
-            create() if not info['sign'] else print("已发布动态")
+            create() if not info['create'] else print("已发布动态")
             random_sleep(20, 30)
             access()   
             available()
