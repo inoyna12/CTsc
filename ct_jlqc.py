@@ -359,7 +359,7 @@ def shiciapi():
     return None
 
 def msg_send():
-    sorted_data = sorted(info_filtered, key=lambda x: x['availablePoint'], reverse=True)#从大到小排序
+    sorted_data = sorted(info_filtered, key=lambda x: float(x['availablePoint']), reverse=True)#从大到小排序
     for item in sorted_data:
         phone = item['mobile']
         availablePoint = item['availablePoint']
