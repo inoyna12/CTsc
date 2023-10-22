@@ -365,7 +365,7 @@ def msg_send():
         availablePoint = item['availablePoint']
         msg.append(f"{phone}：{availablePoint}吉分")
     send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
-    update_github_file(f"token/{title_name}/nzqc.json", info_max)
+    update_github_file(f"token/{title_name}/nzqc.json", info_filtered)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     if len(msg_error) > 0:
