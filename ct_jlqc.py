@@ -368,10 +368,8 @@ def msg_send():
     update_github_file(f"token/{title_name}/nzqc.json", info_filtered)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
-    if len(msg_error) > 0:
-        send(f"{title_name}异常", '\n'.join(msg_error))
-    if len(msg_back) > 0:
-        send(f"{title_name}失效账号", '\n'.join(msg_back))
+    if len(msg_error + msg_back) > 0:
+        send(f"{title_name}异常", '\n'.join(msg_error + msg_back))
     
 if __name__ == '__main__':
     title_name = '吉利汽车'
@@ -387,6 +385,9 @@ if __name__ == '__main__':
     print(f"共找到{len(info_new)}个账号")
     for info in info_new:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
+        if info['sign'] and info['create']:
+            index += 1
+            continue
         if current():
             sign() if not info['sign'] else print("已签到")
             create() if not info['create'] else print("已发布动态")
