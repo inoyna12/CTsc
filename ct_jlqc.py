@@ -251,8 +251,6 @@ def current():
                 print(f"用户ID：{userId}")
                 print(f"手机号：{mobile}")
                 info['mobile'] = mobile
-                git_token.append(info['token'])
-                git_phone.append(mobile)
                 return True
             else:
                 print(result)
@@ -364,8 +362,10 @@ def msg_send():
         phone = item['mobile']
         availablePoint = item['availablePoint']
         msg.append(f"{phone}：{availablePoint}吉分")
+        git_token.append(item['token'])
+        git_phone.append(item['mobile'])
     send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
-    update_github_file(f"token/{title_name}/nzqc.json", info_filtered)
+    update_github_file(f"token/{title_name}/jlqc.json", info_filtered)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     if len(msg_error + msg_back) > 0:
