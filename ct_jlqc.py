@@ -385,7 +385,7 @@ if __name__ == '__main__':
     print(f"共找到{len(info_new)}个账号")
     for info in info_new:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
-        if info['sign'] and info['create']:
+        if info['sign']:
             index += 1
             continue
         if current():
