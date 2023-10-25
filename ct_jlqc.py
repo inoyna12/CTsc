@@ -399,7 +399,7 @@ if __name__ == '__main__':
         print(f"第{index + 1}个账号运行完成")
         index += 1
         if index < len(info_new):
-            random_sleep(100, 200)
+            random_sleep(0, 100)
     info_filtered = [info for info in info_new if info["token_status"]]
     with open(filepath, 'w') as f:
         json.dump(info_filtered, f)
