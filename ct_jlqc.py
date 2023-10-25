@@ -390,9 +390,9 @@ if __name__ == '__main__':
             continue
         if current():
             sign() if not info['sign'] else print("已签到")
-            create() if not info['create'] else print("已发布动态")
-            random_sleep(20, 30)
-            access()   
+      #      create() if not info['create'] else print("已发布动态")
+      #      random_sleep(20, 30)
+      #      access()   
             available()
             with open(filepath, 'w') as f:
                 json.dump(info_new, f)
