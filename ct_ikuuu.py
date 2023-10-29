@@ -39,8 +39,8 @@ def email_ent():
 
 def main():
     session = requests.session()
-    url_login = 'https://ikuuu.art/auth/login'
-    url_sign = 'https://ikuuu.art/user/checkin'
+    url_login = 'https://ikuuu.me/auth/login'
+    url_sign = 'https://ikuuu.me/user/checkin'
     headers = {
         'Host': 'ikuuu.art',
         'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36'
