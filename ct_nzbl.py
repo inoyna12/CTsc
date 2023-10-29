@@ -202,8 +202,8 @@ def xiaoquan_loadmore():
       
 if __name__ == '__main__':
     title_name = '哪吒汽车遍历'
-    tt = 'toutiao_openId_list'
-    xq = 'xiaoquan_openId_list'
+    tt = 'nz_tt'
+    xq = 'nz_xq'
     toutiao_openId_list = []
     xiaoquan_openId_list = []
     toutiao_open()
