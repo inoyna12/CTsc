@@ -210,5 +210,5 @@ if __name__ == '__main__':
     toutiao_loadmore()
     xiaoquan_loadmore()
     put_envs(get_envs(tt)[0].get('id'), tt, '\n'.join(toutiao_openId_list))
-    put_envs(get_envs(xq)[0].get('id'), xq, '\n'.join(toutiao_openId_list))
+    put_envs(get_envs(xq)[0].get('id'), xq, '\n'.join(xiaoquan_openId_list))
     send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
