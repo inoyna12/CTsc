@@ -8,9 +8,10 @@ import random
 import time
 import datetime
 import hashlib
-import urllib.parse
 import uuid
 import fcntl
+import sys
+import os
 from sendNotify import send
 from utils.github_api import update_github_file
 
@@ -38,9 +39,21 @@ def sha256_encode(string):
     hex_dig = hash_object.hexdigest()
     return hex_dig
 
+def ql_env(name):
+    if name in os.environ:
+        token_list = os.environ[name].split('\n')
+        if len(token_list) > 0:
+            return token_list
+        else:
+            print("变量未启用" + name)
+            sys.exit(1)
+    else:
+        print("未添加变量" + name)
+        sys.exit(0)
+
 def refresh_Authorization():
     url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    for i in range(50):
+    for i in range(10):
         now = datetime.datetime.now()
         formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
         nonce = generate_random_number()
@@ -85,179 +98,14 @@ def refresh_Authorization():
                 info['refresh_token'] = result['data']['refresh_token']
                 info['token_time'] = str(formatted_time)
                 git_token.append(result['data']['refresh_token'])
-                return
+                return True
             else:
                 print("刷新Authorization失败")
                 print(result)
                 send("刷新Authorization失败", f"账号{index + 1}")
-                random_sleep(60, 80)
+                return False
     send("刷新Authorization失败", f"账号{index + 1}")
-    return None
-
-def toutiao_loadmore():
-    print("【遍历头条翻页】")
-    createTime_index = 0
-    random_number = random.randint(400, 600)
-    uuid = generate_random_uuid()
-    print(uuid, random_number)
-    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=toutiao&uuid={uuid}'
-    for i in range(50):
-        print(f"第{i + 1}次请求")
-        nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
-        headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
-            'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Host': 'appapi-pki.chehezhi.cn:18443',
-            'Connection': 'Keep-Alive'
-        }
-        try:
-            response = requests.get(url=url, headers=headers, timeout=20)
-            response.raise_for_status()
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(10, 20)
-        else:
-            if 'data' not in result:
-                print("result中不存在data键值")
-                random_sleep(20, 40)
-                continue
-            elif len(result['data']) == 0:
-                print(result)
-                return
-            for item in result['data']:
-                print(f"发帖时间：{item['volcExtra']['createTime']}，评论数量：{item['commentCount']}")
-                if item['commentCount'] >= 10:
-                    if item['article']['openId'] not in toutiao_openId_list:
-                        toutiao_openId_list.append(item['article']['openId'])
-                    else:
-                        createTime_index += 1
-                        print("已存在，不进行加入")
-                else:
-                    print("评论数量小于10，不进行加入")
-            print(f"toutiao_openId_list数量：{len(toutiao_openId_list)}")
-            if len(toutiao_openId_list) > random_number or createTime_index >= 5:
-                return
-            random_sleep(30, 50)
-
-def toutiao_open():
-    print("【遍历头条首页】")
-    uuid = generate_random_uuid()
-    url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=open&category=toutiao&uuid={uuid}'
-    print(uuid)
-    nonce = generate_random_number()
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dopencategory%3Dtoutiaouuid%3D{uuid}{sign_string}'
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': str(nonce),
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256_encode(sign),
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    try:
-        response = requests.get(url=url, headers=headers, timeout=20)
-        response.raise_for_status()
-        result = response.json()
-    except requests.exceptions.RequestException as e:
-        print("请求异常:", e)
-        random_sleep(10, 20)
-    except json.JSONDecodeError as e:
-        print("JSON 解码异常:", e)
-        random_sleep(10, 20)
-    except Exception as e:
-        print("其他异常:", e)
-        random_sleep(10, 20)
-    else:
-        print(result['message'])
-
-#爬取小圈   
-def xiaoquan_loadmore():
-    print("【遍历小圈翻页】")
-    data_index = 0
-    createTime_index = 0
-    random_number = random.randint(200, 300)
-    print(random_number)
-    uuid = generate_random_uuid()
-    print(uuid)
-    for i in range(50):
-        print(f"第{i + 1}次请求")
-        url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
-        nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fapp_article%2Fcommon%2Farticle%2Frec%2Flistappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtype%3Dloadmorecategory%3Dxiaoquanuuid%3D{uuid}{sign_string}'#小圈下滑刷新
-        headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
-            'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Host': 'appapi-pki.chehezhi.cn:18443',
-            'Connection': 'Keep-Alive'
-        }
-        try:
-            response = requests.get(url=url, headers=headers, timeout=20)
-            response.raise_for_status()
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(10, 20)
-        else:
-            if 'data' not in result:
-                random_sleep(20, 40)
-                continue
-            elif len(result['data']) == 0:
-                data_index += 1
-                print(result)
-            for item in result['data']:
-                print(f"发帖时间：{item['volcExtra']['createTime']}")
-                if item['article']['openId'] not in xiaoquan_openId_list:
-                    xiaoquan_openId_list.append(item['article']['openId'])
-                else:
-                    createTime_index += 1
-                    print("已存在，不进行加入")
-            print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
-            if len(xiaoquan_openId_list) > random_number or createTime_index > 20 or data_index > 5:
-                break
-            random_sleep(20, 40)
-    print(f"xiaoquan_openId_list数量：{len(xiaoquan_openId_list)}")
+    return False
     
 #爬头条评论
 def traversal_comment():
@@ -299,6 +147,7 @@ def traversal_comment():
                     content_list.append(item['content'])
                 if len(content_list) > 0:
                     content = random.choice(content_list)
+                    print(f"评论数量：{len(content_list)}")
                     print(f"帖子ID：{articleId} 评论内容：{content}")
                     return articleId, content
                 else:
@@ -347,6 +196,8 @@ def sign():
     else:
         print(result['message'])
         info['sign'] = True
+        if result['message'] == "请不要重复签到":
+            msg_error.append(f"{info['mobile']}：{result['message']}")
   
 # 转发  
 def forwarArticle():
@@ -448,45 +299,46 @@ def insertArtComment():
             info['comment'] = info['comment'] + 1
         else:
             print(result)
+            msg_error.append(f"{index+1}评论异常")
 
 #查询
 def getCustomer():
     print("【【【【【【【查询】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
-    for i in range(5):
-        nonce = generate_random_number()
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-        headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
-            'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256_encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {Authorization}",
-            'Host': 'appapi-pki.chehezhi.cn:18443',
-            'Connection': 'Keep-Alive'
-        }
-        try:
-            response = requests.get(url=url, headers=headers, timeout=10)
-            result = response.json()
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(20, 40)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(20, 40)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(20, 40)
-        else:
+    nonce = generate_random_number()
+    timestamp = int(time.time() * 1000)
+    sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+    headers = {
+        'appId': 'HOZON-B-xKrgEvMt',
+        'appKey': appKey,
+        'appVersion': appVersion,
+        'login_channel': '1',
+        'channel': 'android',
+        'nonce': str(nonce),
+        'phoneModel': 'Redmi 22081212C',
+        'timestamp': str(timestamp),
+        'sign': sha256_encode(sign),
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+        'Authorization': f"Bearer {Authorization}",
+        'Host': 'appapi-pki.chehezhi.cn:18443',
+        'Connection': 'Keep-Alive'
+    }
+    try:
+        response = requests.get(url=url, headers=headers, timeout=10)
+        result = response.json()
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(20, 40)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(20, 40)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(20, 40)
+    else:
+        if result['message'] == "成功":
             creditScore = result['data']['creditScore']
             phone = result['data']['phone']
             info['mobile'] = phone
@@ -494,10 +346,9 @@ def getCustomer():
             git_phone.append(phone)
             user_info = f"{phone}：{creditScore}积分"
             print(user_info)
-            return
-    print(result)
-    send("查询失败", f"账号{index + 1}")
-    return None
+        else:
+            print(result)
+            msg_error.append(f"{index+1}查询异常")
 
 def openrw():
     with open(filepath, "r") as f:
@@ -519,27 +370,23 @@ def msg_send():
     update_github_file(f"token/{title_name}/nzqc.json", info_max)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
-
-# def send_new():
-    # if len(toutiao_openId_list) < 200 or len(xiaoquan_openId_list) < 50:
-        # send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
+    if len(msg_error) > 0:
+        send(f"{title_name}异常", '\n'.join(msg_error))
 
 if __name__ == '__main__':
     title_name = '哪吒汽车'
     filepath = "/ql/data/env/nzqc.json"
+    toutiao_openId_list = ql_env('nz_tt')
+    xiaoquan_openId_list = ql_env('nz_xq')
     msg = []
     msg_phone = []
+    msg_error = []
     git_token = []
     git_phone = []
-    toutiao_openId_list = []
-    xiaoquan_openId_list = []
     max_phone = []
     index = 0
     openrw()
     print(f"共找到{len(max_phone)}个账号")
-    toutiao_open()
-    toutiao_loadmore()
-    xiaoquan_loadmore()
     for max in max_phone:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
         file = open(filepath, 'r+')
@@ -547,11 +394,11 @@ if __name__ == '__main__':
         info_max = json.load(file)
         for info in info_max:
             if info['mobile'] == max:
-                refresh_Authorization()
-                sign() if not info['sign'] else print("已签到")
-                forwarArticle() if info['share'] < 3 else print("转发已完成")
-                insertArtComment() if info['comment'] < 3 else print("评论已完成")
-                getCustomer()
+                if refresh_Authorization():
+                    sign() if not info['sign'] else print("已签到")
+                    forwarArticle() if info['share'] < 3 else print("转发已完成")
+                    insertArtComment() if info['comment'] < 3 else print("评论已完成")
+                    getCustomer()
                 file.seek(0)
                 file.write(json.dumps(info_max))
                 file.truncate()
