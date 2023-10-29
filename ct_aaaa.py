@@ -156,7 +156,6 @@ if __name__ == '__main__':
     print(f"共找到{len(info_new)}个账号")
     for refreshToken in aaaa:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
-        refresh_Authorization()
         account_dict = {
             "mobile": None,
             "refresh_token": refreshToken,
@@ -169,6 +168,7 @@ if __name__ == '__main__':
             "reserve": None,
             "reserve2": None
         }
+        refresh_Authorization()
         getCustomer()
         print(account_dict)
         info_new.append(account_dict)
