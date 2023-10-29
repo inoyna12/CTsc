@@ -251,13 +251,17 @@ def current():
                 print(f"用户ID：{userId}")
                 print(f"手机号：{mobile}")
                 info['mobile'] = mobile
+                info['token_status'] = True
                 return True
-            else:
+            elif result['code'] == 'token.unchecked':
                 print(result)
                 info['token_status'] = False
                 msg_back.append(f"{info['mobile']}----{info['password']}")
                 return False
-    msg_error.append(f"{index+1}查询用户信息异常")
+            else:
+                print(result)
+                msg_error.append(f"{index+1}查询用户信息异常")
+                return True
     return False
     
 #查询吉分
@@ -394,8 +398,8 @@ if __name__ == '__main__':
       #      random_sleep(20, 30)
       #      access()   
             available()
-            with open(filepath, 'w') as f:
-                json.dump(info_new, f)
+        with open(filepath, 'w') as f:
+            json.dump(info_new, f)
         print(f"第{index + 1}个账号运行完成")
         index += 1
         if index < len(info_new):
