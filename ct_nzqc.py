@@ -386,6 +386,7 @@ if __name__ == '__main__':
     max_phone = []
     index = 0
     openrw()
+    print(f"头条板块ID数量：{len(toutiao_openId_list)}\n小圈板块ID数量：{len(xiaoquan_openId_list)}")
     print(f"共找到{len(max_phone)}个账号")
     for max in max_phone:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
