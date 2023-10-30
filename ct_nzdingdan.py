@@ -114,7 +114,7 @@ def orderinfo():
     }
     response = requests.get(url=url, params=params, headers=headers)
     result = response.json()
-    print(result)
+    #print(result)
     records = result['data']['records'][0]
     total = result['data']['total']
     print("总订单数：" + str(total))
@@ -124,7 +124,7 @@ def orderinfo():
     printc("收货地址：{}，{}，{}".format(records['orderLogistics']['userName'], records['orderLogistics']['telNum'], records['orderLogistics']['address']))
     printc(f"快递状态：{records['statusDesc']}   {records['updateTime']}")
     printc(f"订单状态：{records['listOrderItem'][0]['statusDesc']}")
-    printc(f"快递单号：{records['orderLogistics']['logisticsNo']}\n")
+    printc(f"快递单号：{records['orderLogistics']['logisticsNo']}  {records['orderLogistics']['logisticsDesc']}\n")
     if records['statusDesc'] == '待收货':
         global td_inx
         td_inx = td_inx + 1
