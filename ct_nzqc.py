@@ -15,7 +15,7 @@ import os
 from sendNotify import send
 from utils.github_api import update_github_file
 
-appVersion = "5.5.1"
+appVersion = "5.5.2"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
 oneself = ["15050425338", "13291164580", "19941326235"]
