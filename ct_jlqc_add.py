@@ -11,7 +11,7 @@ accounts = os.environ[env].split('\n')
 inx_add = 0
 inx_update = 0
 
-if accounts == '空':
+if accounts[0] == '空':
     print("环境变量为空，不需要添加")
     exit()
 
