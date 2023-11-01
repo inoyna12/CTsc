@@ -398,7 +398,7 @@ if __name__ == '__main__':
                 if refresh_Authorization():
                     sign() if not info['sign'] else print("已签到")
                     forwarArticle() if info['share'] < 3 else print("转发已完成")
-                    insertArtComment() if info['comment'] < 3 else print("评论已完成")
+                #    insertArtComment() if info['comment'] < 3 else print("评论已完成")
                     getCustomer()
                 file.seek(0)
                 file.write(json.dumps(info_max))
