@@ -15,7 +15,7 @@ import os
 from sendNotify import send
 from utils.github_api import update_github_file
 
-appVersion = "5.5.2"
+appVersion = "5.6.1"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
 oneself = ["15050425338", "13291164580", "19941326235"]
@@ -202,12 +202,9 @@ def sign():
 # 转发  
 def forwarArticle():
     print("【【【【【【【转发】】】】】】】")
-    if len(xiaoquan_openId_list) < 100:
-        print("xiaoquan_openId_list数量小于50，不进行转发")
-        return
-    for i in range(2):
-        articleId = random.choice(xiaoquan_openId_list)
-        url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
+    url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
+    id_list = random.sample(xiaoquan_openId_list, 5)
+    for articleId in id_list:
         nonce = generate_random_number()
         timestamp = int(time.time() * 1000)
         sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
@@ -252,10 +249,13 @@ def forwarArticle():
             print(f"转发{articleId}：{result['message']}")
             if result['message'] == "转发成功，获得1积分":
                 info['share'] = info['share'] + 1
-                return
             else:
                 print(result)
+            if info['share'] < 3:
                 random_sleep(20, 40)
+            else:
+                return
+    msg_error.append(f"{info['mobile']}：转发异常")            
 
 #评论帖子
 def insertArtComment():
@@ -376,7 +376,6 @@ def msg_send():
 if __name__ == '__main__':
     title_name = '哪吒汽车'
     filepath = "/ql/data/env/nzqc.json"
-    toutiao_openId_list = ql_env('nz_tt')
     xiaoquan_openId_list = ql_env('nz_xq')
     msg = []
     msg_phone = []
@@ -386,7 +385,7 @@ if __name__ == '__main__':
     max_phone = []
     index = 0
     openrw()
-    print(f"头条板块ID数量：{len(toutiao_openId_list)}\n小圈板块ID数量：{len(xiaoquan_openId_list)}")
+    print(f"小圈板块ID数量：{len(xiaoquan_openId_list)}")
     print(f"共找到{len(max_phone)}个账号")
     for max in max_phone:
         print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
@@ -396,9 +395,8 @@ if __name__ == '__main__':
         for info in info_max:
             if info['mobile'] == max:
                 if refresh_Authorization():
-                    sign() if not info['sign'] else print("已签到")
+                    sign() if not info['sign'] else print("签到已完成")
                     forwarArticle() if info['share'] < 3 else print("转发已完成")
-                #    insertArtComment() if info['comment'] < 3 else print("评论已完成")
                     getCustomer()
                 file.seek(0)
                 file.write(json.dumps(info_max))
