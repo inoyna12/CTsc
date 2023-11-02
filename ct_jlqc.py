@@ -11,53 +11,59 @@ import execjs
 from sendNotify import send
 from utils.github_api import update_github_file
 
+js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
+js = execjs.compile(js_code)
+
 #签到
 def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://app.geely.com/api/v1/userSign/sign'
-    current_time = datetime.datetime.now()
-    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-    current_timestamp = int(time.time())
-    data = {
-        "signDate": str(formatted_time),
-        "ts": str(current_timestamp),
-        "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
-    }
-    js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
-    js = execjs.compile(js_code)
-    data_sign = js.call("enen", data)
-    headers = {
-        'Host': 'app.geely.com',
-        'accept': 'application/json, text/plain, */*',
-        'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp',
-        'token': info['token'],
-        'x-data-sign': data_sign,
-        'content-type': 'application/json',
-        'origin': 'https://app.geely.com',
-        'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
-        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
-    }
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        result = response.json()
-    except requests.exceptions.RequestException as e:
-        print("请求异常:", e)
-        random_sleep(10, 20)
-    except json.JSONDecodeError as e:
-        print("JSON 解码异常:", e)
-        random_sleep(10, 20)
-    except Exception as e:
-        print("其他异常:", e)
-        random_sleep(10, 20)
-    else:
-        if result['code'] == 'success':
-            print(result['code'])
-            if 'prizeName' in result['data']:
-                print(result['data']['prizeName'])
-            info['sign'] = True
-            return
+    for i in range(3):
+        current_time = datetime.datetime.now()
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        current_timestamp = int(time.time())
+        data = {
+            "signDate": str(formatted_time),
+            "ts": str(current_timestamp),
+            "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
+        }
+        headers = {
+            'Host': 'app.geely.com',
+            'accept': 'application/json, text/plain, */*',
+            'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp',
+            'token': info['token'],
+            'x-data-sign': js.call("enen", data),
+            'content-type': 'application/json',
+            'origin': 'https://app.geely.com',
+            'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
+            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            result = response.json()
+        except requests.exceptions.RequestException as e:
+            print("请求异常:", e)
+            random_sleep(10, 20)
+        except json.JSONDecodeError as e:
+            print("JSON 解码异常:", e)
+            random_sleep(10, 20)
+        except Exception as e:
+            print("其他异常:", e)
+            random_sleep(10, 20)
         else:
-            print(result)
+            if result['code'] == 'success':
+                print(result['code'])
+                if 'prizeName' in result['data']:
+                    print(result['data']['prizeName'])
+                info['sign'] = True
+                return
+            elif "已签到" in result['message']:
+                print(result['message'])
+                info['sign'] = True
+                return
+            elif i < 2:
+                print(result)
+                random_sleep(20, 40)
     msg_error.append(f"{index+1}签到异常")
         
 #遍历
