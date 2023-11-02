@@ -142,11 +142,11 @@ def xiaoquan_loadmore():
     print("【遍历小圈翻页】")
     data_index = 0
     createTime_index = 0
-    random_number = random.randint(200, 300)
+    random_number = random.randint(300, 400)
     print(random_number)
     uuid = generate_random_uuid()
     print(uuid)
-    for i in range(50):
+    for i in range(60):
         print(f"第{i + 1}次请求")
         url = f'https://appapi-pki.chehezhi.cn/hznz/app_article/common/article/rec/list?refreshType=loadmore&category=xiaoquan&uuid={uuid}'
         nonce = generate_random_number()
@@ -207,8 +207,7 @@ if __name__ == '__main__':
     toutiao_openId_list = []
     xiaoquan_openId_list = []
     toutiao_open()
-    toutiao_loadmore()
     xiaoquan_loadmore()
-    put_envs(get_envs(tt)[0].get('id'), tt, '\n'.join(toutiao_openId_list))
-    put_envs(get_envs(xq)[0].get('id'), xq, '\n'.join(xiaoquan_openId_list))
-    send(title_name, f"头条数量：{len(toutiao_openId_list)}\n小圈数量：{len(xiaoquan_openId_list)}")
+    if len(xiaoquan_openId_list) > 200:
+        put_envs(get_envs(xq)[0].get('id'), xq, '\n'.join(xiaoquan_openId_list))
+    send(title_name, f"小圈数量：{len(xiaoquan_openId_list)}")
