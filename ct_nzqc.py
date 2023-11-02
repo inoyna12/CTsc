@@ -1,5 +1,5 @@
 '''
-cron: 36 9,12,14 * * *
+cron: 36 9 * * *
 new Env('哪吒汽车');
 '''
 import requests
