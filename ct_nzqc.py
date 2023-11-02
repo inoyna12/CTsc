@@ -102,9 +102,9 @@ def refresh_Authorization():
             else:
                 print("刷新Authorization失败")
                 print(result)
-                send("刷新Authorization失败", f"账号{index + 1}")
+                send("刷新Authorization失败", f"账号{index}")
                 return False
-    send("刷新Authorization失败", f"账号{index + 1}")
+    send("刷新Authorization失败", f"账号{index}")
     return False
     
 #爬头条评论
@@ -161,44 +161,52 @@ def traversal_comment():
 def sign():
     print("【【【【【【【签到】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-    nonce = generate_random_number()
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': str(nonce),
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256_encode(sign),
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {Authorization}",
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    try:
-        response = requests.get(url=url, headers=headers, timeout=10)
-        response.raise_for_status()
-        result = response.json()
-    except requests.exceptions.RequestException as e:
-        print("请求异常:", e)
-        random_sleep(10, 20)
-    except json.JSONDecodeError as e:
-        print("JSON 解码异常:", e)
-        random_sleep(10, 20)
-    except Exception as e:
-        print("其他异常:", e)
-        random_sleep(10, 20)
-    else:
-        print(result['message'])
-        info['sign'] = True
-        if result['message'] == "请不要重复签到":
-            msg_error.append(f"{info['mobile']}：{result['message']}")
-  
+    for i in range(3):
+        nonce = generate_random_number()
+        timestamp = int(time.time() * 1000)
+        sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+        headers = {
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': appKey,
+            'appVersion': appVersion,
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': str(nonce),
+            'phoneModel': 'Redmi 22081212C',
+            'timestamp': str(timestamp),
+            'sign': sha256_encode(sign),
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {Authorization}",
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
+        }
+        try:
+            response = requests.get(url=url, headers=headers, timeout=10)
+            response.raise_for_status()
+            result = response.json()
+        except requests.exceptions.RequestException as e:
+            print("请求异常:", e)
+            random_sleep(10, 20)
+        except json.JSONDecodeError as e:
+            print("JSON 解码异常:", e)
+            random_sleep(10, 20)
+        except Exception as e:
+            print("其他异常:", e)
+            random_sleep(10, 20)
+        else:
+            print(result['message'])
+            if "积分" in result['message']:
+                info['sign'] = True
+                return
+            elif result['message'] == "请不要重复签到":
+                info['sign'] = True
+                msg_error.append(f"{info['mobile']}：{result['message']}")
+                return
+            elif i < 2:
+                random_sleep(20, 40)
+    msg_error.append(f"{index}签到异常")
+            
 # 转发  
 def forwarArticle():
     print("【【【【【【【转发】】】】】】】")
@@ -255,7 +263,7 @@ def forwarArticle():
                 random_sleep(20, 40)
             else:
                 return
-    msg_error.append(f"{info['mobile']}：转发异常")            
+    msg_error.append(f"{index}.{info['mobile']}：转发异常")            
 
 #评论帖子
 def insertArtComment():
@@ -299,7 +307,7 @@ def insertArtComment():
             info['comment'] = info['comment'] + 1
         else:
             print(result)
-            msg_error.append(f"{index+1}评论异常")
+            msg_error.append(f"{index}评论异常")
 
 #查询
 def getCustomer():
@@ -348,7 +356,7 @@ def getCustomer():
             print(user_info)
         else:
             print(result)
-            msg_error.append(f"{index+1}查询异常")
+            msg_error.append(f"{index}查询异常")
 
 def openrw():
     with open(filepath, "r") as f:
@@ -383,12 +391,12 @@ if __name__ == '__main__':
     git_token = []
     git_phone = []
     max_phone = []
-    index = 0
+    index = 1
     openrw()
     print(f"小圈板块ID数量：{len(xiaoquan_openId_list)}")
     print(f"共找到{len(max_phone)}个账号")
     for max in max_phone:
-        print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
+        print(f"\n{'-' * 13}正在执行第{index}个账号{'-' * 13}")
         file = open(filepath, 'r+')
         fcntl.flock(file.fileno(), fcntl.LOCK_EX)
         info_max = json.load(file)
@@ -404,7 +412,7 @@ if __name__ == '__main__':
                 fcntl.flock(file.fileno(), fcntl.LOCK_UN)
                 file.close()
                 break
-        index += 1
         if index < len(max_phone):
+            index += 1
             random_sleep(1, 100)    
     msg_send()
