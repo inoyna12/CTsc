@@ -359,7 +359,7 @@ def getCustomer():
 
 def msg_send():
     # sorted_data = sorted(info_max, key=lambda x: x['creditScore'])#从小到大排序
-    sorted_data = sorted(info_max, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
+    sorted_data = sorted(info_new, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
     for item in sorted_data:
         phone = item['mobile']
         creditScore = item['creditScore']
@@ -368,7 +368,7 @@ def msg_send():
             msg_phone.append(f"{phone}：{creditScore}积分")
     send(f"{title_name}：{index}", '\n'.join(msg))   
     send(f"{title_name}待下单账号：{len(msg_phone)}", '\n'.join(msg_phone))
-    update_github_file(f"token/{title_name}/nzqc.json", info_max)
+    update_github_file(f"token/{title_name}/nzqc.json", info_new)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     if len(msg_error) > 0:
