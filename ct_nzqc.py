@@ -211,6 +211,7 @@ def forwarArticle():
     print("【【【【【【【转发】】】】】】】")
     url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
     id_list = random.sample(xiaoquan_openId_list, 5)
+    inx = 0
     for articleId in id_list:
         nonce = generate_random_number()
         timestamp = int(time.time() * 1000)
@@ -257,7 +258,11 @@ def forwarArticle():
             if result['message'] == "转发成功，获得1积分":
                 info['share'] = info['share'] + 1
             else:
+                inx = inx + 1
                 print(result)
+                if inx == 3:
+                    info['share'] = 3
+                    break
             if info['share'] < 3:
                 random_sleep(10, 20)
             else:
