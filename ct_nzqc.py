@@ -410,7 +410,7 @@ if __name__ == '__main__':
             if info['mobile'] == max:
                 if info['sign'] and info['share'] >= 3:
                     index += 1
-                    skip_sleep = False
+                    or_sleep = False
                     break
                 if refresh_Authorization():
                     sign() if not info['sign'] else print("签到已完成")
