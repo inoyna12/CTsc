@@ -9,6 +9,7 @@ import time
 import datetime
 import hashlib
 import uuid
+import fcntl
 import sys
 import os
 from sendNotify import send
@@ -267,7 +268,7 @@ def forwarArticle():
                 random_sleep(10, 20)
             else:
                 return
-    msg_error.append(f"{index}.{info['mobile']}：转发异常")            
+    msg_error.append(f"{index}.{info['mobile']}：转发异常") 
 
 #评论帖子
 def insertArtComment():
@@ -362,9 +363,15 @@ def getCustomer():
             print(result)
             msg_error.append(f"{index}查询异常")
 
+def openrw():
+    with open(filepath, "r") as f:
+        info_new_phone = json.load(f)
+        for i in info_new_phone:
+            max_phone.append(i['mobile'])
+
 def msg_send():
     # sorted_data = sorted(info_max, key=lambda x: x['creditScore'])#从小到大排序
-    sorted_data = sorted(info_new, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
+    sorted_data = sorted(info_max, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
     for item in sorted_data:
         phone = item['mobile']
         creditScore = item['creditScore']
@@ -373,7 +380,7 @@ def msg_send():
             msg_phone.append(f"{phone}：{creditScore}积分")
     send(f"{title_name}：{index}", '\n'.join(msg))   
     send(f"{title_name}待下单账号：{len(msg_phone)}", '\n'.join(msg_phone))
-    update_github_file(f"token/{title_name}/nzqc.json", info_new)
+    update_github_file(f"token/{title_name}/nzqc.json", info_max)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     if len(msg_error) > 0:
@@ -388,23 +395,34 @@ if __name__ == '__main__':
     msg_error = []
     git_token = []
     git_phone = []
+    max_phone = []
     index = 1
+    openrw()
     print(f"小圈板块ID数量：{len(xiaoquan_openId_list)}")
-    with open(filepath, 'r') as f:
-        info_new = json.load(f)
-    print(f"共找到{len(info_new)}个账号")
-    for info in info_new:
+    print(f"共找到{len(max_phone)}个账号")
+    for max in max_phone:
         print(f"\n{'-' * 13}正在执行第{index}个账号{'-' * 13}")
-        if info['sign'] and info['share'] >= 3:
+        or_sleep = True
+        file = open(filepath, 'r+')
+        fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+        info_max = json.load(file)
+        for info in info_max:
+            if info['mobile'] == max:
+                if info['sign'] and info['share'] >= 3:
+                    index += 1
+                    skip_sleep = False
+                    break
+                if refresh_Authorization():
+                    sign() if not info['sign'] else print("签到已完成")
+                    forwarArticle() if info['share'] < 3 else print("转发已完成")
+                    getCustomer()
+                    break      
+        file.seek(0)
+        file.write(json.dumps(info_max))
+        file.truncate()
+        fcntl.flock(file.fileno(), fcntl.LOCK_UN)
+        file.close()
+        if index < len(max_phone) and or_sleep:
             index += 1
-            continue
-        if refresh_Authorization():
-            sign() if not info['sign'] else print("签到已完成")
-            forwarArticle() if info['share'] < 3 else print("转发已完成")
-            getCustomer()
-        with open(filepath, 'w') as f:
-            json.dump(info_new, f)
-        if index < len(info_new):
-            index += 1
-            random_sleep(1, 80)
+            random_sleep(1, 80)    
     msg_send()
