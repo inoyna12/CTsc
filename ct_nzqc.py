@@ -409,6 +409,8 @@ if __name__ == '__main__':
         for info in info_max:
             if info['mobile'] == max:
                 if info['sign'] and info['share'] >= 3:
+                    git_token.append(info['refresh_token'])
+                    git_phone.append(info['mobile'])
                     index += 1
                     or_sleep = False
                     break
