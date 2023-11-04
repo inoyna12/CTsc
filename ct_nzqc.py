@@ -398,6 +398,7 @@ if __name__ == '__main__':
     max_phone = []
     index = 1
     openrw()
+    random.shuffle(max_phone)
     print(f"小圈板块ID数量：{len(xiaoquan_openId_list)}")
     print(f"共找到{len(max_phone)}个账号")
     for max in max_phone:
@@ -426,5 +427,5 @@ if __name__ == '__main__':
         file.close()
         if index < len(max_phone) and or_sleep:
             index += 1
-            random_sleep(1, 80)    
+            random_sleep(1, 60)    
     msg_send()
