@@ -11,7 +11,7 @@ with open(filepath, "r") as f:
 print(len(data))
 
 for info in data:
-    if 'comment' in info:
+    if 'reserve' in info:
         del info['comment']
         del info['reserve']
         del info['reserve2']
