@@ -11,9 +11,10 @@ with open(filepath, "r") as f:
 print(len(data))
 
 for info in data:
-    del info['comment']
-    del info['reserve']
-    del info['reserve2']
+    if 'comment' in info:
+        del info['comment']
+        del info['reserve']
+        del info['reserve2']
 
 with open(filepath, "w") as f:
     json.dump(data, f)
