@@ -13,6 +13,8 @@ from utils.github_api import update_github_file
 
 js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
 js = execjs.compile(js_code)
+year = datetime.datetime.now().year
+month = datetime.datetime.now().month
 
 #签到
 def sign():
@@ -303,6 +305,50 @@ def available():
             print(result)
     msg_error.append(f"{index+1}查询吉分异常")
 
+#查询签到天数
+def getSignMsg():
+    print("【【【【【【【查询任务状态】】】】】】】")
+    url = 'https://app.geely.com/api/v1/userSign/getSignMsg'
+    headers = {
+        "Host": "app.geely.com",
+        "accept": "application/json, text/plain, */*",
+        "user-agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp",
+        "token": info['token'],
+        "content-type": "application/json",
+        "origin": "https://app.geely.com",
+        "referer": "https://app.geely.com/app-h5/sign-in?showTitleBar=0",
+        "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+    }
+    data = {
+        "year": str(year),
+        "month": str(month)
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        result = response.json()
+    except requests.exceptions.RequestException as e:
+        print("请求异常:", e)
+        random_sleep(10, 20)
+    except json.JSONDecodeError as e:
+        print("JSON 解码异常:", e)
+        random_sleep(10, 20)
+    except Exception as e:
+        print("其他异常:", e)
+        random_sleep(10, 20)
+    else:
+        if result['code'] == 'success':
+            signDay = result['data']['continuousSignDay']
+            print(f"已连续签到{signDay}天")
+            if info['signDay'] not is None:
+                if info['signDay'] + 1 != signDay:
+                    msg_error.append(f"{index+1}签到天数异常")
+                    print(result)
+            info['signDay'] = signDay
+            return
+        else:
+            print(result)
+    msg_error.append(f"{index+1}查询签到天数失败")
+
 #查询任务状态
 def access():
     print("【【【【【【【查询任务状态】】】】】】】")
@@ -404,10 +450,8 @@ if __name__ == '__main__':
             continue
         if current():
             sign() if not info['sign'] else print("已签到")
-      #      create() if not info['create'] else print("已发布动态")
-      #      random_sleep(20, 30)
-      #      access()   
             available()
+            getSignMsg()
         with open(filepath, 'w') as f:
             json.dump(info_new, f)
         print(f"第{index + 1}个账号运行完成")
