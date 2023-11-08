@@ -42,10 +42,8 @@ for item in accounts:
             "token_status": True,
             "token_time": token_time,
             "sign": False,
-            "create": False,
             "availablePoint": 0,
-            "reserve": None,
-            "reserve2": None
+            "signDay": None
         }
         data.append(account_dict)
         inx_add += 1
