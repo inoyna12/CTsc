@@ -30,10 +30,7 @@ for account in accounts:
         "token_time": None,
         "sign": False,
         "share": 0,
-        "comment": 0,
-        "creditScore": 0,
-        "reserve": None,
-        "reserve2": None
+        "creditScore": 0
     }
     data.append(account_dict)
     inx_add += 1
