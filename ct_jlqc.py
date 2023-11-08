@@ -339,7 +339,7 @@ def getSignMsg():
         if result['code'] == 'success':
             signDay = result['data']['continuousSignDay']
             print(f"已连续签到{signDay}天")
-            if info['signDay'] not is None:
+            if info['signDay'] is not None:
                 if info['signDay'] + 1 != signDay:
                     msg_error.append(f"{index+1}签到天数异常")
                     print(result)
