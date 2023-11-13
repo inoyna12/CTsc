@@ -418,7 +418,7 @@ def msg_send():
         phone = item['mobile']
         availablePoint = item['availablePoint']
         password = item['password']
-        msg.append(f"{phone}：{availablePoint}吉分")
+        msg.append(f"{phone}：{availablePoint}吉分：{item['signDay']}")
         git_userpssd.append(phone + '----' + password)
         git_token.append(item['token'])
         git_phone.append(item['mobile'])
