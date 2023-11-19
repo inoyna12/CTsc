@@ -265,7 +265,7 @@ def forwarArticle():
                     info['share'] = 3
                     break
             if info['share'] < 3:
-                random_sleep(10, 20)
+                random_sleep(5, 10)
             else:
                 return
     msg_error.append(f"{index}.{info['mobile']}：转发异常") 
