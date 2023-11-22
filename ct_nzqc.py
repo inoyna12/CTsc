@@ -15,7 +15,7 @@ import os
 from sendNotify import send
 from utils.github_api import update_github_file
 
-appVersion = "5.6.1"
+appVersion = "5.8.0"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
 sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
 oneself = ["15050425338", "13291164580", "19941326235"]
@@ -378,12 +378,14 @@ def msg_send():
         msg.append(f"{phone}：{creditScore}积分")
         if creditScore >= fixed_creditScore and phone not in oneself:
             msg_phone.append(f"{phone}：{creditScore}积分")
-    send(f"{title_name}：{index}", '\n'.join(msg))   
+    send(f"{title_name}：{index}", '\n'.join(msg))
+    random_sleep(60, 80)
     send(f"{title_name}待下单账号：{len(msg_phone)}", '\n'.join(msg_phone))
     update_github_file(f"token/{title_name}/nzqc.json", info_max)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     if len(msg_error) > 0:
+        random_sleep(60, 80)
         send(f"{title_name}异常", '\n'.join(msg_error))
 
 if __name__ == '__main__':
