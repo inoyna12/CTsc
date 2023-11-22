@@ -428,6 +428,7 @@ def msg_send():
     update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
     update_github_file(f"token/{title_name}/账号密码.txt", '\n'.join(git_userpssd))
     if len(msg_error + msg_back) > 0:
+        random_sleep(60, 80)
         send(f"{title_name}异常", '\n'.join(msg_error + msg_back))
     
 if __name__ == '__main__':
