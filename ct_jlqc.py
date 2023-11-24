@@ -307,7 +307,7 @@ def available():
 
 #查询签到天数
 def getSignMsg():
-    print("【【【【【【【查询任务状态】】】】】】】")
+    print("【【【【【【【查询签到天数】】】】】】】")
     url = 'https://app.geely.com/api/v1/userSign/getSignMsg'
     headers = {
         "Host": "app.geely.com",
@@ -340,7 +340,7 @@ def getSignMsg():
             signDay = result['data']['continuousSignDay']
             print(f"已连续签到{signDay}天")
             if info['signDay'] is not None:
-                if info['signDay'] + 1 != signDay:
+                if signDay <= info['signDay']:
                     msg_error.append(f"{index+1}签到天数异常")
                     print(result)
             info['signDay'] = signDay
@@ -451,8 +451,9 @@ if __name__ == '__main__':
             continue
         if current():
             sign() if not info['sign'] else print("已签到")
-            available()
             getSignMsg()
+            random_sleep(3, 6)
+            available()
         with open(filepath, 'w') as f:
             json.dump(info_new, f)
         print(f"第{index + 1}个账号运行完成")
