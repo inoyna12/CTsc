@@ -429,5 +429,5 @@ if __name__ == '__main__':
         file.close()
         if index < len(max_phone) and or_sleep:
             index += 1
-            random_sleep(1, 60)    
+            random_sleep(1, 30)    
     msg_send()
