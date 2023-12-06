@@ -422,7 +422,7 @@ def msg_send():
         git_userpssd.append(phone + '----' + password)
         git_token.append(item['token'])
         git_phone.append(item['mobile'])
-        if int(availablePoint) >= 180:
+        if availablePoint >= 180:
             msg_userpwd.append(phone + '----' + password)
     send(f"{title_name}待下单账号：{len(msg_userpwd)}", '\n'.join(msg_userpwd))
     random_sleep(60, 80)
