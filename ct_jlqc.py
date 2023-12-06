@@ -422,6 +422,10 @@ def msg_send():
         git_userpssd.append(phone + '----' + password)
         git_token.append(item['token'])
         git_phone.append(item['mobile'])
+        if int(availablePoint) >= 180:
+            msg_userpwd.append(phone + '----' + password)
+    send(f"{title_name}待下单账号：{len(msg_userpwd)}", '\n'.join(msg_userpwd))
+    random_sleep(60, 80)
     send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
     update_github_file(f"token/{title_name}/jlqc.json", info_filtered)
     update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
@@ -435,6 +439,7 @@ if __name__ == '__main__':
     title_name = '吉利汽车'
     filepath = "/ql/data/env/jlqc.json"
     msg = []
+    msg_userpwd = []
     msg_error = []
     msg_back = []
     git_token = []
