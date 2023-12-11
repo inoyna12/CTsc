@@ -3,6 +3,9 @@ cron: 6 13 * * *
 new Env('哪吒token提取');
 '''
 import json,os,sys
+from utils.github_api import update_github_file
+
+git_token = []
 
 def ql_env(name):
     if name in os.environ:
@@ -29,4 +32,8 @@ for phone in phone_list:
             print(phone + '\n')
             print(info['refresh_token'])
             print("\n" + "-------------------------------------------" + "\n")
+            token = phone + '----' + info['refresh_token']
+            git_token.append(token)
             break
+            
+update_github_file(f"token/哪吒汽车/shop.txt", '\n'.join(git_token))
