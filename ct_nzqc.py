@@ -376,7 +376,7 @@ def msg_send():
         phone = item['mobile']
         creditScore = item['creditScore']
         msg.append(f"{phone}：{creditScore}积分")
-        if creditScore >= fixed_creditScore:
+        if creditScore >= fixed_creditScore and item['tzc_num2'] == 0:
             msg_phone.append(f"{phone}：{creditScore}积分")
     send(f"{title_name}：{index}", '\n'.join(msg))
     random_sleep(60, 80)
