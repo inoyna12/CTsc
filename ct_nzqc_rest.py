@@ -8,7 +8,7 @@ from utils.ql_api import get_envs, put_envs
 
 env = 'TZC_num2'
 phone_list = os.environ[env].split('\n')
-if phones[0] == '空':
+if phone_list[0] == '空':
     print("环境变量为空，不需要添加")
     exit()
     
