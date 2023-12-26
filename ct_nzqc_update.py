@@ -12,7 +12,6 @@ with open(filepath, "r") as f:
 for i in data:
     i["sign"] = False
     i['share'] = 0
-    i['comment'] = 0
     
 random.shuffle(data)  
 with open(filepath, "w") as f:
