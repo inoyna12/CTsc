@@ -29,6 +29,7 @@ def sign(session):
     }
     response = requests.post(url=url, headers = headers, json = json_data)
     result = response.json()
+    print(result)
     if 'SIGN_REQ' in result['data'] and result['data']['SIGN_REQ'] == 1:
         nodeDay = result['data']['GIFT_BAG'][0]['nodeDay']
         NEST_AWARD_DAY = result['data']['NEST_AWARD_DAY']
