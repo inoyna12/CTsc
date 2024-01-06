@@ -29,7 +29,7 @@ def sign(session):
     }
     response = requests.post(url=url, headers = headers, json = json_data)
     result = response.json()
-    print(result)
+    #print(result)
     if 'SIGN_REQ' in result['data'] and result['data']['SIGN_REQ'] == 1:
         nodeDay = result['data']['GIFT_BAG'][0]['nodeDay']
         NEST_AWARD_DAY = result['data']['NEST_AWARD_DAY']
@@ -84,7 +84,7 @@ def get_act_id():
 
 def getGift(data):
     giftMap = { "1": "外卖", "2": "打车" }
-    filtered_list = [d for d in data if d['couponScene'] == giftMap[str(giftType)]]
+    filtered_list = [d for d in data if d['couponScene'] == giftMap[str(giftType)] and '美团' not in d['title']]
     sorted_list = sorted(filtered_list, key=lambda x: x['couponPrice'], reverse=True)
     url = 'https://yunbusiness.ccb.com/clp_coupon/txCtrl?txcode=A3341C082'
     headers = {
