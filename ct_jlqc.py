@@ -32,8 +32,7 @@ def sign():
         headers = {
             'Host': 'app.geely.com',
             'accept': 'application/json, text/plain, */*',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36/geelyApp/android/geelyApp',
-            'token': info['token'],
+            'token': account['token'],
             'x-data-sign': js.call("enen", data),
             'content-type': 'application/json',
             'origin': 'https://app.geely.com',
@@ -43,18 +42,12 @@ def sign():
         try:
             response = requests.post(url, headers=headers, json=data)
             result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(10, 20)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(10, 20)
         except Exception as e:
-            print("其他异常:", e)
+            print("异常:", e)
             random_sleep(10, 20)
         else:
             if result['code'] == 'success':
-                print(result['code'])
+                print("签到：" + result['code'])
                 if 'prizeName' in result['data']:
                     print(result['data']['prizeName'])
                 info['sign'] = True
@@ -63,10 +56,15 @@ def sign():
                 print(result['message'])
                 info['sign'] = True
                 return
+            elif result['code'] == 'token.unchecked':
+                print(result)
+                account['token_status'] = False
+                msg_error.append(f"{account['mobile']}----{account['password']}失效")
+                return
             elif i < 2:
                 print(result)
                 random_sleep(20, 40)
-    msg_error.append(f"{index+1}签到异常")
+    msg_error.append(f"账号{index}签到异常")
         
 #遍历
 def queryForFollow():
@@ -280,30 +278,24 @@ def available():
         "Host": "app.geely.com",
         "accept": "application/json",
         "devicesn": "356596585696247",
-        "token": info['token']
+        "token": account['token']
     }
     try:
         response = requests.get(url, headers=headers)
         result = response.json()
-    except requests.exceptions.RequestException as e:
-        print("请求异常:", e)
-        random_sleep(10, 20)
-    except json.JSONDecodeError as e:
-        print("JSON 解码异常:", e)
-        random_sleep(10, 20)
     except Exception as e:
         print("其他异常:", e)
         random_sleep(10, 20)
     else:
         if result['code'] == 'success':
             availablePoint = result['data']['availablePoint']
-            acinfo = f"{info['mobile']}：{availablePoint}吉分"
-            print(acinfo)
-            info['availablePoint'] = availablePoint
+            info = f"{account['mobile']}：{availablePoint}吉分"
+            print(info)
+            account['availablePoint'] = availablePoint
             return
         else:
             print(result)
-    msg_error.append(f"{index+1}查询吉分异常")
+    msg_error.append(f"{index}查询吉分异常")
 
 #查询签到天数
 def getSignMsg():
@@ -412,60 +404,54 @@ def shiciapi():
             print(f"随机一言获取失败，状态码：{response.status_code}")
     return None
 
-def msg_send():
-    sorted_data = sorted(info_filtered, key=lambda x: x['signDay'], reverse=True)#从大到小排序
-    for item in sorted_data:
-        phone = item['mobile']
-        availablePoint = item['availablePoint']
-        password = item['password']
-        msg.append(f"{phone}：{availablePoint}吉分：{item['signDay']}")
-        git_userpssd.append(phone + '----' + password)
-        git_token.append(item['token'])
-        git_phone.append(item['mobile'])
+def MsgSend():
+    listAccount = sorted(Account_list, key=lambda x: float(x['availablePoint']), reverse=True)#从大到小排序
+    for account in listAccount:
+        phone = account['mobile']
+        availablePoint = account['availablePoint']
+        password = account['password']
+        info = phone + '----' + password
+        msg.append(f"{phone}：{availablePoint}吉分")
+        git_info.append(info)
         if int(float(availablePoint)) >= 180:
-            msg_userpwd.append(phone + '----' + password)
-    send(f"{title_name}待下单账号：{len(msg_userpwd)}", '\n'.join(msg_userpwd))
+            msg_shop.append(info)
+    send(f"{title_name}：{len(listAccount)}", '\n'.join(msg))
     random_sleep(60, 80)
-    send(f"{title_name}：{len(sorted_data)}", '\n'.join(msg))
-    update_github_file(f"token/{title_name}/jlqc.json", info_filtered)
-    update_github_file(f"token/{title_name}/phone_list.txt", '\n'.join(git_phone))
-    update_github_file(f"token/{title_name}/token_list.txt", '\n'.join(git_token))
-    update_github_file(f"token/{title_name}/账号密码.txt", '\n'.join(git_userpssd))
-    if len(msg_error + msg_back) > 0:
-        random_sleep(60, 80)
-        send(f"{title_name}异常", '\n'.join(msg_error + msg_back))
+    if len(msg_shop) > 0:
+        send(f"{title_name}待下单账号：{len(msg_shop)}", '\n'.join(msg_shop))
+    if len(msg_error) > 0:
+        send(f"{title_name}异常", '\n'.join(msg_error))
+    update_github_file(f"token/{title_name}/jlqc.json", listAccount)
+    update_github_file(f"token/{title_name}/账号密码.txt", '\n'.join(git_info))
     
 if __name__ == '__main__':
     title_name = '吉利汽车'
     filepath = "/ql/data/env/jlqc.json"
     msg = []
-    msg_userpwd = []
+    msg_shop = []
     msg_error = []
-    msg_back = []
-    git_token = []
-    git_phone = []
-    git_userpssd = []
-    index = 0
+    Account_list = []
+    git_info = []
+    index = 1
     with open(filepath, 'r') as f:
-        info_new = json.load(f)
-    print(f"共找到{len(info_new)}个账号")
-    for info in info_new:
-        print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
-        if info['sign']:
+        account_list = json.load(f)
+    print(f"共找到{len(account_list)}个账号")
+    for account in account_list:
+        print(f"\n{'-' * 13}正在执行第{index}个账号{'-' * 13}")
+        print(account['mobile'] + "：")
+        if account['sign']:
+            print("已签到，跳过此账号")
+            Account_list.append(account)
             index += 1
             continue
-        if current():
-            sign() if not info['sign'] else print("已签到")
-            getSignMsg()
-            random_sleep(3, 6)
-            available()
+        sign()
+        available()
+        if account["token_status"]:
+            Account_list.append(account)
         with open(filepath, 'w') as f:
-            json.dump(info_new, f)
-        print(f"第{index + 1}个账号运行完成")
-        index += 1
-        if index < len(info_new):
-            random_sleep(0, 30)
-    info_filtered = [info for info in info_new if info["token_status"]]
-    with open(filepath, 'w') as f:
-        json.dump(info_filtered, f)
-    msg_send()
+            json.dump(Account_list, f)
+        print(f"第{index}个账号运行完成")
+        if index < len(account_list):
+            index += 1
+            random_sleep(60, 120)
+    MsgSend()
