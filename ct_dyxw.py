@@ -245,10 +245,11 @@ def create(inx):
         data = f"channel_article_id={id}&content={urllib.parse.quote(content)}"
         response = requests.post(url, headers=headers, data=data)
         result = response.json()
-        id_list.remove(id)
         print(f"评论{id}：{result['message']}")
         if result['message'] == 'success':
             createNum += 1
+        else:
+            id_list.remove(id)
         if createNum == inx:
             return
         random_sleep(5, 10)
