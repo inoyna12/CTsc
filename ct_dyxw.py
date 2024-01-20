@@ -224,7 +224,8 @@ def doTask(inx):
 def create(inx):
     url = 'https://vapp.tmuyun.com/api/comment/create'
     create_id_list = list(id_list)
-    for i in range(inx):
+    createNum = 0
+    for i in range(20):
         id = random.choice(create_id_list)
         create_id_list.remove(id)
         requestid = random_uuid()
@@ -244,11 +245,13 @@ def create(inx):
         data = f"channel_article_id={id}&content={urllib.parse.quote(content)}"
         response = requests.post(url, headers=headers, data=data)
         result = response.json()
+        id_list.remove(id)
         print(f"评论{id}：{result['message']}")
-        if result['message'] != 'success':
-            id_list.remove(id)
-        if i < inx - 1:
-            random_sleep(5, 10)
+        if result['message'] == 'success':
+            createNum += 1
+        if createNum == inx:
+            return
+        random_sleep(5, 10)
     
 def main(task_name, inx=None):
     if task_name == "每日签到":
