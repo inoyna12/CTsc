@@ -42,7 +42,7 @@ for item in current_content_list:
     phone, password, cookie = item.split('----')
     sessionId, wdata3 = extract_session_and_wdata3(cookie)
     if sessionId is None or wdata3 is None:
-        send("笛杨新闻", f"账号{phone}添加失败")
+        send("笛杨新闻", f"账号{phone}添加失败：\n{item}")
         continue
     found = False
     for data in data_list:
