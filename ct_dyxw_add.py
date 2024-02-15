@@ -71,4 +71,4 @@ with open(filepath, 'w', encoding='utf-8') as file:
 print('JSON数据更新完成。')
 file_manager.update_file_content(repo_name, file_path, new_content, commit_message, branch)
     
-send("笛杨新闻"， f"更新账号{update_account}次\n增加账号{add_account}次")
+send("笛杨新闻"，f"更新账号{update_account}次\n增加账号{add_account}次")
