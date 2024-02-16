@@ -69,7 +69,7 @@ for item in current_content_list:
         print(f"增加次数：{add_account}，号码：{phone}")
 
 with open(filepath, 'w', encoding='utf-8') as file:
-    json.dump(data_list, file, indent=4)
+    json.dump(data_list, file, indent=2)
 
 print('JSON数据更新完成。')
 file_manager.update_file_content(repo_name, file_path, new_content, commit_message, branch)
