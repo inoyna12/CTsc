@@ -19,9 +19,9 @@ def printNow(content):
 # 生成时间戳
 def timeStamp(length):
     if length == 10:
-        return int(round(time()))
+        return int(time.time())
     elif length == 16:
-        return int(round(time() * 1000))
+        return int(time.time() * 1000)
     else:
         print("时间戳生成失败")
         return
