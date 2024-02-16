@@ -1,23 +1,23 @@
 import time,random,uuid,sys,hashlib
 
 # 随机延迟
-def random_sleep(min_val, max_val):
+def randomSleep(min_val, max_val):
     num = random.randint(min_val, max_val)
     print(f"随机等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
 
 # 生成uuid    
-def random_uuid():
+def randomUuid():
     random_uuid = str(uuid.uuid4())
     return random_uuid
     
 # 修改print方法 避免某些环境下python执行print 不会去刷新缓存区导致信息第一时间不及时输出
-def print_now(content):
+def printNow(content):
     print(content)
     sys.stdout.flush()
     
 # 生成时间戳
-def timestamp(length):
+def timeStamp(length):
     if length == 10:
         return int(round(time()))
     elif length == 16:
@@ -27,7 +27,7 @@ def timestamp(length):
         return
 
 # sha256加密        
-def sha256_encode(string):
+def sha256Encode(string):
     hash_object = hashlib.sha256(string.encode('utf-8'))
     hex_dig = hash_object.hexdigest()
     return hex_dig
