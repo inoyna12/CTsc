@@ -357,7 +357,7 @@ def getChannelId():
             if 'published_at' in article:
                 getId(article['id'], article['published_at'])
             else:
-                for column_news in article['column_news_list']:
+                for column_news in article.get('column_news_list', []):
                     if 'published_at' in column_news:
                         getId(column_news['id'], column_news['published_at'])            
         list_count += 20
