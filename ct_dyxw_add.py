@@ -22,9 +22,9 @@ update_account = 0
 add_account = 0
 access_token = os.getenv('github_token')
 file_manager = GithubFileManager(access_token)
-repo_name = "inoyna12/CTsc"
+repo_name = "inoyna12/updateTeam"
 branch = "master"
-file_path = "token/笛杨新闻/账号密码.txt"
+file_path = "笛杨新闻/账号密码.txt"
 new_content = ''
 commit_message = f"Update {file_path}"
 
