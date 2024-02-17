@@ -453,7 +453,7 @@ if __name__ == '__main__':
     id_day2_list = []
     id_day100_list = []
     index = 1
-    现在 = datetime.datetime.now()
+    now = datetime.datetime.now()
     getChannelId()
     with open(filepath, 'r', encoding='utf-8') as f:
         data_list = json.load(f)
