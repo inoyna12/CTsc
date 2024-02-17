@@ -62,6 +62,8 @@ for item in current_content_list:
             "cookie": cookie,
             "sessionId": sessionId,
             "wdata3": wdata3,
+            "ref_code": None,
+            "taskStatus": False,
             "total_integral": 0
         }
         data_list.append(account_dict)
