@@ -463,6 +463,7 @@ if __name__ == '__main__':
     print(f"共找到{len(data_list)}个账号")    
     for Data in data_list:
         print(f"\n{'-' * 13}正在执行第{index}个账号{'-' * 13}")
+        Data['taskStatus'] = False
         main()
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f, indent=2)
