@@ -371,7 +371,6 @@ def getChannelId():
 #任务状态
 def numberCenter():
     url = 'https://vapp.tmuyun.com/api/user_mumber/numberCenter?is_new=1'
-    success_num = 0
     for i in range(5):
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
@@ -393,25 +392,29 @@ def numberCenter():
         mobile = result['data']['rst']['mobile']
         total_integral = result['data']['rst']['total_integral']
         Data['total_integral'] = total_integral
+        user_task_list = result['data']['rst']['user_task_list']
         sign_list = result['data']['daily_sign_info']['daily_sign_list']
         sign_info = next((item for item in sign_list if item.get("current") == "今天"), None)
         if  sign_info['signed'] is False:
             sign()
-        for user_task in result['data']['rst']['user_task_list']:
+        for user_task in user_task_list:
             name = user_task['name']
             finish_times = user_task['finish_times']
             frequency = user_task['frequency']
             print(f"{name}：{finish_times}/{frequency}")
             if user_task['completed'] == 0:
                 handleTasks(name, frequency - finish_times)
-            else:
-                success_num += 1
-        if success_num < len(sign_list) - 1:
-            randomSleep(10, 20)
-        else:
+        all_completedStatus = all(
+            task['completed'] == 1
+            for task in user_task_list
+            if task['name'] != '邀请好友'
+        )
+        if all_completedStatus:
             Data['taskStatus'] = True
             print("任务已全部完成")
             return
+        else:
+            randomSleep(10, 20)
 
 # 执行任务
 def handleTasks(name, num):
