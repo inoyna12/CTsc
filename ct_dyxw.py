@@ -486,6 +486,5 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f, indent=2)
         if index < len(data_list):
-            index += 1
             randomSleep(60, 120)
     msgSend()
