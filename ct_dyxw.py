@@ -42,7 +42,7 @@ def send_request(url, method='GET', **kwargs):
             print(f"其他错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
         attempt += 1
         if attempt < MAX_RETRIES:
-            time.sleep(10)
+            time.sleep(sleep_time)
         else:
             print("超过最大重试次数")
             return None
@@ -376,7 +376,7 @@ def getChannelId():
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
         }
-        result = send_request(url, 'GET', headers=headers)
+        result = send_request(url, 'GET', headers=headers, params=params)
         start = result['data']['article_list'][-1]['sort_number']
         for article in result['data']['article_list']:
             if 'published_at' in article:
