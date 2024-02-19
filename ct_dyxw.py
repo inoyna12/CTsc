@@ -8,8 +8,41 @@ from uuid import uuid4
 from notify import send
 from datetime import timedelta
 
+title_name = '笛杨新闻'
+filepath = "/ql/data/env/dyxw.json"
 version = '3.0.3'
 comment_list = ["赞一个", "非常好", "666"]
+debug = 0
+
+def send_request(url, method='GET', **kwargs):
+    attempt = 0
+    MAX_RETRIES = 3  # 重试次数
+    sleep_time = 30  # 重试等待时间
+    time_out = 30  # 请求超时
+    while attempt < MAX_RETRIES:
+        try:
+            method = method.upper()
+            if method not in ['GET', 'POST']:
+                raise ValueError(f'Unsupported HTTP method "{method}" provided.')
+            response = requests.request(method, url, timeout=time_out, **kwargs)
+            response.raise_for_status()
+            if debug:
+                print(response.json())
+            return response.json()
+        except requests.exceptions.Timeout as e:
+            print(f"请求超时 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except requests.exceptions.RequestException as e:
+            print(f"请求错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except ValueError as e:
+            print(f"值错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except Exception as e:
+            print(f"其他错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        attempt += 1
+        if attempt < MAX_RETRIES:
+            time.sleep(10)
+        else:
+            print("超过最大重试次数")
+            return None
 
 # 随机ua
 def randomUA():
@@ -34,9 +67,9 @@ def getAccountComment():
     url = 'https://vapp.tmuyun.com/api/account_comment/comment_list?size=20'
     requestid = str(uuid4())
     timestamp = int(time.time() * 1000)
-    signature = f"/api/account_comment/comment_list&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+    signature = f"/api/account_comment/comment_list&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
     headers = {
-        "X-SESSION-ID": Data['sessionId'],
+        "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
         "X-SIGNATURE": sha256Encode(signature),
@@ -44,8 +77,7 @@ def getAccountComment():
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
     }
-    response = requests.get(url, headers=headers)
-    result = response.json()
+    result = send_request(url, 'GET', headers=headers)
     comment_list = []
     if result['message'] == "success":
         for item in result['data']['comment_list']:
@@ -61,9 +93,9 @@ def delete():
     for comment_id in comment_list:
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/comment/delete&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/comment/delete&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -74,8 +106,7 @@ def delete():
             "Host": "vapp.tmuyun.com"
         }
         data = f"comment_id={comment_id}"
-        response = requests.post(url, headers=headers, data=data)
-        result = response.json()
+        result = send_request(url, 'POST', headers=headers, data=data)
         print(f"删除评论{comment_id}：{result['message']}")
 
 # 个人信息
@@ -83,9 +114,9 @@ def accountDetail():
     url = 'https://vapp.tmuyun.com/api/user_mumber/account_detail'
     requestid = str(uuid4())
     timestamp = int(time.time() * 1000)
-    signature = f"/api/user_mumber/account_detail&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+    signature = f"/api/user_mumber/account_detail&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
     headers = {
-        "X-SESSION-ID": Data['sessionId'],
+        "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
         "X-SIGNATURE": sha256Encode(signature),
@@ -93,16 +124,15 @@ def accountDetail():
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
     }
-    response = requests.get(url, headers=headers)
-    result = response.json()
+    result = send_request(url, 'GET', headers=headers)
     if result['message'] == "success":
         mobile = result['data']['rst']['mobile']
         total_integral = result['data']['rst']['total_integral']
         ref_code = result['data']['rst']['ref_code']
-        Data['ref_code'] = ref_code
+        userData['ref_code'] = ref_code
     else:
         print(result)
-        send(title_name, f"{Data['phone']}〖{index}〗：个人信息获取失败")
+        send(title_name, f"{userData['phone']}〖{index}〗：个人信息获取失败")
         return False
 
 # 邀请好友
@@ -126,10 +156,9 @@ def updateRefCode(num):
             "Host": "vapp.tmuyun.com"
         }
         data = {
-            "ref_code": Data['ref_code']
+            "ref_code": userData['ref_code']
         }
-        response = requests.post(url, headers=headers, data=data)
-        result = response.json()
+        result = send_request(url, 'POST', headers=headers, data=data)
         print(result)
         print(result['message'])
 
@@ -138,9 +167,9 @@ def sign():
     url = 'https://vapp.tmuyun.com/api/user_mumber/sign'
     requestid = str(uuid4())
     timestamp = int(time.time() * 1000)
-    signature = f"/api/user_mumber/sign&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+    signature = f"/api/user_mumber/sign&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
     headers = {
-        "X-SESSION-ID": Data['sessionId'],
+        "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
         "X-SIGNATURE": sha256Encode(signature),
@@ -148,8 +177,7 @@ def sign():
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
     }
-    response = requests.get(url, headers=headers)
-    result = response.json()
+    result = send_request(url, 'GET', headers=headers)
     if result['message'] == "success":
         print(f"签到：{result['data']['reason']}，获得：积分{result['data']['signIntegral']}，经验{result['data']['signExperience']}")
    
@@ -165,9 +193,9 @@ def detail(num):
         }
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/article/detail&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/article/detail&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -175,10 +203,10 @@ def detail(num):
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
         }
-        response = requests.get(url, params=params, headers=headers)
-        result = response.json()
+        result = send_request(url, 'GET', params=params, headers=headers)
         print(f"阅读{id}：{result['message']}")
-        randomSleep(10, 15)
+        if i < num - 1:
+            randomSleep(5, 10)
 
 #点赞
 def like(num):
@@ -189,9 +217,9 @@ def like(num):
         like_id_list.remove(id)
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/favorite/like&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/favorite/like&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -202,8 +230,7 @@ def like(num):
             "Host": "vapp.tmuyun.com"
         }
         data = f"action=true&id={id}"
-        response = requests.post(url, headers=headers, data=data)
-        result = response.json()
+        result = send_request(url, 'POST', headers=headers, data=data)
         print(f"点赞{id}：{result['message']}")
         if i < num - 1:
             randomSleep(5, 10)
@@ -217,9 +244,9 @@ def doTask(num):
         doTask_id_list.remove(id)
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/user_mumber/doTask&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/user_mumber/doTask&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -230,8 +257,7 @@ def doTask(num):
             "Host": "vapp.tmuyun.com"
         }
         data = f"memberType=3&member_type=3&target_id={id}"
-        response = requests.post(url, headers=headers, data=data)
-        result = response.json()
+        result = send_request(url, 'POST', headers=headers, data=data)
         print(f"分享{id}：{result['message']}")
         if i < num - 1:
             randomSleep(5, 10)
@@ -246,9 +272,9 @@ def create(num):
         create_id_list.remove(id)
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/comment/create&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/comment/create&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -259,8 +285,7 @@ def create(num):
         }
         content = random.choice(comment_list)
         data = f"channel_article_id={id}&content={urllib.parse.quote(content)}"
-        response = requests.post(url, headers=headers, data=data)
-        result = response.json()
+        result = send_request(url, 'POST', headers=headers, data=data)
         print(f"评论{id}：{result['message']}")
         if result['message'] == 'success':
             createNum += 1
@@ -284,8 +309,7 @@ def getSessionid():
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
     }
-    response = requests.post(url, headers=headers)
-    result = response.json()
+    result = send_request(url, 'POST', headers=headers)
     if result['message'] == "success":
         id = result['data']['session']['id']
         name = result['data']['account']['nick_name']
@@ -313,8 +337,7 @@ def getNavParameter():
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
     }
-    response = requests.get(url, headers=headers)
-    result = response.json()
+    result = send_request(url, 'GET', headers=headers)
     for item in result['data']['focus']:
         if item['name'] == '首页':
             return sessionid, item['nav_parameter']
@@ -350,8 +373,7 @@ def getChannelId():
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
         }
-        response = requests.get(url, params=params, headers=headers)
-        result = response.json()
+        result = send_request(url, 'GET', headers=headers)
         start = result['data']['article_list'][-1]['sort_number']
         for article in result['data']['article_list']:
             if 'published_at' in article:
@@ -374,9 +396,9 @@ def numberCenter():
     for i in range(5):
         requestid = str(uuid4())
         timestamp = int(time.time() * 1000)
-        signature = f"/api/user_mumber/numberCenter&&{Data['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
+        signature = f"/api/user_mumber/numberCenter&&{userData['sessionId']}&&{requestid}&&{timestamp}&&FR*r!isE5W&&68"
         headers = {
-            "X-SESSION-ID": Data['sessionId'],
+            "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
             "X-SIGNATURE": sha256Encode(signature),
@@ -384,14 +406,13 @@ def numberCenter():
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
         }
-        response = requests.get(url, headers=headers)
-        result = response.json()
+        result = send_request(url, 'GET', headers=headers)
         if result['message'] != "success":
             print(result)
             return False
         mobile = result['data']['rst']['mobile']
         total_integral = result['data']['rst']['total_integral']
-        Data['total_integral'] = total_integral
+        userData['total_integral'] = total_integral
         user_task_list = result['data']['rst']['user_task_list']
         sign_list = result['data']['daily_sign_info']['daily_sign_list']
         sign_info = next((item for item in sign_list if item.get("current") == "今天"), None)
@@ -410,7 +431,7 @@ def numberCenter():
             if task['name'] != '邀请好友'
         )
         if all_completedStatus:
-            Data['taskStatus'] = True
+            userData['taskStatus'] = True
             print("任务已全部完成")
             return
         else:
@@ -428,7 +449,7 @@ def handleTasks(name, num):
         create(num)
     elif name == "邀请好友":
 #        updateRefCode(num)
-        print("跳过此任务")
+        pass
     else:
         send(title_name, f"未知任务：{name}")
 
@@ -450,20 +471,17 @@ def msgSend():
     send(f"{title_name}：{len(new_data_list)}", '\n'.join(msg))
 
 if __name__ == '__main__':
-    title_name = '笛杨新闻'
-    filepath = "/ql/data/env/dyxw.json"
     msg = []
     id_day2_list = []
     id_day100_list = []
-    index = 1
-    now = datetime.datetime.now()
-    getChannelId()
     with open(filepath, 'r', encoding='utf-8') as f:
         data_list = json.load(f)
-    print(f"共找到{len(data_list)}个账号")    
-    for Data in data_list:
+    print(f"共找到{len(data_list)}个账号")
+    now = datetime.datetime.now()
+    getChannelId()
+    for index, userData in enumerate(data_list, start = 1):
         print(f"\n{'-' * 13}正在执行第{index}个账号{'-' * 13}")
-        Data['taskStatus'] = False
+        userData['taskStatus'] = False
         main()
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f, indent=2)
