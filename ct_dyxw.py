@@ -9,9 +9,12 @@ from notify import send
 from datetime import timedelta
 
 title_name = '笛杨新闻'
-filepath = "/ql/data/env/dyxw.json"
 version = '3.0.3'
+
+filepath = "/ql/data/env/dyxw.json"
+
 comment_list = ["赞一个", "非常好", "666"]
+
 debug = 0
 
 def send_request(url, method='GET', **kwargs):
