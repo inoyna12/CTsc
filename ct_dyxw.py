@@ -376,7 +376,7 @@ def getChannelId():
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
         }
-        result = send_request(url, 'GET', headers=headers, params=params)
+        result = send_request(url, 'GET', params=params, headers=headers)
         start = result['data']['article_list'][-1]['sort_number']
         for article in result['data']['article_list']:
             if 'published_at' in article:
