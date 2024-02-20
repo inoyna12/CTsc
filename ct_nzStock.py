@@ -7,6 +7,7 @@ from notify import send
 
 goods_list = [1639094260312801281,1747913042685448194]
 msg = []
+index = 0
 headers = {
     'Host': 'shop-wap.hozonauto.com',
     'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0.6045.193 Mobile Safari/537.36',
@@ -22,6 +23,8 @@ for goods in goods_list:
         stock = result['data']['skus'][0]['stock']
         aaa = f"{name}：{stock}"
         print(aaa)
+        if stock > 0:
+            index += 1
         msg.append(aaa)
     time.sleep(5)
-send("哪吒库存", '\n'.join(msg))
+send(f"哪吒库存({index})", '\n'.join(msg))
