@@ -438,7 +438,7 @@ def numberCenter():
             print("任务已全部完成")
             return
         else:
-            randomSleep(10, 20)
+            randomSleep(5, 10)
 
 # 执行任务
 def handleTasks(name, num):
@@ -489,5 +489,5 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f, indent=2)
         if index < len(data_list):
-            randomSleep(60, 120)
+            randomSleep(20, 30)
     msgSend()
