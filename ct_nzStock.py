@@ -1,6 +1,6 @@
 '''
 cron: 0 */1 * * *
-new Env('哪吒商品库存');
+new Env('哪吒监控库存');
 '''
 import requests,json,time
 from notify import send
