@@ -67,6 +67,7 @@ def getId(id, timestamp):
 
 # 获取个人评论
 def getAccountComment():
+    comment_list = []
     url = 'https://vapp.tmuyun.com/api/account_comment/comment_list?size=20'
     requestid = str(uuid4())
     timestamp = int(time.time() * 1000)
@@ -81,7 +82,8 @@ def getAccountComment():
         "Host": "vapp.tmuyun.com"
     }
     result = send_request(url, 'GET', headers=headers)
-    comment_list = []
+    if result is None:
+        return comment_list
     if result['message'] == "success":
         for item in result['data']['comment_list']:
             comment_list.append(item['id'])
@@ -110,6 +112,8 @@ def delete():
         }
         data = f"comment_id={comment_id}"
         result = send_request(url, 'POST', headers=headers, data=data)
+        if result is None:
+            continue
         print(f"删除评论{comment_id}：{result['message']}")
 
 # 个人信息
@@ -128,6 +132,8 @@ def accountDetail():
         "Host": "vapp.tmuyun.com"
     }
     result = send_request(url, 'GET', headers=headers)
+    if result is None:
+        return False
     if result['message'] == "success":
         mobile = result['data']['rst']['mobile']
         total_integral = result['data']['rst']['total_integral']
@@ -162,6 +168,8 @@ def updateRefCode(num):
             "ref_code": userData['ref_code']
         }
         result = send_request(url, 'POST', headers=headers, data=data)
+        if result is None:
+            return False
         print(result)
         print(result['message'])
 
@@ -181,6 +189,8 @@ def sign():
         "Host": "vapp.tmuyun.com"
     }
     result = send_request(url, 'GET', headers=headers)
+    if result is None:
+        return False
     if result['message'] == "success":
         print(f"签到：{result['data']['reason']}，获得：积分{result['data']['signIntegral']}，经验{result['data']['signExperience']}")
    
@@ -207,6 +217,8 @@ def detail(num):
             "Host": "vapp.tmuyun.com"
         }
         result = send_request(url, 'GET', params=params, headers=headers)
+        if result is None:
+            continue
         print(f"阅读{id}：{result['message']}")
         if i < num - 1:
             randomSleep(5, 10)
@@ -234,6 +246,8 @@ def like(num):
         }
         data = f"action=true&id={id}"
         result = send_request(url, 'POST', headers=headers, data=data)
+        if result is None:
+            continue
         print(f"点赞{id}：{result['message']}")
         if i < num - 1:
             randomSleep(5, 10)
@@ -261,6 +275,8 @@ def doTask(num):
         }
         data = f"memberType=3&member_type=3&target_id={id}"
         result = send_request(url, 'POST', headers=headers, data=data)
+        if result is None:
+            continue
         print(f"分享{id}：{result['message']}")
         if i < num - 1:
             randomSleep(5, 10)
@@ -289,6 +305,8 @@ def create(num):
         content = random.choice(comment_list)
         data = f"channel_article_id={id}&content={urllib.parse.quote(content)}"
         result = send_request(url, 'POST', headers=headers, data=data)
+        if result is None:
+            continue
         print(f"评论{id}：{result['message']}")
         if result['message'] == 'success':
             createNum += 1
@@ -313,6 +331,8 @@ def getSessionid():
         "Host": "vapp.tmuyun.com"
     }
     result = send_request(url, 'POST', headers=headers)
+    if result is None:
+        return None
     if result['message'] == "success":
         id = result['data']['session']['id']
         name = result['data']['account']['nick_name']
@@ -341,6 +361,8 @@ def getNavParameter():
         "Host": "vapp.tmuyun.com"
     }
     result = send_request(url, 'GET', headers=headers)
+    if result is None:
+        return None, None
     for item in result['data']['focus']:
         if item['name'] == '首页':
             return sessionid, item['nav_parameter']
@@ -350,12 +372,12 @@ def getNavParameter():
 # 获取首页id
 def getChannelId():
     sessionid, channel_id = getNavParameter()
+    cycles = 15
+    list_count = 0
     if channel_id is None:
         print("获取首页ID失败")
         return
     url = 'https://vapp.tmuyun.com/api/article/channel_list'
-    cycles = 15
-    list_count = 0
     params = {
             'channel_id': channel_id,
             'isDiFangHao': 'false',
@@ -377,6 +399,8 @@ def getChannelId():
             "Host": "vapp.tmuyun.com"
         }
         result = send_request(url, 'GET', params=params, headers=headers)
+        if result is None:
+            continue
         start = result['data']['article_list'][-1]['sort_number']
         for article in result['data']['article_list']:
             if 'published_at' in article:
@@ -410,6 +434,8 @@ def numberCenter():
             "Host": "vapp.tmuyun.com"
         }
         result = send_request(url, 'GET', headers=headers)
+        if result is None:
+            continue
         if result['message'] != "success":
             print(result)
             return False
