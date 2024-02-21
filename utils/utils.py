@@ -34,5 +34,5 @@ def sha256encode(string):
 
 # 随机数字
 def random_number(index):
-    random_number = ''.join(random.choices('0123456789', k=index))
-    return random_number
+    number = ''.join(random.choices('0123456789', k=index))
+    return number
