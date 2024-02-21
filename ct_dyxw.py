@@ -3,7 +3,7 @@ cron: 36 12 * * *
 new Env('笛杨新闻');
 '''
 import requests,json,random,datetime,time,urllib
-from utils.utils import randomSleep,timeStamp,sha256Encode
+from utils.utils import randomSleep,timeStamp,sha256encode
 from uuid import uuid4
 from notify import send
 from datetime import timedelta
