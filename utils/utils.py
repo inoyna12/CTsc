@@ -31,3 +31,8 @@ def sha256encode(string):
     hash_object = hashlib.sha256(string.encode('utf-8'))
     hex_dig = hash_object.hexdigest()
     return hex_dig
+
+# 随机数字
+def random_number(index):
+    random_number = ''.join(random.choices('0123456789', k=index))
+    return random_number
