@@ -27,7 +27,7 @@ def timeStamp(length):
         return
 
 # sha256加密        
-def sha256Encode(string):
+def sha256encode(string):
     hash_object = hashlib.sha256(string.encode('utf-8'))
     hex_dig = hash_object.hexdigest()
     return hex_dig
