@@ -26,10 +26,19 @@ class GithubFileManager:
         repo = self.get_repo(repo_name)
         if repo is not None:
             try:
-                file_sha = repo.get_contents(file_path, ref=branch).sha
+                file_contents = repo.get_contents(file_path, ref=branch)
+                file_sha = file_contents.sha
                 repo.update_file(file_path, commit_message, content, file_sha, branch=branch)
                 print(f"File {file_path} updated successfully on repo {repo_name}")
                 return True
             except Exception as e:
-                print(f"Error updating file content: {e}")
+                if '404' in str(e):  # 检查是否是因为文件不存在导致的异常
+                    try:
+                        repo.create_file(file_path, commit_message, content, branch=branch)
+                        print(f"File {file_path} created successfully on repo {repo_name}")
+                        return True
+                    except Exception as e:
+                        print(f"Error creating file: {e}")
+                else:
+                    print(f"Error updating file content: {e}")
         return False
