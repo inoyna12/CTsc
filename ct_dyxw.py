@@ -76,7 +76,7 @@ def getAccountComment():
         "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
-        "X-SIGNATURE": sha256Encode(signature),
+        "X-SIGNATURE": sha256encode(signature),
         "X-TENANT-ID": "68",
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
@@ -103,7 +103,7 @@ def delete():
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Content-Type": "application/x-www-form-urlencoded",
@@ -126,7 +126,7 @@ def accountDetail():
         "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
-        "X-SIGNATURE": sha256Encode(signature),
+        "X-SIGNATURE": sha256encode(signature),
         "X-TENANT-ID": "68",
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
@@ -159,7 +159,7 @@ def updateRefCode(num):
             "X-SESSION-ID": session_id,
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
@@ -183,7 +183,7 @@ def sign():
         "X-SESSION-ID": userData['sessionId'],
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
-        "X-SIGNATURE": sha256Encode(signature),
+        "X-SIGNATURE": sha256encode(signature),
         "X-TENANT-ID": "68",
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
@@ -211,7 +211,7 @@ def detail(num):
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
@@ -237,7 +237,7 @@ def like(num):
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Content-Type": "application/x-www-form-urlencoded",
@@ -266,7 +266,7 @@ def doTask(num):
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Content-Type": "application/x-www-form-urlencoded",
@@ -296,7 +296,7 @@ def create(num):
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Content-Type": "application/x-www-form-urlencoded",
@@ -325,7 +325,7 @@ def getSessionid():
     headers = {
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
-        "X-SIGNATURE": sha256Encode(signature),
+        "X-SIGNATURE": sha256encode(signature),
         "X-TENANT-ID": "68",
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
@@ -355,7 +355,7 @@ def getNavParameter():
         "X-SESSION-ID": sessionid,
         "X-REQUEST-ID": requestid,
         "X-TIMESTAMP": str(timestamp),
-        "X-SIGNATURE": sha256Encode(signature),
+        "X-SIGNATURE": sha256encode(signature),
         "X-TENANT-ID": "68",
         "User-Agent": randomUA(),
         "Host": "vapp.tmuyun.com"
@@ -393,7 +393,7 @@ def getChannelId():
             "X-SESSION-ID": sessionid,
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
@@ -428,7 +428,7 @@ def numberCenter():
             "X-SESSION-ID": userData['sessionId'],
             "X-REQUEST-ID": requestid,
             "X-TIMESTAMP": str(timestamp),
-            "X-SIGNATURE": sha256Encode(signature),
+            "X-SIGNATURE": sha256encode(signature),
             "X-TENANT-ID": "68",
             "User-Agent": randomUA(),
             "Host": "vapp.tmuyun.com"
