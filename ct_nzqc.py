@@ -300,11 +300,9 @@ def git_github():
 
 # 主线程
 def main():
-    if user['sign'] is True:
-        return
     if refreshApiToken() is False:
         return
-    if sign() == 0:  #0：成功签到，1：重复签到
+    if sign() == 0:  # 0：成功签到，1：重复签到
         forwarArticle()
     getCustomer()
     if miScales2['stock'] > 0 and user['creditScore'] >= 690 and user['miScales2'] is not False:
@@ -320,6 +318,8 @@ if __name__ == '__main__':
     get_stock(miHairDryer)
     for index, user in enumerate(data_list, start = 1):
         print(f"\n{'-' * 13}正在执行第{index}/{len(data_list)}个账号{'-' * 13}")
+        if user['sign'] is True:
+            continue
         main()
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f)
