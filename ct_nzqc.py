@@ -30,6 +30,7 @@ def get_stock(goods):
     response = requests.get(url, headers=headers)
     result = response.json()
     if result['ok'] is True:
+        name = result['data']['name']
         stock = result['data']['skus'][0]['stock']
         skuId = result['data']['skuId']
         salesPrice = int(result['data']['salesPrice'])
@@ -38,6 +39,7 @@ def get_stock(goods):
             goods['skuId'] = skuId
             goods['paymentPrice'] = salesPrice
             goods['stock'] = stock
+        print(f"{name}：{stock}")
 
 def send_request(url, method='GET', **kwargs):
     attempt = 0
