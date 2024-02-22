@@ -107,44 +107,47 @@ def refreshApiToken():
         return True
     else:
         print(result)
-        send(f"哪吒token获取失败：{index}", result)
+        send(f"哪吒token获取失败：{index}", str(result))
         return False
 
 #签到
 def sign():
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-    nonce = random_number(10)
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': str(nonce),
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256encode(sign),
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {user['access_token']}",
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    result = send_request(url, 'GET', headers=headers)
-    if result is None:
-        return None
-    print(result['message'])
-    if "积分" in result['message']:
-        user['sign'] = True
-        return 0
-    elif result['message'] == "请不要重复签到":
-        user['sign'] = True
-        return 1
-    else:
-        print(result)
-        send(f"哪吒签到失败：{index}", result)
+    for i in range(3):
+        nonce = random_number(10)
+        timestamp = int(time.time() * 1000)
+        sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+        headers = {
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': appKey,
+            'appVersion': appVersion,
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': str(nonce),
+            'phoneModel': 'Redmi 22081212C',
+            'timestamp': str(timestamp),
+            'sign': sha256encode(sign),
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {user['access_token']}",
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request(url, 'GET', headers=headers)
+        if result is None:
+            return None
+        print(result['message'])
+        if "积分" in result['message']:
+            user['sign'] = True
+            return 0
+        elif result['message'] == "请不要重复签到":
+            user['sign'] = True
+            return 1
+        elif result['message'] == "服务器异常":
+            continue
+        else:
+            print(result)
+            send(f"哪吒签到失败：{index}", str(result))
 
 # 转发  
 def forwarArticle():
@@ -186,7 +189,7 @@ def forwarArticle():
         if user['share'] == 3:
             return
         time.sleep(random.randint(2, 6))
-    send(f"哪吒转发失败：{index}", result)
+    send(f"哪吒转发失败：{index}", str(result))
 
 #查询
 def getCustomer():
@@ -221,7 +224,7 @@ def getCustomer():
         print(f"{phone}：{creditScore}积分")
     else:
         print(result)
-        send(f"哪吒查询失败：{index}", result)
+        send(f"哪吒查询失败：{index}", str(result))
 
 # 查询限购
 def orderinfo(goods):
@@ -280,9 +283,9 @@ def msg_send():
         if new_data['miHairDryer'] is True:
             msg_miHairDryer.append(phone)
     print('\n'.join(msg))
-    send("小米体重秤2", '\n'.join(msg_miScales2))
+    send(f"小米体重秤2：{len(msg_miScales2)}", '\n'.join(msg_miScales2))
     time.sleep(60)
-    send("小米吹风机", '\n'.join(msg_miHairDryer))
+    send(f"小米吹风机：{len(msg_miHairDryer)}", '\n'.join(msg_miHairDryer))
 
 # github推送
 def git_github():
