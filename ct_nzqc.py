@@ -2,7 +2,7 @@
 cron: 36 9 * * *
 new Env('哪吒汽车');
 '''
-import requests,json,random,time,os
+import requests,json,random,time,os,datetime
 
 from utils.utils import randomSleep,sha256encode,random_number
 from notify import send
