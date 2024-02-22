@@ -300,11 +300,12 @@ def git_github():
 
 # 主线程
 def main():
+    if user['sign'] is True:
+        return
     if refreshApiToken() is False:
         return
-    if user['sign'] is False:
-        if sign() == 0:  #0：成功签到，1：重复签到
-            forwarArticle()
+    if sign() == 0:  #0：成功签到，1：重复签到
+        forwarArticle()
     getCustomer()
     if miScales2['stock'] > 0 and user['creditScore'] >= 690 and user['miScales2'] is not False:
         user['miScales2'] = orderinfo(miScales2)
