@@ -221,7 +221,7 @@ def detail(num):
             continue
         print(f"阅读{id}：{result['message']}")
         if i < num - 1:
-            randomSleep(5, 10)
+            time.sleep(random.randint(2, 6))
 
 #点赞
 def like(num):
@@ -250,7 +250,7 @@ def like(num):
             continue
         print(f"点赞{id}：{result['message']}")
         if i < num - 1:
-            randomSleep(5, 10)
+            time.sleep(random.randint(2, 6))
 
 #分享
 def doTask(num):
@@ -279,7 +279,7 @@ def doTask(num):
             continue
         print(f"分享{id}：{result['message']}")
         if i < num - 1:
-            randomSleep(5, 10)
+            time.sleep(random.randint(2, 6))
 
 #评论
 def create(num):
@@ -314,7 +314,7 @@ def create(num):
             id_day100_list.remove(id)
         if createNum == num:
             return
-        randomSleep(5, 10)
+        time.sleep(random.randint(2, 6))
 
 # 获取sessionid
 def getSessionid():
@@ -413,7 +413,7 @@ def getChannelId():
         params['list_count'] = str(list_count)
         params['start'] = str(start)
         if i < cycles - 1:
-            randomSleep(10, 20)
+            time.sleep(random.randint(10, 20))
     print("id_day2_list：",len(id_day2_list))
     print("id_day100_list：",len(id_day100_list))
 
@@ -464,7 +464,7 @@ def numberCenter():
             print("任务已全部完成")
             return
         else:
-            randomSleep(5, 10)
+            time.sleep(random.randint(5, 10))
 
 # 执行任务
 def handleTasks(name, num):
@@ -515,5 +515,5 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f, indent=2)
         if index < len(data_list):
-            randomSleep(20, 30)
+            randomSleep(10, 20)
     msgSend()
