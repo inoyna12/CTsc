@@ -5,8 +5,8 @@ new Env('哪吒汽车');
 import requests,json,random,time,os,datetime
 
 from utils.utils import randomSleep,sha256encode,random_number
-from notify import send
 from utils.github_file_manager import GithubFileManager
+from notify import send
 
 title_name = '哪吒汽车'
 appVersion = "6.0.0"
@@ -98,6 +98,7 @@ def refreshApiToken():
     }
     result = send_request(url, 'POST', headers=headers, data=data)
     if result is None:
+        send(f"哪吒token获取失败：{index}", "账号异常")
         return False
     if result['success'] is True:
         print("刷新Authorization成功")
@@ -294,7 +295,7 @@ def git_github():
     repo_name = "inoyna12/updateTeam"
     branch = "master"
     file_path = "哪吒汽车/nzqc.json"
-    new_content = data_list
+    new_content = json.dumps(data_list)
     commit_message = f"Update {file_path}"
     file_manager.update_file_content(repo_name, file_path, new_content, commit_message, branch)
 
@@ -324,6 +325,6 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f)
         if index < len(data_list):
-            randomSleep(1, 3)
+            randomSleep(5, 10)
     msg_send()
     git_github()
