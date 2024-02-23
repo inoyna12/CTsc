@@ -188,7 +188,7 @@ def forwarArticle():
             user['share'] = user['share'] + 1
         if user['share'] == 3:
             return
-        time.sleep(random.randint(2, 6))
+        time.sleep(random.randint(2, 5))
     send(f"哪吒转发失败：{index}", str(result))
 
 #查询
@@ -324,6 +324,6 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f)
         if index < len(data_list):
-            randomSleep(10, 30)
+            randomSleep(1, 3)
     msg_send()
     git_github()
