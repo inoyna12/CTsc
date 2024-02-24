@@ -306,9 +306,9 @@ def main():
     if sign() == 0:  # 0：成功签到，1：重复签到
         forwarArticle()
     getCustomer()
-    if miScales2['stock'] > 0 and user['creditScore'] >= 690 and user['miScales2'] is not False:
+    if miScales2['stock'] > 0 and user['creditScore'] >= 690 and user['miScales2'] is None:
         user['miScales2'] = orderinfo(miScales2)
-    if miHairDryer['stock'] > 0 and user['creditScore'] >= 880 and user['miHairDryer'] is not False:
+    if miHairDryer['stock'] > 0 and user['creditScore'] >= 880 and user['miHairDryer'] is None:
         user['miHairDryer'] = orderinfo(miHairDryer)
 
 if __name__ == '__main__':
