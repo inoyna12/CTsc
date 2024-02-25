@@ -3,7 +3,7 @@ cron: 6 13 * * *
 new Env('哪吒token提取');
 '''
 import json,os,sys
-from utils.github_api import update_github_file
+from utils.github_file_manager import GithubFileManager
 
 git_token = []
 
@@ -18,6 +18,16 @@ def ql_env(name):
     else:
         print("未添加变量")
         sys.exit(0)
+
+def git_github():
+    access_token = os.getenv('github_token')
+    file_manager = GithubFileManager(access_token)
+    repo_name = "inoyna12/updateTeam"
+    branch = "master"
+    file_path = "哪吒汽车/refresh_token.txt"
+    new_content = '\n'.join(git_token)
+    commit_message = f"Update {file_path}"
+    file_manager.update_file_content(repo_name, file_path, new_content, commit_message, branch)
         
 phone_list = ql_env("NZmy_phone")
 print(f"共找到{len(phone_list)}个账号\n\n")
@@ -36,4 +46,4 @@ for phone in phone_list:
             git_token.append(token)
             break
             
-update_github_file(f"token/哪吒汽车/shop.txt", '\n'.join(git_token))
+git_github()
