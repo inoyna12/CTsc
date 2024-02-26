@@ -36,3 +36,31 @@ def sha256encode(string):
 def random_number(index):
     number = ''.join(random.choices('0123456789', k=index))
     return number
+
+def send_request(url, method='GET', **kwargs):
+    attempt = 0
+    MAX_RETRIES = 3  # 重试次数
+    sleep_time = 30  # 重试等待时间
+    time_out = 30  # 请求超时
+    while attempt < MAX_RETRIES:
+        try:
+            method = method.upper()
+            if method not in ['GET', 'POST', 'PUT']:
+                raise ValueError(f'Unsupported HTTP method "{method}" provided.')
+            response = requests.request(method, url, timeout=time_out, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout as e:
+            print(f"请求超时 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except requests.exceptions.RequestException as e:
+            print(f"请求错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except ValueError as e:
+            print(f"值错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        except Exception as e:
+            print(f"其他错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
+        attempt += 1
+        if attempt < MAX_RETRIES:
+            time.sleep(sleep_time)
+        else:
+            print("超过最大重试次数")
+            return None
