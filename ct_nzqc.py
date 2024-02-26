@@ -279,9 +279,9 @@ def msg_send():
         phone = new_data['mobile']
         creditScore = new_data['creditScore']
         msg.append(f"{phone}：{creditScore}积分")
-        if new_data['miScales2'] is True:
+        if new_data['creditScore'] >= 690 and new_data['miScales2'] is True:
             msg_miScales2.append(phone)
-        if new_data['miHairDryer'] is True:
+        if new_data['creditScore'] >= 880 and new_data['miHairDryer'] is True:
             msg_miHairDryer.append(phone)
     print('\n'.join(msg))
     send(f"小米体重秤2：{len(msg_miScales2)}", '\n'.join(msg_miScales2))
