@@ -4,7 +4,7 @@ new Env('dyxw添加');
 '''
 import re
 import json
-import os
+import os,random
 from utils.github_file_manager import GithubFileManager
 from urllib.parse import unquote
 from notify import send
@@ -69,6 +69,8 @@ for item in current_content_list:
         data_list.append(account_dict)
         add_account += 1
         print(f"增加次数：{add_account}，号码：{phone}")
+
+random.shuffle(data_list)
 
 with open(filepath, 'w', encoding='utf-8') as file:
     json.dump(data_list, file, indent=2)
