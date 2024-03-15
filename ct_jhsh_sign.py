@@ -114,6 +114,7 @@ class Jhsh:
         cookie = cookies.split("#")
         self.phone, self.meb_id, self.deviceId, self.body = cookie
         self.phone = self.phone[:3] + "****" + self.phone[7:]
+        self.session = None
 
     def auto_login(self):
         url = 'https://yunbusiness.ccb.com/clp_service/txCtrl?txcode=autoLogin'
