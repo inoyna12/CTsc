@@ -1,4 +1,4 @@
-import time,random,uuid,sys,hashlib
+import requests,time,random,uuid,sys,hashlib
 
 # 随机延迟
 def randomSleep(min_val, max_val):
