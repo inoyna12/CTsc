@@ -505,6 +505,7 @@ if __name__ == '__main__':
     id_day100_list = []
     with open(filepath, 'r', encoding='utf-8') as f:
         data_list = json.load(f)
+    random.shuffle(data_list)
     print(f"共找到{len(data_list)}个账号")
     now = datetime.datetime.now()
     getChannelId()
