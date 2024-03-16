@@ -94,7 +94,7 @@ def get_act_id():
         "chnlType": "1",
         "regionCode": "320500"
     }
-    result = send_request(url, 'POST', headers=headers, json=json_data)
+    result = send_request('POST', url, headers=headers, json=json_data)
     act_id = result['data']['GIFT_AD_INFO'][2]['AD_URL'].split('=')[-1]
     print(act_id)
     return act_id
@@ -104,7 +104,7 @@ def get_version():
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
-    result = send_request(url, 'GET', headers=headers)
+    result = send_request('GET', url, headers=headers)
     version = result['results'][0]['version']
     print(version)
     return version
@@ -152,7 +152,7 @@ class Jhsh:
             'chnlType': '1',
             'regionCode': '320500',
         }
-        result = send_request(url, 'POST', headers=headers, json=json_data)
+        result = send_request('POST', url, headers=headers, json=json_data)
         print(result)
         if result['errCode'] == '0':
             nodeDay = result['data']['GIFT_BAG'][0]['nodeDay']
@@ -192,7 +192,7 @@ class Jhsh:
             'chnlType': '1',
             'regionCode': '320500',
         }
-        result = send_request(url, 'POST', headers=headers, json=json_data)
+        result = send_request('POST', url, headers=headers, json=json_data)
         if result['errCode'] == '0':
             giftMsg = '获得' + result['data']['title']
             print(giftMsg)
