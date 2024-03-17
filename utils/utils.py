@@ -48,7 +48,6 @@ def send_request(url, method='GET', **kwargs):
             if method not in ['GET', 'POST', 'PUT']:
                 raise ValueError(f'Unsupported HTTP method "{method}" provided.')
             response = requests.request(method, url, timeout=time_out, **kwargs)
-            response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as e:
             print(f"请求超时 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
