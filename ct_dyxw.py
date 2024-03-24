@@ -62,7 +62,7 @@ def getId(id, timestamp):
     time_difference = now - input_time
     if time_difference <= timedelta(days=2) and id > 0:
         id_day2_list.append(id)
-    if time_difference <= timedelta(days=100) and id > 0:
+    elif time_difference <= timedelta(days=100) and id > 0:
         id_day100_list.append(id)
 
 # 获取个人评论
