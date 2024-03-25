@@ -98,7 +98,7 @@ def refreshApiToken():
     }
     result = send_request(url, 'POST', headers=headers, data=data)
     if result is None:
-        send(f"哪吒token获取失败：{index}", "账号异常")
+        send(f"哪吒token获取失败：{user['mobile']}", "账号异常")
         return False
     if result['success'] is True:
         print("刷新Authorization成功")
