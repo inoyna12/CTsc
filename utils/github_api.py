@@ -8,11 +8,11 @@ def update_github_file(
     username="inoyna12",
     repository_name="CTsc",
     branch_name="master",
-    access_token="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",#6/1过期
+    access_token="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",#9/1过期
     committer_name="inoyna12",
     committer_email="inoyna12@163.com"
     ):
-    now = datetime.now()
+    现在 = datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
     new_file_content = str(new_content)  # 将变量转换为字符串
     
