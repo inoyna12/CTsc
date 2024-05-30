@@ -114,41 +114,38 @@ def refreshApiToken():
 #签到
 def sign():
     url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-    for i in range(3):
-        nonce = random_number(10)
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-        headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
-            'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': 'Redmi 22081212C',
-            'timestamp': str(timestamp),
-            'sign': sha256encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {user['access_token']}",
-            'Host': 'appapi-pki.chehezhi.cn:18443',
-            'Connection': 'Keep-Alive'
-        }
-        result = send_request(url, 'GET', headers=headers)
-        if result is None:
-            return None
-        print(result['message'])
-        if "积分" in result['message']:
-            user['sign'] = True
-            return 0
-        elif result['message'] == "请不要重复签到":
-            user['sign'] = True
-            return 1
-        elif result['message'] == "服务器异常":
-            continue
-        else:
-            print(result)
-            send(f"哪吒签到失败：{index}", str(result))
+    nonce = random_number(10)
+    timestamp = int(time.time() * 1000)
+    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+    headers = {
+        'appId': 'HOZON-B-xKrgEvMt',
+        'appKey': appKey,
+        'appVersion': appVersion,
+        'login_channel': '1',
+        'channel': 'android',
+        'nonce': str(nonce),
+        'phoneModel': 'Redmi 22081212C',
+        'timestamp': str(timestamp),
+        'sign': sha256encode(sign),
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+        'Authorization': f"Bearer {user['access_token']}",
+        'Host': 'appapi-pki.chehezhi.cn:18443',
+        'Connection': 'Keep-Alive'
+    }
+    result = send_request(url, 'GET', headers=headers)
+    print(result['message'])
+    if "积分" in result['message']:
+        user['sign'] = True
+        return 0
+    elif result['message'] == "请不要重复签到":
+        user['sign'] = True
+        return 1
+    elif result['message'] == "服务器异常":
+        print("异常")
+    else:
+        print(result)
+        send(f"哪吒签到失败：{index}", str(result))
 
 # 转发  
 def forwarArticle():
@@ -272,21 +269,12 @@ def orderinfo(goods):
 # 消息推送
 def msg_send():
     msg = []
-    msg_miScales2 = []
-    msg_miHairDryer = []
     new_data_list = sorted(data_list, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
     for new_data in new_data_list:
         phone = new_data['mobile']
         creditScore = new_data['creditScore']
         msg.append(f"{phone}：{creditScore}积分")
-        if new_data['creditScore'] >= 690 and new_data['miScales2'] is True:
-            msg_miScales2.append(phone)
-        if new_data['creditScore'] >= 880 and new_data['miHairDryer'] is True:
-            msg_miHairDryer.append(phone)
-    print('\n'.join(msg))
-    send(f"小米体重秤2：{len(msg_miScales2)}", '\n'.join(msg_miScales2))
-    time.sleep(60)
-    send(f"小米吹风机：{len(msg_miHairDryer)}", '\n'.join(msg_miHairDryer))
+        print('\n'.join(msg))
 
 # github推送
 def git_github():
@@ -302,21 +290,14 @@ def git_github():
 # 主线程
 def main():
     if refreshApiToken() is False:
-        return
-    if sign() == 0:  # 0：成功签到，1：重复签到
-        forwarArticle()
-    getCustomer()
- #   if miScales2['stock'] > 0 and user['creditScore'] >= 690 and user['miScales2'] is None:
-  #      user['miScales2'] = orderinfo(miScales2)
-    if miHairDryer['stock'] > 0 and user['creditScore'] >= 880 and user['miHairDryer'] is None:
-        user['miHairDryer'] = orderinfo(miHairDryer)
+        return 
+#    sign()
+#    getCustomer()
 
 if __name__ == '__main__':
     with open(filepath, 'r', encoding='utf-8') as f:
         data_list = json.load(f)
     print(f"共找到{len(data_list)}个账号")
-    get_stock(miScales2)
-    get_stock(miHairDryer)
     for index, user in enumerate(data_list, start = 1):
         print(f"\n{'-' * 13}正在执行第{index}/{len(data_list)}个账号{'-' * 13}")
         if user['sign'] is True:
@@ -325,6 +306,5 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f)
         if index < len(data_list):
-            randomSleep(30, 40)
+            randomSleep(10, 20)
     msg_send()
-    git_github()
