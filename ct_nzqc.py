@@ -325,6 +325,6 @@ if __name__ == '__main__':
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data_list, f)
         if index < len(data_list):
-            randomSleep(5, 10)
+            randomSleep(30, 40)
     msg_send()
     git_github()
