@@ -274,7 +274,7 @@ def msg_send():
         phone = new_data['mobile']
         creditScore = new_data['creditScore']
         msg.append(f"{phone}：{creditScore}积分")
-        print('\n'.join(msg))
+    print('\n'.join(msg))
 
 # github推送
 def git_github():
