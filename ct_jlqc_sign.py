@@ -37,7 +37,7 @@ def sign():
         'token': user_data['token'],
         'version': version,
         'x-data-sign': js.call("enen", json_data),
-        'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; 22081212C Build/SKQ1.220303.001)'
+        'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; 22081212C Build/SKQ1.220303.001)',
         'content-type': 'application/json',
         'origin': 'https://app.geely.com',
         'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
