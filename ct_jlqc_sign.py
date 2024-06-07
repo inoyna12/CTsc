@@ -21,7 +21,6 @@ month = datetime.datetime.now().month
 
 #签到
 def sign():
-    print("【【【【【【【签到】】】】】】】")
     url = 'https://app.geely.com/api/v1/userSign/sign/risk'
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -44,10 +43,16 @@ def sign():
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     }
     result = send_request(url, 'POST', headers=headers, json=json_data)
-    print(result)
+    print(f"签到：{result['code']}")
+    if result['code'] == 'success':
+        global sign_num
+        sign_num = sign_num + 1
+    else:
+        print(result)
 
 if __name__ == '__main__':
     msg = []
+    sign_num = 0
     with open(filepath, 'r') as f:
         all_data = json.load(f)
     print(f"\n共找到{len(all_data)}个账号")
