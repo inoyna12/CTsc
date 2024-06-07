@@ -11,13 +11,19 @@ import execjs
 from utils.utils import randomSleep,send_request
 from notify import send
 
-title_name = '吉利汽车'
+title_name = '吉利汽车签到'
 version = "3.20.0"
 filepath = "/ql/data/env/jlqc.json"
 js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
 js = execjs.compile(js_code)
 year = datetime.datetime.now().year
 month = datetime.datetime.now().month
+
+def random_ua():
+    android_version = str(random.randint(7, 14))
+    device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
+    build_number = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=16))
+    return f"Dalvik/2.1.0 (Linux; U; Android {android_version}; {device_code} Build/{build_number})"
 
 #签到
 def sign():
@@ -36,7 +42,7 @@ def sign():
         'token': user_data['token'],
         'version': version,
         'x-data-sign': js.call("enen", json_data),
-        'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; 22081212C Build/SKQ1.220303.001)',
+        'User-Agent': random_ua(),
         'content-type': 'application/json',
         'origin': 'https://app.geely.com',
         'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
@@ -45,14 +51,18 @@ def sign():
     result = send_request(url, 'POST', headers=headers, json=json_data)
     print(f"签到：{result['code']}")
     if result['code'] == 'success':
-        global sign_num
-        sign_num = sign_num + 1
+        global signSuccess_num
+        signSuccess_num = signSuccess_num + 1
     else:
+        global signFail_num
+        signFail_num = signFail_num + 1
         print(result)
 
 if __name__ == '__main__':
     msg = []
-    sign_num = 0
+    signSuccess_num = 0
+    signFail_num = 0
+    scriptStop_num = 10
     with open(filepath, 'r') as f:
         all_data = json.load(f)
     print(f"\n共找到{len(all_data)}个账号")
@@ -60,5 +70,9 @@ if __name__ == '__main__':
         print(f"\n{'-' * 13}正在执行第{index}/{len(all_data)}个账号{'-' * 13}")
         print(f"{user_data['phone']}：")
         sign()
+        if signFail_num >= scriptStop_num:
+            send(title_name, f"签到失败数量：{signFail_num}，脚本停止运行")
+            exit()
         if index < len(all_data):
             randomSleep(30,60)
+    send(title_name, f"总账号数量：{len(all_data)}\n成功数量：{signSuccess_num}\n失败数量：{signFail_num}")
