@@ -12,7 +12,7 @@ ql_filepath = "/ql/data/env/jlqc.json"
 access_token = os.getenv('github_token')
 repo_name = "inoyna12/updateTeam"
 branch = "master"
-gh_filepath = "笛杨新闻/账号密码.txt"
+gh_filepath = "吉利汽车/账号密码.txt"
 new_content = '' #修改github文件内容
 commit_message = f"Update {gh_filepath}"
 
