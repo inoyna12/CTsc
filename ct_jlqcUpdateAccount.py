@@ -29,7 +29,7 @@ def updateFile():
     gh_fileContent_list = get_gh_fileContent()
     for item in gh_fileContent_list:
         phone, password, token, refreshToken = item.split('----')
-        if any(phone == accountInfo['phone'] for accountInfo in account_list):
+        if any(accountInfo['phone'] == phone for accountInfo in account_list):
             accountInfo['password'] = password
             accountInfo['token'] = token
             accountInfo['refreshToken'] = refreshToken
