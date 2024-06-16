@@ -29,12 +29,14 @@ def updateFile():
     gh_fileContent_list = get_gh_fileContent()
     for item in gh_fileContent_list:
         phone, password, token, refreshToken = item.split('----')
-        if any(accountInfo['phone'] == phone for accountInfo in account_list):
-            accountInfo['password'] = password
-            accountInfo['token'] = token
-            accountInfo['refreshToken'] = refreshToken
-            update_num += 1
-            print(f"更新次数：{update_num}，号码：{phone}")
+        for at_dict in accountAll_list:
+            if at_dict['phone'] == phone:
+                at_dict['password'] = password
+                at_dict['token'] = token
+                at_dict['refreshToken'] = refreshToken
+                update_num += 1
+                print(f"更新次数：{update_num}，号码：{phone}")
+                break
         else:
             account_dict = {
                 "phone": phone,
@@ -43,7 +45,7 @@ def updateFile():
                 "refreshToken": refreshToken,
                 "availablePoint": 0
             }
-            account_list.append(account_dict)
+            accountAll_list.append(account_dict)
             add_num += 1
             print(f"增加次数：{add_num}，号码：{phone}")
 
@@ -52,11 +54,11 @@ if __name__ == '__main__':
     add_num = 0
     fileManager = GithubFileManager(access_token)
     with open(ql_filepath, 'r') as f:
-        account_list = json.load(f)
+        accountAll_list = json.load(f)
     updateFile()
-    random.shuffle(account_list)
+    random.shuffle(accountAll_list)
     with open(ql_filepath, 'w') as f:
-        json.dump(account_list, f, indent=2)
+        json.dump(accountAll_list, f, indent=2)
     print('JSON数据更新完成。')
     fileManager.update_file_content(repo_name, gh_filepath, new_content, commit_message, branch)
     
