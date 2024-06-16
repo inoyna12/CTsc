@@ -62,4 +62,4 @@ if __name__ == '__main__':
     print('JSON数据更新完成。')
     fileManager.update_file_content(repo_name, gh_filepath, new_content, commit_message, branch)
     
-    send("吉利汽车", f"增加账号{add_num}次\n更新账号{update_num}次")
+    send("吉利汽车", f"增加账号{add_num}次，更新账号{update_num}次")
