@@ -49,6 +49,7 @@ def sign():
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     }
     result = send_request(url, 'POST', headers=headers, json=json_data)
+    print(result)
     print(f"签到：{result['code']}")
     if result['code'] == 'success':
         global signSuccess_num
