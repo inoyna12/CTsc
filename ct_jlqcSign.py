@@ -76,4 +76,4 @@ if __name__ == '__main__':
             exit()
         if index < len(all_data):
             randomSleep(30,60)
-    send(title_name, f"总账号数量：{len(all_data)}\n成功数量：{signSuccess_num}\n失败数量：{signFail_num}")
+    send(f"{title_name}：{len(all_data)}", f"成功数量：{signSuccess_num}，失败数量：{signFail_num}")
