@@ -15,7 +15,7 @@ filepath = "/ql/data/env/jlqc.json"
 def refresh():
     url = "https://app.geely.com/api/v1/user/refresh"
     params = {
-        'refreshToken': at_dict['refreshToken'],
+        'refreshToken': at_dict['refreshToken']
     }
     headers = {
         "Host": "app.geely.com",
