@@ -1,5 +1,5 @@
 '''
-cron: 36 3 1,15 * *
+cron: 36 9 * * *
 new Env('吉利汽车刷新token');
 '''
 import requests
@@ -13,7 +13,10 @@ version = "3.20.0"
 filepath = "/ql/data/env/jlqc.json"
 
 def refresh():
-    url = f"https://app.geely.com/api/v1/user/refresh?refreshToken={at_dict['refreshToken']}"
+    url = "https://app.geely.com/api/v1/user/refresh"
+    params = {
+        'refreshToken': at_dict['refreshToken'],
+    }
     headers = {
         "Host": "app.geely.com",
         "x-refresh-token": "true",
@@ -21,7 +24,7 @@ def refresh():
         "appversion": version,
         "platform": "Android"
     }
-    result = send_request(url, 'GET', headers=headers)
+    result = send_request(url, 'GET', params=params, headers=headers)
     print(result)
     if result['code'] == "success":
         at_dict['token'] = result['data']['token']
