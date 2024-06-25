@@ -1,5 +1,5 @@
 '''
-cron: 36 9 * * *
+cron: 36 3 1,15 * *
 new Env('吉利汽车刷新token');
 '''
 import requests
