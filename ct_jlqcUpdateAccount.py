@@ -13,7 +13,7 @@ access_token = os.getenv('github_token')
 repo_name = "inoyna12/updateTeam"
 branch = "master"
 gh_filepath = "吉利汽车/账号密码.json"
-new_content = []
+new_content = json.dumps([])
 commit_message = f"Update {gh_filepath}"
 
 def get_gh_fileContent():
