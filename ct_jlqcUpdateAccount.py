@@ -12,47 +12,40 @@ ql_filepath = "/ql/data/env/jlqc.json"
 access_token = os.getenv('github_token')
 repo_name = "inoyna12/updateTeam"
 branch = "master"
-gh_filepath = "吉利汽车/账号密码.txt"
-new_content = '' #修改github文件内容
+gh_filepath = "吉利汽车/账号密码.json"
+new_content = []
 commit_message = f"Update {gh_filepath}"
 
 def get_gh_fileContent():
+    fileManager = GithubFileManager(access_token)
     file_content = fileManager.get_file_content(repo_name, gh_filepath, branch)
-    if len(file_content) == 0:
+    json_file_content = json.loads(file_content)
+    if len(json_file_content) == 0:
         print(f"{gh_filepath}  内容为空")
         exit(0)
-    file_content_list = list(filter(None, file_content.split('\n')))
-    return file_content_list
+    return json_file_content
 
 def updateFile():
     global update_num, add_num
     gh_fileContent_list = get_gh_fileContent()
-    for item in gh_fileContent_list:
-        phone, password, token, refreshToken = item.split('----')
+    for gh_dict in gh_fileContent_list:
         for at_dict in accountAll_list:
-            if at_dict['phone'] == phone:
-                at_dict['password'] = password
-                at_dict['token'] = token
-                at_dict['refreshToken'] = refreshToken
+            if at_dict['phone'] == gh_dict['phone']:
+                at_dict['password'] = gh_dict['password']
+                at_dict['token'] = gh_dict['token']
+                at_dict['refreshToken'] = gh_dict['refreshToken']
                 update_num += 1
-                print(f"更新次数：{update_num}，号码：{phone}")
+                print(f"更新次数：{update_num}，号码：{gh_dict['phone']}")
                 break
         else:
-            account_dict = {
-                "phone": phone,
-                "password": password,
-                "token": token,
-                "refreshToken": refreshToken,
-                "availablePoint": 0
-            }
-            accountAll_list.append(account_dict)
+            gh_dict['availablePoint'] = 0
+            accountAll_list.append(gh_dict)
             add_num += 1
-            print(f"增加次数：{add_num}，号码：{phone}")
+            print(f"增加次数：{add_num}，号码：{gh_dict['phone']}")
 
 if __name__ == '__main__':
     update_num = 0
     add_num = 0
-    fileManager = GithubFileManager(access_token)
     with open(ql_filepath, 'r') as f:
         accountAll_list = json.load(f)
     updateFile()
