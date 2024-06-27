@@ -17,7 +17,6 @@ new_content = []
 commit_message = f"Update {gh_filepath}"
 
 def get_gh_fileContent():
-    fileManager = GithubFileManager(access_token)
     file_content = fileManager.get_file_content(repo_name, gh_filepath, branch)
     json_file_content = json.loads(file_content)
     if len(json_file_content) == 0:
@@ -44,6 +43,7 @@ def updateFile():
             print(f"增加次数：{add_num}，号码：{gh_dict['phone']}")
 
 if __name__ == '__main__':
+    fileManager = GithubFileManager(access_token)
     update_num = 0
     add_num = 0
     with open(ql_filepath, 'r') as f:
