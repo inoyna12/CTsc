@@ -7,9 +7,9 @@ filepath = "/ql/data/env/jlqc.json"
 with open(filepath, 'r') as f:
     atAll_list = json.load(f)
 
-for at_dict in atAll_list:
+for i, at_dict in enumerate(atAll_list):
     if at_dict['phone'] == '19941326235':
-        del atAll_list[at_dict]
+        del atAll_list[i]
         break
         
 with open(filepath, 'w') as f:
