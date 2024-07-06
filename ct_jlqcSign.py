@@ -51,7 +51,7 @@ def sign():
     result = send_request(url, 'POST', headers=headers, json=json_data)
     print(result)
     print(f"签到：{result['code']}")
-    if result['code'] == 'success':
+    if result['code'] == 'success' or result['message'] == '您已签到,请勿重复操作!':
         global signSuccess_num
         signSuccess_num = signSuccess_num + 1
     else:
