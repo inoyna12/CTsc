@@ -75,5 +75,5 @@ if __name__ == '__main__':
             send(title_name, f"签到失败数量：{signFail_num}，脚本停止运行")
             exit()
         if index < len(all_data):
-            randomSleep(30,60)
+            randomSleep(5,10)
     send(f"{title_name}：{len(all_data)}", f"成功数量：{signSuccess_num}，失败数量：{signFail_num}")
