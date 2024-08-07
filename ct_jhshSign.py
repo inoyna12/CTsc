@@ -193,6 +193,7 @@ class Jhsh:
             'regionCode': '320500',
         }
         result = send_request(url, 'POST', headers=headers, json=json_data)
+        print(result)
         if result['errCode'] == '0':
             giftMsg = '获得' + result['data']['title']
             print(giftMsg)
