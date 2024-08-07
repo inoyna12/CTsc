@@ -12,12 +12,24 @@ from utils.utils import randomSleep,send_request
 from notify import send
 
 title_name = '吉利汽车签到'
-version = "3.20.0"
+version = "3.23.2"
 filepath = "/ql/data/env/jlqc.json"
 js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
 js = execjs.compile(js_code)
 year = datetime.datetime.now().year
 month = datetime.datetime.now().month
+
+api_url = "http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f"
+
+def get_proxies():
+    proxy_json = send_request(api_url, 'GET')
+    proxy_ip = proxy_json['data']['proxy_list'][0]
+    print("当前代理IP：" + proxy_ip)
+    proxies = {
+      "http": proxy_ip,
+      "https": proxy_ip,
+    }
+    return proxies
 
 def random_ua():
     android_version = str(random.randint(7, 14))
@@ -27,6 +39,7 @@ def random_ua():
 
 #签到
 def sign():
+    proxies = get_proxies()
     url = 'https://app.geely.com/api/v1/userSign/sign/risk'
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -48,7 +61,7 @@ def sign():
         'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     }
-    result = send_request(url, 'POST', headers=headers, json=json_data)
+    result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
     print(result)
     print(f"签到：{result['code']}")
     if result['code'] == 'success' or result['message'] == '您已签到,请勿重复操作!':
