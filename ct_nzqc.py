@@ -13,7 +13,7 @@ appVersion = "6.2.1"
 filepath = "/ql/data/env/nzqc.json"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
 sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-xiaoquan_openId_list = os.getenv("nz_xq").split('\n')
+# xiaoquan_openId_list = os.getenv("nz_xq").split('\n')
 
 miScales2 = {"spuId": "1639094260312801281", "skuId": "1639094260384104450", "paymentPrice": 69, "stock": 0}
 miHairDryer = {"spuId": "1747913042685448194", "skuId": "1747913042731585537", "paymentPrice": 88, "stock": 0}
