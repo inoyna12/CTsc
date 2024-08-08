@@ -13,6 +13,12 @@ from notify import send
 
 title_name = '吉利汽车签到'
 version = "3.23.2"
+
+msg = [] #推送内容
+signSuccess_num = 0 #签到成功数量
+signFail_num = 0 #签到失败数量
+scriptStop_num = 10 #签到失败数量大于当前值停止运行
+
 filepath = "/ql/data/env/jlqc.json"
 js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
 js = execjs.compile(js_code)
@@ -23,13 +29,18 @@ api_url = "http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_
 
 def get_proxies():
     proxy_json = send_request(api_url, 'GET')
-    proxy_ip = proxy_json['data']['proxy_list'][0]
-    print("当前代理IP：" + proxy_ip)
-    proxies = {
-      "http": proxy_ip,
-      "https": proxy_ip,
-    }
-    return proxies
+    if proxy_json['code'] == 200:
+        proxy_ip = proxy_json['data']['proxy_list'][0]
+        print("当前代理IP：" + proxy_ip)
+        proxies = {
+          "http": proxy_ip,
+          "https": proxy_ip,
+        }
+        return proxies
+    else:
+        print("获取代理IP失败！")
+        send(title_name + "\n\n异常", "获取代理IP失败！")
+        exit()
 
 def random_ua():
     android_version = str(random.randint(7, 14))
@@ -64,6 +75,10 @@ def sign():
     result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
     print(result)
     print(f"签到：{result['code']}")
+    # 遍历字典中的所有值，而不是键
+    if "异常" in result.values():
+        send(title_name + "\n\n异常", "签到异常")
+        exit()
     if result['code'] == 'success' or result['message'] == '您已签到,请勿重复操作!':
         global signSuccess_num
         signSuccess_num = signSuccess_num + 1
@@ -73,10 +88,6 @@ def sign():
         print(result)
 
 if __name__ == '__main__':
-    msg = []
-    signSuccess_num = 0
-    signFail_num = 0
-    scriptStop_num = 10
     with open(filepath, 'r') as f:
         all_data = json.load(f)
     print(f"\n共找到{len(all_data)}个账号")
