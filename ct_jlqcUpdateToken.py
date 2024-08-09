@@ -5,7 +5,6 @@ new Env('吉利汽车刷新token');
 import requests
 import json
 from utils.utils import randomSleep,send_request
-from fake_useragent import UserAgent
 from notify import send
 
 title_name = '吉利汽车刷新token'
