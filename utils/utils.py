@@ -62,4 +62,4 @@ def send_request(url, method='GET', **kwargs):
             time.sleep(sleep_time)
         else:
             print("超过最大重试次数")
-            return None
+            return False
