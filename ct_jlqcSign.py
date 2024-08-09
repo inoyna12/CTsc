@@ -73,6 +73,9 @@ def sign():
         'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     }
     result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
+    if result is False:
+        send(title_name + "\n\n异常", "连接失败")
+        return
     print(result)
     print(f"签到：{result['code']}")
     # 遍历字典中的所有值，而不是键
