@@ -28,19 +28,21 @@ month = datetime.datetime.now().month
 api_url = "http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f"
 
 def get_proxies():
-    proxy_json = send_request(api_url, 'GET')
-    if proxy_json['code'] == 200:
-        proxy_ip = proxy_json['data']['proxy_list'][0]
-        print("当前代理IP：" + proxy_ip)
-        proxies = {
-          "http": proxy_ip,
-          "https": proxy_ip,
-        }
-        return proxies
-    else:
-        print("获取代理IP失败！")
-        send(title_name + "\n\n异常", "获取代理IP失败！")
-        exit()
+    for i in range(3):
+        proxy_json = send_request(api_url, 'GET')
+        if proxy_json['code'] == 200:
+            proxy_ip = proxy_json['data']['proxy_list'][0]
+            print("当前代理IP：" + proxy_ip)
+            proxies = {
+              "http": proxy_ip,
+              "https": proxy_ip,
+            }
+            return proxies
+        else:
+            print(proxy_json)
+            time.sleep(60)
+    send(title_name + "---异常", "获取代理IP失败！")
+    exit()
 
 def random_ua():
     android_version = str(random.randint(7, 14))
@@ -74,13 +76,13 @@ def sign():
     }
     result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
     if result is False:
-        send(title_name + "\n\n异常", "连接失败")
+        send(title_name + "---异常", "连接失败")
         return
     print(result)
     print(f"签到：{result['code']}")
     # 遍历字典中的所有值，而不是键
     if "异常" in result.values():
-        send(title_name + "\n\n异常", "签到异常")
+        send(title_name + "---异常", "签到异常")
         exit()
     if result['code'] == 'success' or result['message'] == '您已签到,请勿重复操作!':
         global signSuccess_num
