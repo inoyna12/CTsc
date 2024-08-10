@@ -166,7 +166,7 @@ class Jhsh:
                 if signDay == 3:
                     couponId = result['data']['GIFT_BAG'][2]['couponId']
                 elif signDay == 7:
-                    couponId = result['data']['GIFT_BAG'][0]['couponId']
+                    couponId = result['data']['GIFT_BAG'][2]['couponId']
                 self.getGift(signDay,couponId)
                 return
         else:
