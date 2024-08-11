@@ -53,6 +53,7 @@ def random_ua():
 #签到
 def sign():
     proxies = get_proxies()
+    global signSuccess_num, signFail_num
     url = 'https://app.geely.com/api/v1/userSign/sign/risk'
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -76,6 +77,7 @@ def sign():
     }
     result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
     if result is False:
+        signFail_num = signFail_num + 1
         send(title_name + "---异常", "连接失败")
         return
     print(result)
@@ -85,10 +87,8 @@ def sign():
         send(title_name + "---异常", "签到异常")
         exit()
     if result['code'] == 'success' or result['message'] == '您已签到,请勿重复操作!':
-        global signSuccess_num
         signSuccess_num = signSuccess_num + 1
     else:
-        global signFail_num
         signFail_num = signFail_num + 1
         print(result)
 
