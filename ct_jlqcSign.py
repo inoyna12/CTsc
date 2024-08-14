@@ -3,6 +3,7 @@ cron: 36 6 * * *
 new Env('吉利汽车签到');
 '''
 import json
+import os
 import time
 import random
 import datetime
