@@ -75,9 +75,9 @@ if __name__ == '__main__':
         print(f"\n{'-' * 13}正在执行第{index}/{len(all_data)}个账号{'-' * 13}")
         print(f"{at_dict['phone']}：")
         refresh()
+        with open(filepath, 'w') as f:
+            json.dump(all_data, f, indent=2)
         if index < len(all_data):
             randomSleep(30,60)
-    with open(filepath, 'w') as f:
-        json.dump(all_data, f, indent=2)
-    gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(gh_file_content, indent=2), gh_file_info.sha)
+    gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(all_data, indent=2), gh_file_info.sha)
     send(f"{title_name}：{len(all_data)}", f"成功数量：{success_num}，失败数量：{fail_num}")
