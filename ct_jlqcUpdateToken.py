@@ -3,7 +3,7 @@ cron: 36 9 * * *
 new Env('吉利汽车刷新token');
 '''
 import requests
-import json
+import json, os
 from utils.utils import randomSleep,send_request
 from github import Github
 from notify import send
