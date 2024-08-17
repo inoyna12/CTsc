@@ -141,7 +141,8 @@ if __name__ == '__main__':
             exit()
         if index < len(all_data):
             randomSleep(30,60)
-    gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(gh_file_content, indent=2), gh_file_info.sha)
+    if token_unchecked > 0:
+        gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(gh_file_content, indent=2), gh_file_info.sha)
     msg = f'''
     账号总数：{len(all_data)}
     成功签到：{success_num}
