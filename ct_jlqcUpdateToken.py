@@ -57,6 +57,10 @@ def refresh():
         "platform": "Android"
     }
     result = send_request(url, 'GET', params=params, headers=headers, proxies=proxies)
+    if result is False:
+        fail_num = fail_num + 1
+        send(title_name + "---异常", "连接失败")
+        return
     print(result)
     if result['code'] == "success":
         at_dict['token'] = result['data']['token']
