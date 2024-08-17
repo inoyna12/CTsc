@@ -6,15 +6,27 @@ import json
 import os,random
 from github import Github
 
+data_new = []
 
-ql_filepath = "/ql/data/env/jlqc.json"
-g = Github(os.getenv('github_token'))
-repo = g.get_repo("inoyna12/updateTeam")
-file_path_in_repo = "吉利汽车/test.json"
-commit_message = 'Added a json file'
+filepath = "/ql/data/env/jlqc.json"
+with open(filepath, 'r') as f:
+    all_data = json.load(f)
 
-with open(ql_filepath, 'r') as file:
-    content = file.read()
+gh = Github(os.getenv('github_token'))
+gh_repo = gh.get_repo("inoyna12/updateTeam")
+gh_file_path = "吉利汽车/TokenUnchecked.json"
+gh_commit_message = "Updated the file"
+gh_file_info = gh_repo.get_contents(gh_file_path)
+gh_file_content = json.loads(gh_file_info.decoded_content.decode('utf-8'))
 
+for i in all_data:
+    if len(data_new) > 45:
+        print("超过45")
+        break
+    phone = i['phone']
+    password = i['password']
+    print(phone)
+    dict_new = {'phone': phone, 'password': password}
+    data_new.append(dict_new)
 
-repo.create_file(file_path_in_repo, commit_message, content)
+gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(data_new, indent=2), gh_file_info.sha)
