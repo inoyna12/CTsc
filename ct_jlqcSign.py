@@ -144,13 +144,13 @@ if __name__ == '__main__':
     if token_unchecked > 0:
         gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(gh_file_content, indent=2), gh_file_info.sha)
     msg = f'''
-    账号总数：{len(all_data)}
-    成功签到：{success_num}
-    失败签到：{fail_num}
-    重复签到：{repeat_num}
-    token失效：{token_unchecked}
-    8吉分：{availablePoint8}
-    16吉分：{availablePoint16}
-    88吉分：{availablePoint88}
-    '''
+        账号总数：{len(all_data)}
+        成功签到：{success_num}
+        失败签到：{fail_num}
+        重复签到：{repeat_num}
+        token失效：{token_unchecked}
+        8吉分：{availablePoint8}
+        16吉分：{availablePoint16}
+        88吉分：{availablePoint88}
+        '''
     send(title_name, msg)
