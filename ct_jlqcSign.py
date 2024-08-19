@@ -153,4 +153,5 @@ if __name__ == '__main__':
         16吉分：{availablePoint16}
         88吉分：{availablePoint88}
         '''
+    print(msg,len(msg))
     send(title_name, msg)
