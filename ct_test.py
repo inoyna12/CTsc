@@ -1,32 +1,24 @@
-'''
-cron: 2 0 * * *
-new Env('吉利汽车更新账号');
-'''
-import json
-import os,random
-from github import Github
+from notify import send
 
-data_new = []
+success_num = 0 #签到成功数量
+fail_num = 0 #签到失败数量
+repeat_num = 0 #重复签到
+availablePoint8 = 0
+availablePoint16 = 0
+availablePoint88 = 0
+token_unchecked = 0
+all_data = [0,1]
 
-filepath = "/ql/data/env/jlqc.json"
-with open(filepath, 'r') as f:
-    all_data = json.load(f)
-
-gh = Github(os.getenv('github_token'))
-gh_repo = gh.get_repo("inoyna12/updateTeam")
-gh_file_path = "吉利汽车/TokenUnchecked.json"
-gh_commit_message = "Updated the file"
-gh_file_info = gh_repo.get_contents(gh_file_path)
-gh_file_content = json.loads(gh_file_info.decoded_content.decode('utf-8'))
-
-for i in all_data:
-    if len(data_new) > 45:
-        print("超过45")
-        break
-    phone = i['phone']
-    password = i['password']
-    print(phone)
-    dict_new = {'phone': phone, 'password': password}
-    data_new.append(dict_new)
-
-gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(data_new, indent=2), gh_file_info.sha)
+if __name__ == '__main__':
+    msg = f'''
+        账号总数：{len(all_data)}
+        成功签到：{success_num}
+        失败签到：{fail_num}
+        重复签到：{repeat_num}
+        token失效：{token_unchecked}
+        8吉分：{availablePoint8}
+        16吉分：{availablePoint16}
+        88吉分：{availablePoint88}
+        '''
+    print(msg,len(msg))
+    send('吉利汽车签到', msg)
