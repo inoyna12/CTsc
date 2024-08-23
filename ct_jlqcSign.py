@@ -2,155 +2,263 @@
 cron: 36 6 * * *
 new Env('吉利汽车签到');
 '''
+import requests
 import json
 import os
 import time
 import random
-import datetime
 import execjs
-from utils.utils import randomSleep,send_request
+from datetime import datetime
+from fake_useragent import UserAgent
 from github import Github
 from notify import send
 
 title_name = '吉利汽车签到'
-version = "3.23.2"
-
-success_num = 0 #签到成功数量
-fail_num = 0 #签到失败数量
-repeat_num = 0 #重复签到
-availablePoint8 = 0
-availablePoint16 = 0
-availablePoint88 = 0
-token_unchecked = 0
+version = "3.24.0"
 
 filepath = "/ql/data/env/jlqc.json"
 with open(filepath, 'r') as f:
     all_data = json.load(f)
 
-gh = Github(os.getenv('github_token'))
-gh_repo = gh.get_repo("inoyna12/updateTeam")
-gh_file_path = "吉利汽车/TokenUnchecked.json"
-gh_commit_message = "Updated the file"
-gh_file_info = gh_repo.get_contents(gh_file_path)
-gh_file_content = json.loads(gh_file_info.decoded_content.decode('utf-8'))
+def randomSleep(min_val, max_val):
+    num = random.randint(min_val, max_val)
+    print(f"随机等待{num}秒后继续>>>>>>>>>>>")
+    time.sleep(num)
 
-js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
-js = execjs.compile(js_code)
-year = datetime.datetime.now().year
-month = datetime.datetime.now().month
+def send_request(method, url, **kwargs):
+    time_out = 10  # 请求超时
+    try:
+        method = method.upper()
+        if method not in ['GET', 'POST', 'PUT']:
+            raise ValueError(f"不支持 {method} 请求方法")
+            return False
+        response = requests.request(method, url, timeout=time_out, **kwargs)
+        return response.json()
+    except requests.exceptions.Timeout as e:
+        print("请求超时:", str(e))
+    except requests.exceptions.RequestException as e:
+        print("请求错误:", str(e))
+    except ValueError as e:
+        print("值错误:", str(e))
+    except Exception as e:
+        print("其他错误:", str(e))
+    return False
 
-def get_proxies():
-    for i in range(3):
-        proxy_json = send_request("http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f", 'GET')
-        if proxy_json['code'] == 200:
-            proxy_ip = proxy_json['data']['proxy_list'][0]
-            print("当前代理IP：" + proxy_ip)
-            proxies = {
-              "http": proxy_ip,
-              "https": proxy_ip,
-            }
-            return proxies
-        else:
-            print(proxy_json)
-            time.sleep(60)
-    send(title_name + "---异常", "获取代理IP失败！")
-    exit()
+class GithubFile:
+    def __init__(self, file_path):
+        self.gh = Github(os.getenv('github_token'))
+        self.repo = self.gh.get_repo('inoyna12/updateTeam')
+        self.file_path = file_path
+        self.commit_message = "Updated the file"
+        self.file_info = self.repo.get_contents(self.file_path)
+        self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
+        print(f"读取gtihub {self.file_path} 文件成功！")
+        
+    def update(self, new_content):
+        encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
+        self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
+        print(f"更新github {self.file_path} 文件成功！")
 
-def random_ua():
-    android_version = str(random.randint(7, 14))
-    device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
-    build_number = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=16))
-    return f"Dalvik/2.1.0 (Linux; U; Android {android_version}; {device_code} Build/{build_number})"
-
-#签到
-def sign():
-    proxies = get_proxies()
-    global success_num, fail_num, repeat_num, availablePoint8, availablePoint16, availablePoint88, token_unchecked
-    url = 'https://app.geely.com/api/v1/userSign/sign/risk'
-    current_time = datetime.datetime.now()
-    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-    current_timestamp = int(time.time())
-    json_data = {
-        "signDate": str(formatted_time),
-        "ts": str(current_timestamp),
-        "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
-    }
-    headers = {
-        'Host': 'app.geely.com',
-        'accept': 'application/json, text/plain, */*',
-        'token': user_dict['token'],
-        'version': version,
-        'x-data-sign': js.call("enen", json_data),
-        'User-Agent': random_ua(),
-        'content-type': 'application/json',
-        'origin': 'https://app.geely.com',
-        'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
-        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
-    }
-    result = send_request(url, 'POST', headers=headers, json=json_data, proxies=proxies)
-    if result is False:
-        fail_num = fail_num + 1
-        send(title_name + "---异常", "连接失败")
-        return
-    print(result)
-    if result['code'] == 'success':
-        success_num = success_num + 1
-        if result['data'] == {}:
-            pass
-        elif 'id' in result['data']:
-            if result['data']['id'] == '1':
-                availablePoint8 = availablePoint8 + 1
-            elif result['data']['id'] == '2':
-                availablePoint16 = availablePoint16 + 1
-            elif result['data']['id'] == '3':
-                availablePoint88 = availablePoint88 + 1
-        else:
-            send(title_name + phone, "未知响应体")
-            exit()
-    elif result['code'] == 'fail':
-        if result['message'] == '您已签到,请勿重复操作!':
-            repeat_num = repeat_num + 1
-        else:
-            fail_num = fail_num + 1
-            send(title_name + phone, "未知响应体")
-            exit()
-    elif result['code'] == 'token.unchecked':
-        token_unchecked = token_unchecked + 1
-        for i in gh_file_content:
-            if i['phone'] == phone:
-                print("号码已存在，不加入")
+class Jlqc:
+    js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
+    js = execjs.compile(js_code)
+    current_time = datetime.now()
+    md = current_time.strftime("%m-%d")
+    day = current_time.day
+ 
+    sign_dict = dict(
+        success = 0, #签到成功数量
+        fail = 0, #签到失败数量
+        repeat = 0, #重复签到
+        availablePoint8 = 0,
+        availablePoint16 = 0,
+        availablePoint88 = 0,
+        token_unchecked = 0
+    )
+    
+    def __init__(self, my_dict, gh_list):
+        self.my_dict = my_dict
+        self.phone = my_dict['phone']
+        self.password = my_dict['password']
+        self.token = my_dict['token']
+        self.refreshToken = my_dict['refreshToken']
+        self.availablePoint = my_dict['availablePoint']
+        self.signdate = my_dict['signdate']
+        self.gh_list = gh_list  
+          
+    def get_proxies(self):
+        url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
+        for i in range(3):
+            result = send_request('GET', url)
+            if not result:
                 break
+            if result['code'] == 200:
+                proxy_ip = result['data']['proxy_list'][0]
+                print("当前代理IP：" + proxy_ip)
+                self.proxies = {
+                  "http": proxy_ip,
+                  "https": proxy_ip,
+                }
+                if self.pin_network(self.proxies):
+                    return
+            else:
+                print(result)
+                time.sleep(60)
+        send(title_name + "---异常", "获取代理IP失败！")
+        exit()   
+         
+    def pin_network(self, proxies):
+        url = "https://www.juliangip.com/api/general/Test"
+        result = send_request('GET', url, proxies=proxies)
+        if result:
+            return True
+        print(f"{proxy_ip['http']}：连接失败！！！")
+        return False 
+    def sign_UA(self):
+        android_version = str(random.randint(7, 14))
+        device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
+        build_number = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=16))
+        return f"Dalvik/2.1.0 (Linux; U; Android {android_version}; {device_code} Build/{build_number})"  
+        
+    def available_UA(self):
+        ua = UserAgent()
+        base_ua = ua.chrome
+        custom_ua = f"{base_ua} MQQBrowser/6.2 TBS/046281 Mobile Safari/537.36/android/geelyApp"
+        return custom_ua   
+          
+    def sign(self):
+        url = 'https://app.geely.com/api/v1/userSign/sign/risk'
+        current_time = datetime.now()
+        signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        ts = int(time.time())
+        body = {
+            "signDate": str(signDate),
+            "ts": str(ts),
+            "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
+        }
+        headers = {
+            'Host': 'app.geely.com',
+            'accept': 'application/json, text/plain, */*',
+            'token': self.token,
+            'version': version,
+            'x-data-sign': self.js.call("enen", body),
+            'User-Agent': self.sign_UA(),
+            'content-type': 'application/json',
+            'origin': 'https://app.geely.com',
+            'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
+            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
+        result = send_request('POST', url, headers=headers, json=body, proxies=self.proxies)
+        if not result:
+            Jlqc.sign_dict['fail'] += 1
+            return False
+        print(result)
+        if result['code'] == 'success' and 'msg' not in result['data']:
+            Jlqc.sign_dict['success'] += 1
+            self.my_dict['signdate'] = self.md
+            if 'id' in result['data']:
+                if result['data']['id'] == '1':
+                    Jlqc.sign_dict['availablePoint8'] += 1
+                elif result['data']['id'] == '2':
+                    Jlqc.sign_dict['availablePoint16'] += 1
+                elif result['data']['id'] == '3':
+                    Jlqc.sign_dict['availablePoint88'] += 1
+            return True
+        elif result['code'] == 'fail' and result['message'] == '您已签到,请勿重复操作!':
+            Jlqc.sign_dict['repeat'] += 1
+            return True
+        elif result['code'] == 'token.unchecked':
+            Jlqc.sign_dict['token_unchecked'] += 1
+            Jlqc.sign_dict['fail'] += 1
+            for i in self.gh_list.content:
+                if i['phone'] == self.phone:
+                    print("号码已存在，不加入")
+                    break
+            else:
+                dict_new = {
+                    'phone': self.phone,
+                    'password': self.password
+                }
+                self.gh_list.content.append(dict_new)
+            return False
         else:
-            dict_new = {'phone': phone, 'password': password}
-            gh_file_content.append(dict_new)
-    else:
-        fail_num = fail_num + 1
-        send(title_name + phone, "未知响应体")
-        exit()
+            send(title_name + self.phone, "未知响应体")
+            exit()
+            
+    def available(self):
+        url = 'https://app.geely.com/api/v1/point/available'
+        headers = {
+            "Host": "app.geely.com",
+            "accept": "application/json, text/plain, */*",
+            "user-agent": self.available_UA(),
+            "token": self.token,
+            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+        }
+        result = send_request('GET', url, headers=headers, proxies=self.proxies)
+        if not result:
+            Jlqc.sign_dict['fail'] += 1
+            return
+        print(result)
+        if result['code'] == "success":
+            self.my_dict['availablePoint'] = result['data']['availablePoint']
+            
+    def refresh_token(self):
+        url = "https://app.geely.com/api/v1/user/refresh"
+        params = {
+            'refreshToken': self.refreshToken
+        }
+        headers = {
+            "Host": "app.geely.com",
+            "x-refresh-token": "true",
+            "token": self.token,
+            "appversion": version,
+            "platform": "Android"
+        }
+        result = send_request('GET', url, params=params, headers=headers, proxies=self.proxies)
+        if not result:
+            Jlqc.sign_dict['fail'] += 1
+            return
+        print(result)
+        if result['code'] == "success":
+            self.my_dict['token'] = result['data']['token']
+            self.my_dict['refreshToken'] = result['data']['refreshToken']
+            
+    def main(self):
+        self.get_proxies()
+        if self.sign_dict['fail'] >= 10:
+            send(title_name + "---异常", "失败数量过多")
+            exit()
+        if self.sign():
+            self.available()
+            if self.day in (1, 24):
+                self.refresh_token()
+            with open(filepath, 'w') as f:
+                json.dump(all_data, f, indent=2)
 
 if __name__ == '__main__':
-    print(f"共找到{len(all_data)}个账号")
-    for index, user_dict in enumerate(all_data, start = 1):
-        print(f"\n{'-' * 13}正在执行第{index}/{len(all_data)}个账号{'-' * 13}")
-        phone = user_dict['phone']
-        password = user_dict['password']
-        print(phone + "：")
-        sign()
-        if fail_num >= 10:
-            send(title_name, f"签到失败数量：{fail_num}，脚本停止运行")
-            exit()
-        if index < len(all_data):
-            randomSleep(30,60)
-    if token_unchecked > 0:
-        gh_repo.update_file(gh_file_path, gh_commit_message, json.dumps(gh_file_content, indent=2), gh_file_info.sha)
+    gh_jlInfo_list = GithubFile('吉利汽车/AccountInfo.json')
+    gh_jlUnchecked_list = GithubFile('吉利汽车/TokenUnchecked.json')
+    random.shuffle(all_data)
+    for index, my_dict in enumerate(all_data, start = 1):
+        print(f"\n{index}/{len(all_data)}➠➠➠➠➠➠{my_dict['phone']}：")
+        if my_dict['signdate'] != Jlqc.md:
+            jlqc = Jlqc(my_dict, gh_jlUnchecked_list)
+            jlqc.main()
+            if index < len(all_data):
+                randomSleep(30,60)
+        else:
+            print("已签到，跳过")
+    gh_jlInfo_list.update(all_data)
+    if len(gh_jlUnchecked_list.content) > 0:
+        gh_jlUnchecked_list.update(gh_jlUnchecked_list.content)
     msg = f'''
         账号总数：{len(all_data)}
-        成功签到：{success_num}
-        失败签到：{fail_num}
-        重复签到：{repeat_num}
-        token失效：{token_unchecked}
-        8吉分：{availablePoint8}
-        16吉分：{availablePoint16}
-        88吉分：{availablePoint88}
+        成功签到：{Jlqc.sign_dict['success']}
+        失败签到：{Jlqc.sign_dict['fail']}
+        重复签到：{Jlqc.sign_dict['repeat']}
+        8吉分：{Jlqc.sign_dict['availablePoint8']}
+        16吉分：{Jlqc.sign_dict['availablePoint16']}
+        88吉分：{Jlqc.sign_dict['availablePoint88']}
+        token失效：{Jlqc.sign_dict['token_unchecked']}
         '''
     send(title_name, msg)
