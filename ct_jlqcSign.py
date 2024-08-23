@@ -112,7 +112,7 @@ class Jlqc:
         result = send_request('GET', url, proxies=proxies)
         if result:
             return True
-        print(f"{proxy_ip['http']}：连接失败！！！")
+        print(f"{proxies['http']}：连接失败！！！")
         return False 
     def sign_UA(self):
         android_version = str(random.randint(7, 14))
@@ -230,7 +230,7 @@ class Jlqc:
             exit()
         if self.sign():
             self.available()
-            if self.day in (1, 24):
+            if self.day in (1, 15):
                 self.refresh_token()
             with open(filepath, 'w') as f:
                 json.dump(all_data, f, indent=2)
