@@ -1,24 +1,28 @@
-from notify import send
+import json,os
+from github import Github
 
-success_num = 0 #签到成功数量
-fail_num = 0 #签到失败数量
-repeat_num = 0 #重复签到
-availablePoint8 = 0
-availablePoint16 = 0
-availablePoint88 = 0
-token_unchecked = 0
-all_data = [0,1]
-
-if __name__ == '__main__':
-    msg = f'''
-        账号总数：{len(all_data)}
-        成功签到：{success_num}
-        失败签到：{fail_num}
-        重复签到：{repeat_num}
-        token失效：{token_unchecked}
-        8吉分：{availablePoint8}
-        16吉分：{availablePoint16}
-        88吉分：{availablePoint88}
-        '''
-    print(msg,len(msg))
-    send('吉利汽车签到', msg)
+filepath = "/ql/data/env/jlqc.json"
+with open(filepath, 'r') as f:
+    all_data = json.load(f)
+    
+    
+class GithubFile:
+    def __init__(self, file_path):
+        self.gh = Github(os.getenv('github_token'))
+        self.repo = self.gh.get_repo('inoyna12/updateTeam')
+        self.file_path = file_path
+        self.commit_message = "Updated the file"
+        self.file_info = self.repo.get_contents(self.file_path)
+        self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
+        print(f"读取gtihub {self.file_path} 文件成功！")
+        
+    def update(self, new_content):
+        encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
+        self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
+        print(f"更新github {self.file_path} 文件成功！")
+        
+        
+gh_jlInfo_list = GithubFile('吉利汽车/AccountInfo.json')
+gh_jlInfo_list.update(all_data)
+    
+    
