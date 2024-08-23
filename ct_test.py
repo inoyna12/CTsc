@@ -20,13 +20,7 @@ class GithubFile:
         encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
         self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
         print(f"更新github {self.file_path} 文件成功！")
-
-
-for my_dict in all_data:
-    my_dict['signdate'] = ''
-
-with open(filepath, 'w') as f:
-    json.dump(all_data, f, indent=2)        
+        
         
 gh_jlInfo_list = GithubFile('吉利汽车/AccountInfo.json')
 gh_jlInfo_list.update(all_data)
