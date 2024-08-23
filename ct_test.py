@@ -23,9 +23,10 @@ class GithubFile:
 
 
 for my_dict in all_data:
-    my['signdate'] = ''
+    my_dict['signdate'] = ''
 
-        
+with open(filepath, 'w') as f:
+    json.dump(all_data, f, indent=2)        
         
 gh_jlInfo_list = GithubFile('吉利汽车/AccountInfo.json')
 gh_jlInfo_list.update(all_data)
