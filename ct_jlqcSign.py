@@ -230,7 +230,7 @@ class Jlqc:
             exit()
         if self.sign():
             self.available()
-            if self.day in (1, 15):
+            if self.day in (1, 24):
                 self.refresh_token()
             with open(filepath, 'w') as f:
                 json.dump(all_data, f, indent=2)
