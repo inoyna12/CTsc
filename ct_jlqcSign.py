@@ -127,7 +127,7 @@ class Jlqc:
         custom_ua = f"{base_ua} MQQBrowser/6.2 TBS/046281 Mobile Safari/537.36/android/geelyApp"
         return custom_ua   
           
-def sign(self):
+    def sign(self):
         url = 'https://app.geely.com/api/v1/userSign/sign/risk'
         current_time = datetime.now()
         signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
