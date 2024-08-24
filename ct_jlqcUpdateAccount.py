@@ -41,24 +41,25 @@ def updateFile():
             print(f"增加次数：{add_num}，号码：{gh_dict['phone']}")
 
 
+
 filepath = "/ql/data/env/jlqc.json"
 with open(filepath, 'r') as f:
     all_data = json.load(f)
-    
-gh_list = GithubFile('吉利汽车/账号密码.json')   
- 
+
+update_num = 0
+add_num = 0
+   
+gh_list = GithubFile('吉利汽车/账号密码.json')
 if len(gh_list.content) == 0:
     print("空列表，退出运行。")
     exit()
-    
-update_num = 0
-add_num = 0
-
 updateFile()
-
 with open(filepath, 'w') as f:
     json.dump(all_data, f, indent=2)
     
-gh_list.update(all_data)
-    
+gh_list.update([])    
+
+AccountInfo = GithubFile('吉利汽车/AccountInfo.json')
+AccountInfo.update(all_data)
+   
 send("吉利汽车", f"增加账号{add_num}次，更新账号{update_num}次")
