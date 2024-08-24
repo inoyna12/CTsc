@@ -145,7 +145,6 @@ class Jlqc:
                 self.success += 1
                 my_dict['signdate'] = self.md
                 if 'id' in result['data']:
-                    status += f"----{result['data']['prizeName']}"
                     if result['data']['id'] == '1':
                         self.availablePoint8 += 1
                     elif result['data']['id'] == '2':
