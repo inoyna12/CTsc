@@ -60,6 +60,7 @@ class GithubFile:
         print(f"更新github {self.file_path} 文件成功！")
 
 class Jlqc:
+    error_list = []
     js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
     js = execjs.compile(js_code)
     current_time = datetime.now()
@@ -126,7 +127,7 @@ class Jlqc:
         custom_ua = f"{base_ua} MQQBrowser/6.2 TBS/046281 Mobile Safari/537.36/android/geelyApp"
         return custom_ua   
           
-    def sign(self):
+def sign(self):
         url = 'https://app.geely.com/api/v1/userSign/sign/risk'
         current_time = datetime.now()
         signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -149,41 +150,42 @@ class Jlqc:
             'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
         }
         result = send_request('POST', url, headers=headers, json=body, proxies=self.proxies)
-        if not result:
-            Jlqc.sign_dict['fail'] += 1
-            return False
-        print(result)
-        if result['code'] == 'success' and 'msg' not in result['data']:
-            Jlqc.sign_dict['success'] += 1
-            self.my_dict['signdate'] = self.md
-            if 'id' in result['data']:
-                if result['data']['id'] == '1':
-                    Jlqc.sign_dict['availablePoint8'] += 1
-                elif result['data']['id'] == '2':
-                    Jlqc.sign_dict['availablePoint16'] += 1
-                elif result['data']['id'] == '3':
-                    Jlqc.sign_dict['availablePoint88'] += 1
-            return True
-        elif result['code'] == 'fail' and result['message'] == '您已签到,请勿重复操作!':
-            Jlqc.sign_dict['repeat'] += 1
-            return True
-        elif result['code'] == 'token.unchecked':
-            Jlqc.sign_dict['token_unchecked'] += 1
-            Jlqc.sign_dict['fail'] += 1
-            for i in self.gh_list.content:
-                if i['phone'] == self.phone:
-                    print("号码已存在，不加入")
-                    break
+        if result:
+            if result['code'] == 'success' and 'msg' not in result['data']:
+                Jlqc.sign_dict['success'] += 1
+                self.my_dict['signdate'] = self.md
+                if 'id' in result['data']:
+                    status += f"----{result['data']['prizeName']}"
+                    if result['data']['id'] == '1':
+                        Jlqc.sign_dict['availablePoint8'] += 1
+                    elif result['data']['id'] == '2':
+                        Jlqc.sign_dict['availablePoint16'] += 1
+                    elif result['data']['id'] == '3':
+                        Jlqc.sign_dict['availablePoint88'] += 1
+                    print(f"签到：{result['code']}，{result['data']['prizeName']}")
+                else:
+                    print(f"签到：{result['code']}")
+                return True
+            elif result['code'] == 'fail' and result['message'] == '您已签到,请勿重复操作!':
+                Jlqc.sign_dict['repeat'] += 1
+            elif result['code'] == 'token.unchecked':
+                Jlqc.sign_dict['token_unchecked'] += 1
+                for i in self.gh_list.content:
+                    if i['phone'] == self.phone:
+                        print("号码已存在，不加入")
+                        break
+                else:
+                    dict_new = {
+                        'phone': self.phone,
+                        'password': self.password
+                    }
+                    self.gh_list.content.append(dict_new)
             else:
-                dict_new = {
-                    'phone': self.phone,
-                    'password': self.password
-                }
-                self.gh_list.content.append(dict_new)
-            return False
-        else:
-            send(title_name + self.phone, "未知响应体")
-            exit()
+                send(title_name + "====停止运行", str(result))
+                exit()
+            print(result)
+        Jlqc.sign_dict['fail'] += 1
+        Jlqc.error_list.append(f"{index}：签到失败")
             
     def available(self):
         url = 'https://app.geely.com/api/v1/point/available'
@@ -195,12 +197,14 @@ class Jlqc:
             "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
-        if not result:
-            Jlqc.sign_dict['fail'] += 1
-            return
-        print(result)
-        if result['code'] == "success":
-            self.my_dict['availablePoint'] = result['data']['availablePoint']
+        if result:
+            if result['code'] == "success":
+                self.my_dict['availablePoint'] = result['data']['availablePoint']
+                print(f"吉分：{result['data']['availablePoint']}")
+                return
+            print(result)
+        Jlqc.sign_dict['fail'] += 1
+        Jlqc.error_list.append(f"{index}：查询吉分失败")
             
     def refresh_token(self):
         url = "https://app.geely.com/api/v1/user/refresh"
@@ -215,22 +219,24 @@ class Jlqc:
             "platform": "Android"
         }
         result = send_request('GET', url, params=params, headers=headers, proxies=self.proxies)
-        if not result:
-            Jlqc.sign_dict['fail'] += 1
-            return
-        print(result)
-        if result['code'] == "success":
-            self.my_dict['token'] = result['data']['token']
-            self.my_dict['refreshToken'] = result['data']['refreshToken']
+        if result:
+            if result['code'] == "success":
+                self.my_dict['token'] = result['data']['token']
+                self.my_dict['refreshToken'] = result['data']['refreshToken']
+                print(f"刷新token：{result['data']['availablePoint']}")
+                return
+            print(result)
+        Jlqc.sign_dict['fail'] += 1
+        Jlqc.error_list.append(f"{index}：查询吉分失败")
             
     def main(self):
         self.get_proxies()
-        if self.sign_dict['fail'] >= 10:
-            send(title_name + "---异常", "失败数量过多")
+        if self.sign_dict['fail'] >= 20:
+            send(title_name + "---停止运行", "失败数量过多")
             exit()
         if self.sign():
             self.available()
-            if self.day in (1, 24):
+            if self.day in (1, 15):
                 self.refresh_token()
             with open(filepath, 'w') as f:
                 json.dump(all_data, f, indent=2)
@@ -260,5 +266,5 @@ if __name__ == '__main__':
         16吉分：{Jlqc.sign_dict['availablePoint16']}
         88吉分：{Jlqc.sign_dict['availablePoint88']}
         token失效：{Jlqc.sign_dict['token_unchecked']}
-        '''
+        ''' + "\n\n" + '\n'.join(Jlqc.error_list)
     send(title_name, msg)
