@@ -159,7 +159,7 @@ class Jlqc:
                 self.repeat += 1
             elif result['code'] == 'token.unchecked':
                 self.token_unchecked += 1
-                for i in self.gh_list.content:
+                for i in self.gh_list:
                     if i['phone'] == self.phone:
                         print("号码已存在，不加入")
                         break
@@ -168,7 +168,7 @@ class Jlqc:
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
                     }
-                    self.gh_list.content.append(dict_new)
+                    self.gh_list.append(dict_new)
             else:
                 send(title_name + "====停止运行", str(result))
                 exit()
@@ -234,7 +234,7 @@ class Jlqc:
 if __name__ == '__main__':
     accountInfo = GithubFile('吉利汽车/AccountInfo.json')
     tokenUnchecked = GithubFile('吉利汽车/TokenUnchecked.json')
-    jlqc = Jlqc(tokenUnchecked)
+    jlqc = Jlqc(tokenUnchecked.content)
     random.shuffle(all_data)
     for index, my_dict in enumerate(all_data, start = 1):
         print(f"\n{index}/{len(all_data)}➠➠➠➠➠➠{my_dict['phone']}：")
@@ -246,8 +246,8 @@ if __name__ == '__main__':
             print("已签到，跳过")
             
     accountInfo.update(all_data)
-    if len(tokenUnchecked.content) > 0:
-        tokenUnchecked.update(tokenUnchecked.content)
+    if len(jlqc.gh_list) > 0:
+        tokenUnchecked.update(jlqc.gh_list)
     msg = f'''
         账号总数：{len(all_data)}
         成功签到：{jlqc.success}
