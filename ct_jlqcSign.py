@@ -68,7 +68,7 @@ class Jlqc:
         self.day = current_time.day
         self.error_list = []
         self.gh_list = gh_list
-        # 签到相关
+        # 签到状态数量
         self.success = 0
         self.fail = 0
         self.repeat = 0
@@ -76,6 +76,17 @@ class Jlqc:
         self.availablePoint16 = 0
         self.availablePoint88 = 0
         self.token_unchecked = 0
+        # 推送内容
+        self.msg = f'''
+            账号总数：{len(all_data)}
+            成功签到：{self.success}
+            失败签到：{self.fail}
+            重复签到：{self.repeat}
+            8吉分：{self.availablePoint8}
+            16吉分：{self.availablePoint16}
+            88吉分：{self.availablePoint88}
+            token失效：{self.token_unchecked}
+        ''' + "\n\n" + '\n'.join(self.error_list)
         
     def get_proxies(self):
         url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
@@ -222,7 +233,7 @@ class Jlqc:
         self.index = index
         self.get_proxies()
         if self.fail >= 20:
-            send(title_name + "---停止运行", "失败数量过多")
+            send(title_name + "---停止运行", self.msg)
             exit()
         if self.sign(my_dict):
             self.available(my_dict)
@@ -237,7 +248,7 @@ if __name__ == '__main__':
     jlqc = Jlqc(tokenUnchecked.content)
     random.shuffle(all_data)
     for index, my_dict in enumerate(all_data, start = 1):
-        print(f"\n{index}/{len(all_data)}➠➠➠➠➠➠{my_dict['phone']}：")
+        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['phone']}：")
         if my_dict['signdate'] != jlqc.md:
             jlqc.main(index, my_dict)
             if index < len(all_data):
@@ -248,14 +259,4 @@ if __name__ == '__main__':
     accountInfo.update(all_data)
     if len(jlqc.gh_list) > 0:
         tokenUnchecked.update(jlqc.gh_list)
-    msg = f'''
-        账号总数：{len(all_data)}
-        成功签到：{jlqc.success}
-        失败签到：{jlqc.fail}
-        重复签到：{jlqc.repeat}
-        8吉分：{jlqc.availablePoint8}
-        16吉分：{jlqc.availablePoint16}
-        88吉分：{jlqc.availablePoint88}
-        token失效：{jlqc.token_unchecked}
-        ''' + "\n\n" + '\n'.join(jlqc.error_list)
-    send(title_name, msg)
+    send(title_name, jlqc.msg)
