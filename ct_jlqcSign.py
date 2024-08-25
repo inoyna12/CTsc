@@ -246,7 +246,7 @@ if __name__ == '__main__':
             print("已签到，跳过")
             
     accountInfo.update(all_data)
-    if len(gh_jlUnchecked_list.content) > 0:
+    if len(tokenUnchecked.content) > 0:
         tokenUnchecked.update(tokenUnchecked.content)
     msg = f'''
         账号总数：{len(all_data)}
