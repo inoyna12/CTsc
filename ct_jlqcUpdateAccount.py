@@ -48,7 +48,7 @@ with open(filepath, 'r') as f:
 
 update_num = 0
 add_num = 0
-   
+all_num = len(all_data)
 gh_list = GithubFile('吉利汽车/账号密码.json')
 if len(gh_list.content) == 0:
     print("空列表，退出运行。")
@@ -61,5 +61,5 @@ gh_list.update([])
 
 AccountInfo = GithubFile('吉利汽车/AccountInfo.json')
 AccountInfo.update(all_data)
-   
-send("吉利汽车", f"增加账号{add_num}次，更新账号{update_num}次")
+print(f"增加账号{add_num}次，更新账号{update_num}次\n原账号数量：{all_num}，现账号数量：{len(all_data)}")
+send("吉利汽车", f"增加账号{add_num}次，更新账号{update_num}次\n原账号数量：{all_num}，现账号数量：{len(all_data)}")
