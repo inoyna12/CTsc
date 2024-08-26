@@ -77,7 +77,9 @@ class Jlqc:
         self.availablePoint88 = 0
         self.token_unchecked = 0
         # 推送内容
-        self.msg = f'''
+
+    def sendMsg(self):
+        msg = f'''
             账号总数：{len(all_data)}
             成功签到：{self.success}
             失败签到：{self.fail}
@@ -87,7 +89,9 @@ class Jlqc:
             88吉分：{self.availablePoint88}
             token失效：{self.token_unchecked}
         ''' + "\n\n" + '\n'.join(self.error_list)
+        return msg
         
+                
     def get_proxies(self):
         url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
         for i in range(3):
@@ -96,7 +100,7 @@ class Jlqc:
                 break
             if result['code'] == 200:
                 proxy_ip = result['data']['proxy_list'][0]
-                print("当前代理IP：" + proxy_ip)
+                print("代理：" + proxy_ip)
                 self.proxies = {
                   "http": proxy_ip,
                   "https": proxy_ip,
@@ -259,4 +263,4 @@ if __name__ == '__main__':
     accountInfo.update(all_data)
     if len(jlqc.gh_list) > 0:
         tokenUnchecked.update(jlqc.gh_list)
-    send(title_name, jlqc.msg)
+    send(title_name, jlqc.sendMsg)
