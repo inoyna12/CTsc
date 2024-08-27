@@ -263,4 +263,4 @@ if __name__ == '__main__':
     accountInfo.update(all_data)
     if len(jlqc.gh_list) > 0:
         tokenUnchecked.update(jlqc.gh_list)
-    send(title_name, jlqc.sendMsg)
+    send(title_name, jlqc.sendMsg())
