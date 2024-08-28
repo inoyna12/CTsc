@@ -1,30 +1,44 @@
 '''
-cron: 0 */1 * * *
+cron: 0 */2 * * *
 new Env('哪吒监控库存');
 '''
-import requests,json,time
+
+import requests, json
 from notify import send
 
-goods_list = [1639094260312801281,1747913042685448194]
+notAdd = ['流量包', '畅听包', '畅享包', '娱乐包']
 msg = []
-index = 0
+
 headers = {
-    'Host': 'shop-wap.hozonauto.com',
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0.6045.193 Mobile Safari/537.36',
-    'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+    'appVersion': '6.4.1',
+    'login_channel': '1',
+    'channel': 'android',
+    'phoneModel': 'Redmi 22081212C',
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+    'Host': 'shop-gw.hozonauto.com',
+    'Connection': 'Keep-Alive',
+    # 'Accept-Encoding': 'gzip',
+    'Cache-Control': 'no-cache',
 }
 
-for goods in goods_list:
-    url = 'https://shop-wap.hozonauto.com/gateway/mallapi/goodsspu/detail/' + str(goods)
-    response = requests.get(url, headers=headers)
-    result = response.json()
-    if result['ok'] is True:
-        name = result['data']['name']
-        stock = result['data']['skus'][0]['stock']
-        aaa = f"{name}：{stock}"
-        print(aaa)
-        if stock > 0:
-            index += 1
-        msg.append(aaa)
-    time.sleep(5)
-send(f"哪吒库存({index})", '\n'.join(msg))
+params = {
+    'current': '1',
+    'size': '50',
+    'categoryId': '',
+    'priceSort': '1',
+}
+
+response = requests.get('https://shop-gw.hozonauto.com/mallapi/goodsspu/page/category', params=params, headers=headers)
+result = response.json()
+for i in result['data']['records']:
+    if int(i['salesPrice']) > 200:
+        break
+    goods = f"{i['name']}，价格：{i['salesPrice']}，库存：{i['stock']}"
+    print(goods)
+    if any(name in i['name'] for name in notAdd):
+        pass
+    else:
+        if i['stock'] > 0:
+            msg.append(goods)
+send("哪吒库存", '\n'.join(msg))
