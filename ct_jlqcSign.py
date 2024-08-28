@@ -74,7 +74,7 @@ class Jlqc:
         self.repeat = 0
         self.availablePoint8 = 0
         self.availablePoint16 = 0
-        self.availablePoint88 = 0
+        self.availablePoint66 = 0
         self.token_unchecked = 0
         # 推送内容
 
@@ -86,7 +86,7 @@ class Jlqc:
             重复签到：{self.repeat}
             8吉分：{self.availablePoint8}
             16吉分：{self.availablePoint16}
-            88吉分：{self.availablePoint88}
+            66吉分：{self.availablePoint66}
             token失效：{self.token_unchecked}
         ''' + "\n\n" + '\n'.join(self.error_list)
         return msg
@@ -165,7 +165,7 @@ class Jlqc:
                     elif result['data']['id'] == '2':
                         self.availablePoint16 += 1
                     elif result['data']['id'] == '3':
-                        self.availablePoint88 += 1
+                        self.availablePoint66 += 1
                     print(f"签到：{result['code']}，{result['data']['prizeName']}")
                 else:
                     print(f"签到：{result['code']}")
