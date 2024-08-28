@@ -1,28 +1,39 @@
-import json,os
-from github import Github
+import requests, json
+from notify import send
 
-filepath = "/ql/data/env/jlqc.json"
-with open(filepath, 'r') as f:
-    all_data = json.load(f)
-    
-    
-class GithubFile:
-    def __init__(self, file_path):
-        self.gh = Github(os.getenv('github_token'))
-        self.repo = self.gh.get_repo('inoyna12/updateTeam')
-        self.file_path = file_path
-        self.commit_message = "Updated the file"
-        self.file_info = self.repo.get_contents(self.file_path)
-        self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
-        print(f"读取gtihub {self.file_path} 文件成功！")
-        
-    def update(self, new_content):
-        encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
-        self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
-        print(f"更新github {self.file_path} 文件成功！")
-        
-        
-gh_jlInfo_list = GithubFile('吉利汽车/AccountInfo.json')
-gh_jlInfo_list.update(all_data)
-    
-    
+notAdd = ['流量包', '畅听包', '畅享包', '娱乐包']
+msg = []
+
+headers = {
+    'appVersion': '6.4.1',
+    'login_channel': '1',
+    'channel': 'android',
+    'phoneModel': 'Redmi 22081212C',
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+    'Host': 'shop-gw.hozonauto.com',
+    'Connection': 'Keep-Alive',
+    # 'Accept-Encoding': 'gzip',
+    'Cache-Control': 'no-cache',
+}
+
+params = {
+    'current': '1',
+    'size': '50',
+    'categoryId': '',
+    'priceSort': '1',
+}
+
+response = requests.get('https://shop-gw.hozonauto.com/mallapi/goodsspu/page/category', params=params, headers=headers)
+result = response.json()
+for i in result['data']['records']:
+    if int(i['salesPrice']) > 200:
+        break
+    goods = f"{i['name']}，价格：{i['salesPrice']}，库存：{i['stock']}"
+    print(goods)
+    if any(name in i['name'] for name in notAdd):
+        pass
+    else:
+        if i['stock'] > 0:
+            msg.append(goods)
+send("哪吒库存", '\n'.join(msg))
