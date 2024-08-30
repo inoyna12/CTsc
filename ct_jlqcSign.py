@@ -71,7 +71,7 @@ class Jlqc:
         # 签到状态数量
         self.success = 0
         self.fail = 0
-        self.repeat = 0
+        self.availablePoint = 0
         self.availablePoint8 = 0
         self.availablePoint16 = 0
         self.availablePoint66 = 0
@@ -82,16 +82,18 @@ class Jlqc:
         msg = f'''
             账号总数：{len(all_data)}
             成功签到：{self.success}
-            失败签到：{self.fail}
-            重复签到：{self.repeat}
+            获得吉分：{self.availablePoint}
             8吉分：{self.availablePoint8}
             16吉分：{self.availablePoint16}
             66吉分：{self.availablePoint66}
             token失效：{self.token_unchecked}
         ''' + "\n\n" + '\n'.join(self.error_list)
-        return msg
-        
-                
+        return msg  
+    
+    def newList(self, lst):
+        new_lst = sorted(lst, key=lambda x: int(x['availablePoint']), reverse=True)
+        return new_lst
+                  
     def get_proxies(self):
         url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
         for i in range(3):
@@ -162,16 +164,19 @@ class Jlqc:
                 if 'id' in result['data']:
                     if result['data']['id'] == '1':
                         self.availablePoint8 += 1
+                        self.availablePoint += 8
                     elif result['data']['id'] == '2':
                         self.availablePoint16 += 1
+                        self.availablePoint += 16
                     elif result['data']['id'] == '3':
                         self.availablePoint66 += 1
+                        self.availablePoint += 66
                     print(f"签到：{result['code']}，{result['data']['prizeName']}")
                 else:
                     print(f"签到：{result['code']}")
                 return True
             elif result['code'] == 'fail' and result['message'] == '您已签到,请勿重复操作!':
-                self.repeat += 1
+                pass
             elif result['code'] == 'token.unchecked':
                 self.token_unchecked += 1
                 for i in self.gh_list:
@@ -260,7 +265,7 @@ if __name__ == '__main__':
         else:
             print("已签到，跳过")
             
-    accountInfo.update(all_data)
+    accountInfo.update(jlqc.newList(all_data))
     if len(jlqc.gh_list) > 0:
         tokenUnchecked.update(jlqc.gh_list)
     send(title_name, jlqc.sendMsg())
