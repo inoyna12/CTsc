@@ -91,7 +91,7 @@ class Jlqc:
         return msg  
     
     def newList(self, lst):
-        new_lst = sorted(lst, key=lambda x: int(x['availablePoint']), reverse=True)
+        new_lst = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
         return new_lst
                   
     def get_proxies(self):
