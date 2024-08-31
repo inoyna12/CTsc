@@ -9,7 +9,7 @@ from utils.github_file_manager import GithubFileManager
 from notify import send
 
 title_name = '哪吒汽车'
-appVersion = "6.2.1"
+appVersion = "6.4.1"
 filepath = "/ql/data/env/nzqc.json"
 appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
 sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
@@ -292,7 +292,7 @@ def main():
     if refreshApiToken() is False:
         return 
 #    sign()
-#    getCustomer()
+    getCustomer()
 
 if __name__ == '__main__':
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -307,4 +307,3 @@ if __name__ == '__main__':
             json.dump(data_list, f)
         if index < len(data_list):
             randomSleep(10, 20)
-    msg_send()
