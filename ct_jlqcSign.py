@@ -236,7 +236,7 @@ class Jlqc:
                 return
             print(result)
         self.fail += 1
-        self.error_list.append(f"{self.index}：查询吉分失败")
+        self.error_list.append(f"{self.index}：刷新token失败")
                 
     def main(self, index, my_dict):
         self.index = index
