@@ -1,6 +1,6 @@
 '''
 cron: 36 6 * * *
-new Env('吉利汽车签到');
+new Env('吉利汽车');
 '''
 import requests
 import json
@@ -8,13 +8,16 @@ import os
 import time
 import random
 import execjs
+import string
+import csv
+import hashlib
 from datetime import datetime
 from fake_useragent import UserAgent
 from github import Github
 from notify import send
 
-title_name = '吉利汽车签到'
-version = "3.24.0"
+title_name = '吉利汽车'
+version = "3.25.0"
 
 filepath = "/ql/data/env/jlqc.json"
 with open(filepath, 'r') as f:
@@ -64,6 +67,8 @@ class Jlqc:
         js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
         current_time = datetime.now()
         self.js = execjs.compile(js_code)
+         with open('utils/brand_model.csv', newline='', encoding='utf-8-sig') as csvfile:
+            self.csvreader = list(csv.DictReader(csvfile))
         self.md = current_time.strftime("%m-%d")
         self.day = current_time.day
         self.error_list = []
@@ -76,7 +81,6 @@ class Jlqc:
         self.availablePoint16 = 0
         self.availablePoint66 = 0
         self.token_unchecked = 0
-        # 推送内容
 
     def sendMsg(self):
         msg = f'''
@@ -121,13 +125,96 @@ class Jlqc:
         if result:
             return True
         print(f"{proxies['http']}：连接失败！！！")
-        return False 
-    def sign_UA(self):
-        android_version = str(random.randint(7, 14))
-        device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
-        build_number = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=16))
-        return f"Dalvik/2.1.0 (Linux; U; Android {android_version}; {device_code} Build/{build_number})"  
+        return False
+    
+    def generate_devicesn(self):
+        # 字符集：包括数字和字母a-f
+        characters = string.digits + 'abcdef'
         
+        # 随机选择字符并组合成字符串
+        random_string = ''.join(random.choice(characters) for _ in range(16))
+
+    def random_imei(self):
+        # 生成前14位随机数
+        imei_base = [random.randint(0, 9) for _ in range(14)]
+        # 使用Luhn算法计算校验位
+        def luhn_checksum(digits):
+            sum_ = 0
+            for i in range(len(digits)):
+                digit = digits[-(i + 1)]
+                if i % 2 == 0:  # 偶数位
+                    digit *= 2
+                    if digit > 9:
+                        digit -= 9
+                sum_ += digit
+            return (10 - (sum_ % 10)) % 10
+        # 计算校验位
+        checksum = luhn_checksum(imei_base)
+        # 将校验位添加到IMEI码中
+        imei_base.append(checksum)
+        # 转换为字符串
+        imei = ''.join(map(str, imei_base))
+        return imei    
+
+    def generate_resolution(self):
+        # 定义一些常见的分辨率范围
+        width_options = [
+            720, 1080, 1440, 2160, 2400, 2560, 3200
+        ]
+        height_options = [
+            1280, 1920, 2560, 3840, 1080, 1200, 1440, 1600, 2400
+        ]
+    
+        # 随机选择一个宽度和高度
+        width = random.choice(width_options)
+        height = random.choice(height_options)
+    
+        # 返回格式化的分辨率字符串
+        return f"{width}*{height}"
+
+    def md5(self, str_imei):
+        md5_hasher = hashlib.md5()
+        md5_hasher.update(str_imei.encode('utf-8'))
+        md5_hashed_string = md5_hasher.hexdigest()
+        return md5_hashed_string
+
+    def create_sweet_security_info(self, imei, osVersion):
+        battery = str(random.randint(20, 100))
+        phoneInfo = random.choice(self.csvreader)
+        random_number = random.randint(100000, 999999)
+        osVersion = str(random.randint(8, 14))
+        sweet_security_info = {
+            "appVersion": version,
+            "platform": "android",
+            "battery": battery,
+            "isCharging": "3",
+            "isSetProxy": "false",
+            "isUsbDebug": "false",
+            "isMockLocation": "false",
+            "isRoot": "false",
+            "appSignature": "4A25003CFDA7F61BC387C182551D5681",
+            "channel": "%E5%90%89%E5%88%A9",
+            "screenResolution": self.generate_resolution(),
+            "brand": phoneInfo['brand'],
+            "model": phoneInfo['model'],
+            "imsi": f"35659{random_number}6247",
+            "geelyDeviceId": self.md5(imei),
+            "os": "android",
+            "osVersion": osVersion,
+            "androidVersion": "31",
+            "networkType": "WIFI",
+            "ip": "192.168.0.100",
+            "wifiSignalLevel": "-42",
+            "isLbsEnabled": "false",
+            "lbsLatitude": "",
+            "lbsLongitude": ""
+        }
+        
+        sweet_security_info = json.dumps(sweet_security_info, separators=(',', ':'))
+        print(sweet_security_info)
+        print(type(sweet_security_info))
+        return sweet_security_info
+      
     def available_UA(self):
         ua = UserAgent()
         base_ua = ua.chrome
@@ -139,24 +226,29 @@ class Jlqc:
         current_time = datetime.now()
         signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
         ts = int(time.time())
+        imei = self.random_imei()
+        osVersion = str(random.randint(8, 14))
+        sweet_security_info = self.create_sweet_security_info(imei, osVersion)
         body = {
             "signDate": str(signDate),
-            "ts": str(ts),
+            "ts": ts,
             "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
         }
         headers = {
             'Host': 'app.geely.com',
-            'accept': 'application/json, text/plain, */*',
+            'x-data-sign': self.js.call("enen", body),
+            'x-refresh-token': 'true',
+            'devicesn': self.generate_devicesn(),
             'token': my_dict['token'],
             'version': version,
-            'x-data-sign': self.js.call("enen", body),
-            'User-Agent': self.sign_UA(),
-            'content-type': 'application/json',
-            'origin': 'https://app.geely.com',
-            'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
-            'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+            'platform': 'Android',
+            'cache-control': 'no-cache',
+            'imei': imei,
+            'os': osVersion,
+            'sweet_security_info': sweet_security_info,
+            'content-type': 'application/json; charset=utf-8'
         }
-        result = send_request('POST', url, headers=headers, json=body, proxies=self.proxies)
+        result = send_request('POST', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
         if result:
             if result['code'] == 'success' and 'msg' not in result['data']:
                 self.success += 1
@@ -201,9 +293,13 @@ class Jlqc:
         url = 'https://app.geely.com/api/v1/point/available'
         headers = {
             "Host": "app.geely.com",
+            "pragma": "no-cache",
+            "cache-control": "no-cache",
             "accept": "application/json, text/plain, */*",
             "user-agent": self.available_UA(),
             "token": my_dict['token'],
+            "x-requested-with": "com.geely.consumer",
+            "referer": "https://app.geely.com/app-h5/grow-up/?showTitleBar=0&needLogin=1&tabsIndex=0",
             "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
@@ -224,9 +320,11 @@ class Jlqc:
         headers = {
             "Host": "app.geely.com",
             "x-refresh-token": "true",
+            'devicesn': self.generate_devicesn(),
             "token": my_dict['token'],
             "appversion": version,
-            "platform": "Android"
+            "platform": "Android",
+            "cache-control": "no-cache"
         }
         result = send_request('GET', url, params=params, headers=headers, proxies=self.proxies)
         if result:
