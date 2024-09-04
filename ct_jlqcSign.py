@@ -213,6 +213,7 @@ class Jlqc:
         sweet_security_info = json.dumps(sweet_security_info, separators=(',', ':'))
         print(sweet_security_info)
         print(type(sweet_security_info))
+        exit()
         return sweet_security_info
       
     def available_UA(self):
