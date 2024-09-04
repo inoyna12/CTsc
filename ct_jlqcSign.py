@@ -67,7 +67,7 @@ class Jlqc:
         js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
         current_time = datetime.now()
         self.js = execjs.compile(js_code)
-         with open('utils/brand_model.csv', newline='', encoding='utf-8-sig') as csvfile:
+        with open('utils/brand_model.csv', newline='', encoding='utf-8-sig') as csvfile:
             self.csvreader = list(csv.DictReader(csvfile))
         self.md = current_time.strftime("%m-%d")
         self.day = current_time.day
