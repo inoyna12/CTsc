@@ -192,7 +192,7 @@ class Jlqc:
             else:
                 print(result)
                 send(title_name + "====停止运行", str(result))
-               # exit()
+                exit()
             print(result)
         self.fail += 1
         self.error_list.append(f"{self.index}：签到失败")
