@@ -180,7 +180,7 @@ class Jlqc:
             elif result['code'] == 'token.unchecked':
                 self.token_unchecked += 1
                 for i in self.gh_list:
-                    if i['phone'] == self.phone:
+                    if i['phone'] == my_dict['phone']:
                         print("号码已存在，不加入")
                         break
                 else:
