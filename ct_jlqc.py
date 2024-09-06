@@ -141,7 +141,7 @@ class Jlqc:
         ts = int(time.time())
         body = {
             "signDate": str(signDate),
-            "ts": str(ts),
+            "ts": ts,
             "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
         }
         headers = {
