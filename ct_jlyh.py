@@ -154,7 +154,7 @@ class Jlyh:
         return s_info
             
     def refreshtoken(self, my_dict):
-        url = f'https://galaxy-user-api.geely.com/api/v1/login/refresh?refreshToken={my_dict['refreshToken']}'
+        url = f"https://galaxy-user-api.geely.com/api/v1/login/refresh?refreshToken={my_dict['refreshToken']}"
         now = datetime.datetime.now(datetime.timezone.utc)
         date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
         x_ca_timestamp = str(int(now.timestamp() * 1000))
