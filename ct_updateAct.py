@@ -58,7 +58,7 @@ class Jlyh:
                 print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
         
         self.gh_jlyh.update(self.all_data)
-        self.gh_zdjl.dpdate([])
+        self.gh_zdjl.update([])
         with open(self.filepath, 'w') as f:
             json.dump(self.all_data, f, indent=2)
         send("吉利银河更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
