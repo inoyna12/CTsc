@@ -36,10 +36,10 @@ class Jlyh:
         self.gh_zdjl = GithubFile('吉利银河/zdjl.json')
               
     def update(self):
-        if len(self.gh_zdjl) == 0:
+        if len(self.gh_zdjl.content) == 0:
             print("空列表，跳过")
             return
-        for zdjl_dict in self.gh_zdjl:
+        for zdjl_dict in self.gh_zdjl.content:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['password'] = zdjl_dict['password']
