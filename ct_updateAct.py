@@ -26,7 +26,7 @@ class GithubFile:
 
 class Jlyh:
     def __init__(self, filepath):
-        with open(self.filepath, 'r') as f:
+        with open(filepath, 'r') as f:
             self.all_data = json.load(f)
         self.update_num = 0
         self.add_num= 0
