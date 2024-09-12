@@ -75,71 +75,41 @@ class Jlyh:
         self.id_list = self.get_id()
         self.fail = 0
         
-        
-        
-        # self.error_list = []
-        # self.gh_list = gh_list
-        # # 签到状态数量
-        # self.success = 0
-        # 
-        # self.availablePoint = 0
-        # self.availablePoint8 = 0
-        # self.availablePoint16 = 0
-        # self.availablePoint66 = 0
-        # self.token_unchecked = 0
-        # 推送内容
 
-    # def sendMsg(self):
-        # msg = f'''
-            # 账号总数：{len(all_data)}
-            # 成功签到：{self.success}
-            # 获得吉分：{self.availablePoint}
-            # 8吉分：{self.availablePoint8}
-            # 16吉分：{self.availablePoint16}
-            # 66吉分：{self.availablePoint66}
-            # token失效：{self.token_unchecked}
-        # ''' + "\n\n" + '\n'.join(self.error_list)
-        # return msg  
     
     def newList(self, lst):
         new_lst = sorted(lst, key=lambda x: int(x['availablePoints']), reverse=True)
         return new_lst
                   
-    def get_proxies(self):
+    def getProxy(self):
         url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
-        for i in range(3):
+        testurl = "https://www.juliangip.com/api/general/Test"
+        for i in range(5):
             result = send_request('GET', url)
-            if not result:
-                break
-            if result['code'] == 200:
-                proxy_ip = result['data']['proxy_list'][0]
-                print("代理：" + proxy_ip)
-                self.proxies = {
-                  "http": proxy_ip,
-                  "https": proxy_ip,
-                }
-                if self.pin_network(self.proxies):
-                    return
-            else:
-                print(result)
-                time.sleep(60)
+            if result:
+                if result['code'] == 200:
+                    proxy_ip = result['data']['proxy_list'][0]
+                    print("代理：" + proxy_ip)
+                    self.proxies = {
+                      "http": proxy_ip,
+                      "https": proxy_ip,
+                    }
+                    res = send_request('GET', testurl, proxies=self.proxies)
+                    if res:
+                        if res['state'] == 'ok':
+                            return True
+                    print(f"{self.proxies['http']}：连接失败！！！")
+                else:
+                    print(result)
+            time.sleep(60)      
         send(title_name + "---异常", "获取代理IP失败！")
-        exit()   
-         
-    def pin_network(self, proxies):
-        url = "https://www.juliangip.com/api/general/Test"
-        result = send_request('GET', url, proxies=proxies)
-        if result:
-            return True
-        print(f"{proxies['http']}：连接失败！！！")
-        return False 
+        exit()
 
     def hmacSHA256(self, key, message):
         hmac_obj = hmac.new(key.encode(), message.encode(), hashlib.sha256)
         hmac_digest = hmac_obj.digest()
         hmac_base64 = base64.b64encode(hmac_digest).decode()
         return hmac_base64
-
 
     def md5Base64(self, content):
         md5_hash = hashlib.md5(content.encode()).digest()
@@ -196,8 +166,8 @@ class Jlyh:
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
         if result:
-            print(result)
-            if result['code'] == 'success':
+            print(f"刷新token：{result['message']}")
+            if result['code'] == 'success' and result['message'] == '接口调用成功':
                 self.token = result['data']['centerTokenDto']['token']
                 my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
                 return True
@@ -279,13 +249,15 @@ class Jlyh:
         }
         result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
         if result:
-            print(result)
-            if result['code'] == '0' and result['msg'] == 'SUCCESS':
+            print(f"签到：{result['msg']}")
+            if result['msg'] == 'SUCCESS' and "success":
                 my_dict['signdate'] = self.date_md
-            elif result['code'] == 'USER_SIGN_000012' and result['msg'] == '今日已签到':
+            elif result['msg'] == '今日已签到':
                 pass
             else:
+                print(result)
                 exit()
+        
               
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
@@ -417,7 +389,12 @@ class Jlyh:
         }
         result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
         if result:
-            print(result)
+            print(f"分享：{result['msg']}")
+            if result['msg'] == 'SUCCESS' and "success":
+                pass
+            else:
+                print(result)
+                exit()
             
     def getPoints(self, my_dict):
         url = 'https://galaxy-app.geely.com/h5/v1/points/get'
@@ -464,16 +441,19 @@ class Jlyh:
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
         if result:
-            print(result)
             if result['msg'] == 'SUCCESS':
                 my_dict['availablePoints'] = result['data']['availablePoints']
+                print(f"吉分：{result['data']['availablePoints']}")
+            else:
+                print(result)
+                exit()
               
     def main(self, index, my_dict):
-        self.index = index
-        self.get_proxies()
-        self.sweet_security_info = self.s_s_info(my_dict['sweet_security_info'])
         if self.fail >= 20:
             exit()
+        self.sweet_security_info = self.s_s_info(my_dict['sweet_security_info'])
+        self.index = index
+        self.getProxy()
         if self.refreshtoken(my_dict):
             self.signAdd(my_dict)
             self.share(my_dict)
