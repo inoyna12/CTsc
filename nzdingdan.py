@@ -8,186 +8,124 @@ import json
 import time
 import random
 import hashlib
-import io
-import sys
-import fcntl
 import datetime
-from sendNotify import send
-from utils.github_api import update_github_file
-appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'#headers参数
-tenantid = '1501391403178266624'
-sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-appVersion = "5.8.0"
+import base64
+import pandas as pd
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+from notify import send
 
-def refresh_Authorization():
-    url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    for i in range(50):
-        now = datetime.datetime.now()
-        formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
-        nonce = generate_random_number()
+appVersion = "6.4.1"
+
+filepath = "/ql/data/env/nzqc.json"
+phone_lst = os.getenv("nzphone").split('\n')
+with open(filepath, 'r') as f:
+    all_data = json.load(f)
+
+def send_request(method, url, **kwargs):
+    time_out = 10  # 请求超时
+    try:
+        method = method.upper()
+        if method not in ['GET', 'POST', 'PUT']:
+            raise ValueError(f"不支持 {method} 请求方法")
+            return False
+        response = requests.request(method, url, timeout=time_out, **kwargs)
+        return response.json()
+    except requests.exceptions.Timeout as e:
+        print("请求超时:", str(e))
+    except requests.exceptions.RequestException as e:
+        print("请求错误:", str(e))
+    except ValueError as e:
+        print("值错误:", str(e))
+    except Exception as e:
+        print("其他错误:", str(e))
+    return False
+
+
+class Order:
+    def __init__(self):
+        self.appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
+        self.sign_str = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        self.tenant_id = '1501391403178266624'
+        self.orderKey = 'HOZON-AES-KEY-EN'
+        self.brand_model = pd.read_csv('utils/brand_model.csv')
+
+    def sha256_encode(self, mystr):
+        hash_object = hashlib.sha256(mystr.encode('utf-8'))
+        hex_dig = hash_object.hexdigest()
+        return hex_dig
+
+    def aes_ecb_decrypt(self, key, encrypted_text):
+        key_bytes = key.encode('utf-8')
+        cipher = AES.new(key_bytes, AES.MODE_ECB)
+        decrypted_padded = cipher.decrypt(base64.b64decode(encrypted_text))
+        decrypted = unpad(decrypted_padded, AES.block_size)
+        return decrypted.decode('utf-8')
+
+    def refreshApiToken(self, refreshToken):
+        url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
+        random_row = self.brand_model.sample(n=1)
+        brand = random_row['brand'].values[0]
+        self.model = random_row['model'].values[0]
+        nonce = random_number = ''.join(random.choices('0123456789', k=10))
         timestamp = int(time.time() * 1000)
-        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{info['refresh_token']}{sign_string}"
+        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{refreshToken}{self.sign_str}"
         headers = {
-            "Authorization": info['refresh_token'],
-            "appId": "HOZON-B-xKrgEvMt",
-            "appKey": appKey,
-            "appVersion": appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            "nonce": str(nonce),
-            "phoneModel": "Redmi 22081212C",
-            "timestamp": str(timestamp),
-            "sign": sha256_encode(sign),
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Host": "appapi-pki.chehezhi.cn:18443"
+                "Authorization": refreshToken,
+                "appId": "HOZON-B-xKrgEvMt",
+                "appKey": self.appKey,
+                "appVersion": appVersion,
+                'login_channel': '1',
+                'channel': 'android',
+                "nonce": str(nonce),
+                "phoneModel": f"{brand} {self.model}",
+                "timestamp": str(timestamp),
+                "sign": self.sha256_encode(sign),
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Host": "appapi-pki.chehezhi.cn:18443"
         }
-        data = {
-            "refreshToken": info['refresh_token']
+        data = f"refreshToken={refreshToken}"
+        result = send_request('POST', url, headers=headers, data=data)
+        if result:
+            if result['code'] == 20000:
+                print("刷新token成功")
+                self.Authorization = result['data']['access_token']
+                return True
+                
+    def getorderinfo(self):
+        url = "https://shop-wap.hozonauto.com/gateway/mallapi/orderinfo/page?searchCount=false&current=1&size=10&descs=create_time"
+        headers = {
+            "Host": "shop-wap.hozonauto.com",
+            "Connection": "keep-alive",
+            "sec-ch-ua": '"Not)A;Brand";v="99", "Android WebView";v="127", "Chromium";v="127"',
+            "sec-ch-ua-mobile": "?1",
+            "Authorization": f"Bearer {self.Authorization}",
+            "User-Agent": f"Mozilla/5.0 (Linux; Android 12; {self.model} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.6533.103 Mobile Safari/537.36",
+            "third-session": "",
+            "app-id": "",
+            "tenant-id": self.tenant_id,
+            "client-type": "H5",
+            "sec-ch-ua-platform": '"Android"',
+            "Accept": "*/*",
+            "X-Requested-With": "com.hezhong.nezha",
+            "Sec-Fetch-Site": "same-origin",
+            "Referer": "https://shop-wap.hozonauto.com/review/pages/order/list",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
-        try:
-            response = requests.post(url=url, headers=headers, data=data, timeout=10)
-            response.raise_for_status()
-            result = response.json()
-        except requests.exceptions.RequestException as e:
-            print("请求异常:", e)
-            random_sleep(30, 50)
-        except json.JSONDecodeError as e:
-            print("JSON 解码异常:", e)
-            random_sleep(30, 50)
-        except Exception as e:
-            print("其他异常:", e)
-            random_sleep(30, 50)
-        else:
-            if "code" in result and result['code'] == 20000:
-                print("刷新Authorization成功")
-                global Authorization
-                Authorization = result['data']['access_token']
-                info['access_token'] = result['data']['access_token']
-                info['refresh_token'] = result['data']['refresh_token']
-                info['token_time'] = str(formatted_time)
-                return
-            else:
-                print("刷新Authorization失败")
-                print(result)
-                send("刷新Authorization失败", f"账号{index + 1}")
-                random_sleep(60, 80)
-    send("刷新Authorization失败", f"账号{index + 1}")
-    return None
+        result = send_request('GET', url, headers=headers)
+        if result:
+            if result['code'] == 0:
+                content = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
+                print(content)
 
-def getMallToken():
-    url = 'https://shop-wap.hozonauto.com/gateway/mallapi/userinfo/getMallToken'
-    headers = {
-        "Host": "shop-wap.hozonauto.com",
-        "accessToken": f"Bearer {Authorization}",
-        "tenant-id": tenantid,
-        "User-Agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36",
-        "client-type": "APP",
-        "Content-Type": "application/json",
-        "Origin": "https://shop-wap.hozonauto.com",
-        "X-Requested-With": "com.hezhong.nezha",
-        "Referer": f"https://shop-wap.hozonauto.com/pages/order/order-list/index?tenant_id={tenantid}",
-    }
-    response = requests.post(url=url, headers=headers)
-    result = response.json()
-    if result['code'] == 0:
-        return result['data']['thirdSession']
-    else:
-        print(result)
-        return None
-
-def orderinfo():
-    thirdsession = getMallToken()
-    url = 'https://shop-wap.hozonauto.com/gateway/mallapi/orderinfo/page'
-    params = {
-        "searchCount": "false",
-        "current": "1",
-        "size": "10",
-        "ascs": "",
-        "descs": "create_time"
-    }
-    headers = {
-        "Host": "shop-wap.hozonauto.com",
-        "third-session": thirdsession,
-        "tenant-id": tenantid,
-        "User-Agent": "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/110.0.5481.153 Mobile Safari/537.36",
-        "Referer": f"https://shop-wap.hozonauto.com/pages/order/order-list/index?tenant_id={tenantid}"
-    }
-    response = requests.get(url=url, params=params, headers=headers)
-    result = response.json()
-    #print(result)
-    records = result['data']['records'][0]
-    total = result['data']['total']
-    print("总订单数：" + str(total))
-    printc(f"下单号码：{max}({total})")
-    printc(f"下单时间：{records['createTime']}")
-    printc(f"商品名称：{records['name']}")
-    printc("收货地址：{}，{}，{}".format(records['orderLogistics']['userName'], records['orderLogistics']['telNum'], records['orderLogistics']['address']))
-    printc(f"快递状态：{records['statusDesc']}   {records['updateTime']}")
-    printc(f"订单状态：{records['listOrderItem'][0]['statusDesc']}")
-    printc(f"快递单号：{records['orderLogistics']['logisticsNo']}  {records['orderLogistics']['logisticsDesc']}\n")
-    if records['statusDesc'] == '待收货':
-        global td_inx
-        td_inx = td_inx + 1
-
-def random_sleep(min_val, max_val):
-    num = random.randint(min_val, max_val)
-    print(f"等待{num}秒后继续>>>>>>>>>>>")
-    time.sleep(num)
-
-def sha256_encode(string):
-    hash_object = hashlib.sha256(string.encode('utf-8'))
-    hex_dig = hash_object.hexdigest()
-    return hex_dig
-
-def generate_random_number():
-    random_number = ''.join(random.choices('0123456789', k=10))
-    return random_number
-
-def ql_env(name):
-    if name in os.environ:
-        token_list = os.environ[name].split('\n')
-        if len(token_list) > 0:
-            return token_list
-        else:
-            print("变量未启用")
-            sys.exit(1)
-    else:
-        print("未添加变量")
-        sys.exit(0)
-
-def printc(text):
-    print(text)  # 实时打印到控制台
-    sys.stdout.flush()
-    print(text, file=output)  # 存储到文件对象中
-        
+    def main(self, refreshtoken):
+        if self.refreshApiToken(refreshtoken):
+            self.getorderinfo()
+     
 if __name__ == '__main__':
-    output = io.StringIO()
-    title_name = '哪吒汽车/下单日志'
-    filepath = "/ql/data/env/nzqc.json"
-    td_inx = 0
-    index = 0
-    max_phone = ql_env("NZmy_phone")
-    print(f"共找到{len(max_phone)}个账号")
-    for max in max_phone:
-        print(f"\n{'-' * 13}正在执行第{index + 1}个账号{'-' * 13}")
-        file = open(filepath, 'r+')
-        fcntl.flock(file.fileno(), fcntl.LOCK_EX)
-        info_max = json.load(file)
-        for info in info_max:
-            if info['mobile'] == max:
-                refresh_Authorization()
-                file.seek(0)
-                file.write(json.dumps(info_max))
-                file.truncate()
-                fcntl.flock(file.fileno(), fcntl.LOCK_UN)
-                file.close()
-                orderinfo()
-                break
-        index += 1
-        if index < len(max_phone):
-            random_sleep(10, 20)    
-    msg = output.getvalue()
-    now = datetime.datetime.now()
-    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    update_github_file(f"token/{title_name}/{current_time}.txt", msg)
-    send(f"哪吒订单查询：{len(max_phone)}---{td_inx}", msg)
+    order = Order()
+    for phone in phone_lst:
+        print(f"\n{phone}：")
+        for dct in all_data:
+            if dct['mobile'] == phone:
+                order.main(dct['refresh_token'])
