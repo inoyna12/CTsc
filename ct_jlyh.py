@@ -61,13 +61,23 @@ class GithubFile:
         self.file_path = file_path
         self.commit_message = "Updated the file"
         self.file_info = self.repo.get_contents(self.file_path)
-        self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
-        print(f"读取gtihub {self.file_path} 文件成功！")
-        
+
+        # 检查文件大小
+        if self.file_info.size > 1048576:  # 1MB 限制
+            print(f"文件 {self.file_path} 大小超过限制，无法直接读取。")
+            self.content = None
+        else:
+            self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
+            print(f"读取 github {self.file_path} 文件成功！")
+
     def update(self, new_content):
         encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
-        self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
-        print(f"更新github {self.file_path} 文件成功！")
+
+        try:
+            self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
+            print(f"更新 github {self.file_path} 文件成功！")
+        except Exception as e:
+            print(f"更新文件时出错: {e}")
 
 class Jlyh:
     def __init__(self):
