@@ -249,6 +249,7 @@ class Jlyh:
         }
         result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
         if result:
+            print(result)
             print(f"签到：{result['msg']}")
             if result['msg'] == 'SUCCESS' and "success":
                 my_dict['signdate'] = self.date_md
