@@ -117,7 +117,7 @@ class Nzqc:
                     break
                 else:
                     print(result)
-            time.sleep(60)
+            time.sleep(10)
         send(title_name + "---停止运行", "获取代理IP失败！")
         exit()
 
