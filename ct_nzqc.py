@@ -11,6 +11,7 @@ import hashlib
 import datetime
 import base64
 import pandas as pd
+from github import Github
 from notify import send
 
 appVersion = "6.4.2"
