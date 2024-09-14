@@ -21,6 +21,11 @@ filepath = "/ql/data/env/nzqc.json"
 with open(filepath, 'r') as f:
     all_data = json.load(f)
 
+def randomSleep(min_val, max_val):
+    num = random.randint(min_val, max_val)
+    print(f"随机等待{num}秒后继续>>>>>>>>>>>")
+    time.sleep(num)
+
 def send_request(method, url, **kwargs):
     time_out = 10  # 请求超时
     try:
@@ -116,7 +121,7 @@ class Nzqc:
 
     def refreshApiToken(self, mydict):
         url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-        nonce = random_number = ''.join(random.choices('0123456789', k=10))
+        nonce  = ''.join(random.choices('0123456789', k=10))
         timestamp = int(time.time() * 1000)
         sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{mydict['refresh_token']}{self.sign_str}"
         headers = {
@@ -148,7 +153,7 @@ class Nzqc:
 
     def sign(self, mydict):
         url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-        nonce = random_number(10)
+        nonce  = ''.join(random.choices('0123456789', k=10))
         timestamp = int(time.time() * 1000)
         sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
         headers = {
@@ -181,7 +186,7 @@ class Nzqc:
 
     def getCustomer(self, mydict):
         url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
-        nonce = random_number(10)
+        nonce  = ''.join(random.choices('0123456789', k=10))
         timestamp = int(time.time() * 1000)
         sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
         headers = {
