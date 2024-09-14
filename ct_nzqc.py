@@ -1,309 +1,234 @@
 '''
-cron: 36 9 * * *
+cron: 6 13 * * *
 new Env('哪吒汽车');
 '''
-import requests,json,random,time,os,datetime
-
-from utils.utils import randomSleep,sha256encode,random_number
-from utils.github_file_manager import GithubFileManager
+import requests
+import os
+import json
+import time
+import random
+import hashlib
+import datetime
+import base64
+import pandas as pd
 from notify import send
 
-title_name = '哪吒汽车'
-appVersion = "6.4.1"
+appVersion = "6.4.2"
+
 filepath = "/ql/data/env/nzqc.json"
-appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
-sign_string = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-# xiaoquan_openId_list = os.getenv("nz_xq").split('\n')
+with open(filepath, 'r') as f:
+    all_data = json.load(f)
 
-miScales2 = {"spuId": "1639094260312801281", "skuId": "1639094260384104450", "paymentPrice": 69, "stock": 0}
-miHairDryer = {"spuId": "1747913042685448194", "skuId": "1747913042731585537", "paymentPrice": 88, "stock": 0}
+def send_request(method, url, **kwargs):
+    time_out = 10  # 请求超时
+    try:
+        method = method.upper()
+        if method not in ['GET', 'POST', 'PUT']:
+            raise ValueError(f"不支持 {method} 请求方法")
+            return False
+        response = requests.request(method, url, timeout=time_out, **kwargs)
+        return response.json()
+    except requests.exceptions.Timeout as e:
+        print("请求超时:", str(e))
+    except requests.exceptions.RequestException as e:
+        print("请求错误:", str(e))
+    except ValueError as e:
+        print("值错误:", str(e))
+    except Exception as e:
+        print("其他错误:", str(e))
+    return False
 
-debug = 0
+class GithubFile:
+    def __init__(self, file_path):
+        self.gh = Github(os.getenv('github_token'))
+        self.repo = self.gh.get_repo('inoyna12/updateTeam')
+        self.file_path = file_path
+        self.commit_message = "Updated the file"
+        self.file_info = self.repo.get_contents(self.file_path)
 
-def get_stock(goods):
-    url = 'https://shop-wap.hozonauto.com/gateway/mallapi/goodsspu/detail/' + goods['spuId']
-    headers = {
-        'Host': 'shop-wap.hozonauto.com',
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0.6045.193 Mobile Safari/537.36',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-    }
-    response = requests.get(url, headers=headers)
-    result = response.json()
-    if result['ok'] is True:
-        name = result['data']['name']
-        stock = result['data']['skus'][0]['stock']
-        skuId = result['data']['skuId']
-        salesPrice = int(result['data']['salesPrice'])
-        spuId = result['data']['skus'][0]['spuId']
-        if stock > 0:
-            goods['skuId'] = skuId
-            goods['paymentPrice'] = salesPrice
-            goods['stock'] = stock
-        print(f"{name}：{stock}")
-
-def send_request(url, method='GET', **kwargs):
-    attempt = 0
-    MAX_RETRIES = 3  # 重试次数
-    sleep_time = 30  # 重试等待时间
-    time_out = 30  # 请求超时
-    while attempt < MAX_RETRIES:
-        try:
-            method = method.upper()
-            if method not in ['GET', 'POST', 'PUT']:
-                raise ValueError(f'Unsupported HTTP method "{method}" provided.')
-            response = requests.request(method, url, timeout=time_out, **kwargs)
-            response.raise_for_status()
-            if debug:
-                print(response.json())
-            return response.json()
-        except requests.exceptions.Timeout as e:
-            print(f"请求超时 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
-        except requests.exceptions.RequestException as e:
-            print(f"请求错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
-        except ValueError as e:
-            print(f"值错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
-        except Exception as e:
-            print(f"其他错误 (尝试 {attempt + 1}/{MAX_RETRIES}):", str(e))
-        attempt += 1
-        if attempt < MAX_RETRIES:
-            time.sleep(sleep_time)
+        # 检查文件大小
+        if self.file_info.size > 1048576:  # 1MB 限制
+            print(f"文件 {self.file_path} 大小超过限制，无法直接读取。")
+            self.content = None
         else:
-            print("超过最大重试次数")
-            return None
+            self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
+            print(f"读取 github {self.file_path} 文件成功！")
 
-# 刷新token
-def refreshApiToken():
-    url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-    now = datetime.datetime.now()
-    formatted_time = now.strftime('%Y-%m-%d %H:%M:%S')
-    nonce = random_number(10)
-    timestamp = int(time.time() * 1000)
-    sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{user['refresh_token']}{sign_string}"
-    headers = {
-        "Authorization": user['access_token'],
-        "appId": "HOZON-B-xKrgEvMt",
-        "appKey": appKey,
-        "appVersion": appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        "nonce": str(nonce),
-        "phoneModel": "Redmi 22081212C",
-        "timestamp": str(timestamp),
-        "sign": sha256encode(sign),
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Host": "appapi-pki.chehezhi.cn:18443"
-    }
-    data = {
-        "refreshToken": user['refresh_token']
-    }
-    result = send_request(url, 'POST', headers=headers, data=data)
-    if result is None:
-        send(f"哪吒token获取失败：{user['mobile']}", "账号异常")
-        return False
-    if result['success'] is True:
-        print("刷新Authorization成功")
-        user['access_token'] = result['data']['access_token']
-        user['refresh_token'] = result['data']['refresh_token']
-        user['token_time'] = str(formatted_time)
-        return True
-    else:
-        print(result)
-        send(f"哪吒token获取失败：{index}", str(result))
-        return False
+    def update(self, new_content):
+        encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
 
-#签到
-def sign():
-    url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-    nonce = random_number(10)
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': str(nonce),
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256encode(sign),
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {user['access_token']}",
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    result = send_request(url, 'GET', headers=headers)
-    print(result['message'])
-    if "积分" in result['message']:
-        user['sign'] = True
-        return 0
-    elif result['message'] == "请不要重复签到":
-        user['sign'] = True
-        return 1
-    elif result['message'] == "服务器异常":
-        print("异常")
-    else:
-        print(result)
-        send(f"哪吒签到失败：{index}", str(result))
+        try:
+            self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
+            print(f"更新 github {self.file_path} 文件成功！")
+        except Exception as e:
+            print(f"更新文件时出错: {e}")
 
-# 转发  
-def forwarArticle():
-    url = 'https://appapi-pki.chehezhi.cn/hznz/app_article/forwarArticle'
-    for i in range(5):
-        articleId = random.choice(xiaoquan_openId_list)
+class Nzqc:
+    def __init__(self):
+        self.appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
+        self.sign_str = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
+        self.tenant_id = '1501391403178266624'
+        self.orderKey = 'HOZON-AES-KEY-EN'
+        self.date_md = datetime.datetime.now().strftime("%m-%d")
+        self.brand_model = pd.read_csv('utils/brand_model.csv')
+
+    def sha256_encode(self, mystr):
+        hash_object = hashlib.sha256(mystr.encode('utf-8'))
+        hex_dig = hash_object.hexdigest()
+        return hex_dig
+
+    def xiequProxy(self):
+        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=0&type=2&so=1&ow=1&spl=1&addr=&db=1'
+        testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
+        for i in range(5):
+            result = send_request('GET', url)
+            if result:
+                if result['code'] == 0:
+                    proxy_ip = result['data'][0]['IP']
+                    proxy_port = result['data'][0]['Port']
+                    print("代理：" + proxy_ip)
+                    proxyMeta = "http://%(host)s:%(port)s" % {
+                      "host" : proxy_ip,
+                      "port" : proxy_port,
+                    }
+                    self.proxies = {
+                      "http": proxyMeta,
+                      "https": proxyMeta,
+                    }
+                    resp = requests.get(testurl, proxies=self.proxies)
+                    if resp.status_code == 200 and resp.text == proxy_ip:
+                        return True
+                    print(f"{self.proxies['http']}：连接失败！！！")
+                elif '白名单' in result['msg']:
+                    print(result)
+                    break
+                else:
+                    print(result)
+            time.sleep(60)
+        send(title_name + "---停止运行", "获取代理IP失败！")
+        exit()
+
+    def newList(self, lst):
+        new_lst = sorted(lst, key=lambda x: x['creditScore'], reverse=True)
+        return new_lst
+
+    def refreshApiToken(self, mydict):
+        url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
+        nonce = random_number = ''.join(random.choices('0123456789', k=10))
+        timestamp = int(time.time() * 1000)
+        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{mydict['refresh_token']}{self.sign_str}"
+        headers = {
+                "Authorization": mydict['refresh_token'],
+                "appId": "HOZON-B-xKrgEvMt",
+                "appKey": self.appKey,
+                "appVersion": appVersion,
+                'login_channel': '1',
+                'channel': 'android',
+                "nonce": str(nonce),
+                "phoneModel": f"{self.brand} {self.model}",
+                "timestamp": str(timestamp),
+                "sign": self.sha256_encode(sign),
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Host": "appapi-pki.chehezhi.cn:18443"
+        }
+        data = f"refreshToken={mydict['refresh_token']}"
+        result = send_request('POST', url, headers=headers, data=data, proxies=self.proxies)
+        if result:
+            print(f"刷新token：{result['success']}")
+            if result['code'] == 20000:
+                self.Authorization = result['data']['access_token']
+                mydict['refresh_token'] = result['data']['refresh_token']
+                return True
+            else:
+                print(result)
+                send(title_name + "---停止运行", "刷新token失败")
+                exit()
+
+    def sign(self, mydict):
+        url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
         nonce = random_number(10)
         timestamp = int(time.time() * 1000)
-        sign = f'PUT%2Fhznz%2Fapp_article%2FforwarArticleappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
+        sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
         headers = {
-            'Accept': 'application/json',
             'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': appKey,
+            'appKey': self.appKey,
             'appVersion': appVersion,
             'login_channel': '1',
             'channel': 'android',
             'nonce': str(nonce),
-            'phoneModel': 'Redmi 22081212C',
+            'phoneModel': f"{self.brand} {self.model}",
             'timestamp': str(timestamp),
-            'sign': sha256encode(sign),
+            'sign': self.sha256encode(sign),
             'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {user['access_token']}",
-            'Content-Type': 'application/json',
-            'Content-Length': '48',
+            'User-Agent': f'Mozilla/5.0 (Linux; U; Android 12; zh-cn; {self.model} Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {self.Authorization}",
             'Host': 'appapi-pki.chehezhi.cn:18443',
             'Connection': 'Keep-Alive'
         }
-        json_data = {
-            'articleId': articleId,
-            'forwardTo': '1'
+        result = send_request('GET', url, headers=headers, proxies=self.proxies)
+        if result:
+            print(f"签到：{result['message']}")
+            if result['code'] == 200 and "连续" in result['message']:
+                mydict['signdate'] = self.date_md
+            elif result['message'] == "请不要重复签到":
+                pass
+            else:
+                print(result)
+                send(title_name + "---停止运行", "签到失败")
+                exit()
+
+    def getCustomer(self, mydict):
+        url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
+        nonce = random_number(10)
+        timestamp = int(time.time() * 1000)
+        sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
+        headers = {
+            'appId': 'HOZON-B-xKrgEvMt',
+            'appKey': self.appKey,
+            'appVersion': appVersion,
+            'login_channel': '1',
+            'channel': 'android',
+            'nonce': str(nonce),
+            'phoneModel': f"{self.brand} {self.model}",
+            'timestamp': str(timestamp),
+            'sign': self.sha256encode(sign),
+            'Accept-Language': 'zh-CN,zh;q=0.8',
+            'User-Agent': f'Mozilla/5.0 (Linux; U; Android 12; zh-cn; {self.model} Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
+            'Authorization': f"Bearer {self.Authorization}",
+            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'Connection': 'Keep-Alive'
         }
-        result = send_request(url, 'PUT', headers=headers, json=json_data)
-        if result is None:
-            continue
-        print(f"转发{articleId}：{result['message']}")
-        if "转发成功" in result['message']:
-            user['share'] = user['share'] + 1
-        if user['share'] == 3:
-            return
-        time.sleep(random.randint(2, 5))
-    send(f"哪吒转发失败：{index}", str(result))
+        result = send_request('GET', url, headers=headers, proxies=self.proxies)
+        if result:
+            if result['message'] == "成功":
+                creditScore = result['data']['creditScore']
+                print(f"积分：{creditScore}")
+                mydict['creditScore'] = creditScore
+            else:
+                print(result)
 
-#查询
-def getCustomer():
-    url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
-    nonce = random_number(10)
-    timestamp = int(time.time() * 1000)
-    sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{appKey}nonce%3A{nonce}timestamp%3A{timestamp}{sign_string}'
-    headers = {
-        'appId': 'HOZON-B-xKrgEvMt',
-        'appKey': appKey,
-        'appVersion': appVersion,
-        'login_channel': '1',
-        'channel': 'android',
-        'nonce': str(nonce),
-        'phoneModel': 'Redmi 22081212C',
-        'timestamp': str(timestamp),
-        'sign': sha256encode(sign),
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-        'Authorization': f"Bearer {user['access_token']}",
-        'Host': 'appapi-pki.chehezhi.cn:18443',
-        'Connection': 'Keep-Alive'
-    }
-    result = send_request(url, 'GET', headers=headers)
-    if result is None:
-        return
-    if result['message'] == "成功":
-        creditScore = result['data']['creditScore']
-        phone = result['data']['phone']
-        user['mobile'] = phone
-        user['creditScore'] = creditScore
-        print(f"{phone}：{creditScore}积分")
-    else:
-        print(result)
-        send(f"哪吒查询失败：{index}", str(result))
-
-# 查询限购
-def orderinfo(goods):
-    url = 'https://shop-wap.hozonauto.com/gateway/mallapi/orderinfo'
-    headers = {
-        'Host': 'shop-wap.hozonauto.com',
-        'Content-Length': '279',
-        'Authorization': f"Bearer {user['access_token']}",
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.6099.144 Mobile Safari/537.36',
-        'Content-Type': 'application/json',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-    }
-    json_data = {
-        "payType": "CASH",
-        "deliveryWay": "1",
-        "isRecommend": 0,
-        "orderType": "0",
-        "userAddressId": "",
-        "userType": 0,
-        "skus": [
-            {
-                "freightPrice": 0,
-                "paymentPoints": 0,
-                "paymentPointsPrice": 0,
-                "paymentPrice": goods['paymentPrice'],
-                "quantity": 1,
-                "skuId": goods['skuId'],
-                "spuId": goods['spuId']
-            }
-        ]
-    }
-    try:
-        response = requests.post(url, headers=headers, json=json_data)
-        result = response.json()
-        print(result)
-        if result['msg'] is None:
-            return True
-        else:
-            return False
-    except Exception as e:
-        send(f"哪吒查询限购失败：{index}", result)
-    return None
-
-# 消息推送
-def msg_send():
-    msg = []
-    new_data_list = sorted(data_list, key=lambda x: x['creditScore'], reverse=True)#从大到小排序
-    for new_data in new_data_list:
-        phone = new_data['mobile']
-        creditScore = new_data['creditScore']
-        msg.append(f"{phone}：{creditScore}积分")
-    print('\n'.join(msg))
-
-# github推送
-def git_github():
-    access_token = os.getenv('github_token')
-    file_manager = GithubFileManager(access_token)
-    repo_name = "inoyna12/updateTeam"
-    branch = "master"
-    file_path = "哪吒汽车/nzqc.json"
-    new_content = json.dumps(data_list)
-    commit_message = f"Update {file_path}"
-    file_manager.update_file_content(repo_name, file_path, new_content, commit_message, branch)
-
-# 主线程
-def main():
-    if refreshApiToken() is False:
-        return 
-#    sign()
-    getCustomer()
-
+    def main(self, mydict):
+        random_row = self.brand_model.sample(n=1)
+        self.brand = random_row['brand'].values[0]
+        self.model = random_row['model'].values[0]
+        self.index = index
+        self.xiequProxy()
+        if self.refreshApiToken(mydict):
+            self.sign(mydict)
+            self.getCustomer(mydict)
+            with open(filepath, 'w') as f:
+                json.dump(all_data, f, indent=2)
+     
 if __name__ == '__main__':
-    with open(filepath, 'r', encoding='utf-8') as f:
-        data_list = json.load(f)
-    print(f"共找到{len(data_list)}个账号")
-    for index, user in enumerate(data_list, start = 1):
-        print(f"\n{'-' * 13}正在执行第{index}/{len(data_list)}个账号{'-' * 13}")
-        if user['sign'] is True:
-            continue
-        main()
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(data_list, f)
-        if index < len(data_list):
-            randomSleep(10, 20)
+    nzqc = nzqc()
+    gh_nzqc = GithubFile('哪吒汽车/nzqc.json')
+    random.shuffle(all_data)
+    for index, my_dict in enumerate(all_data, start = 1):
+        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['phone']}：")
+        if my_dict['signdate'] != nzqc.date_md:
+            nzqc.main(index, my_dict)
+            if index < len(all_data):
+                randomSleep(10,20)
+        else:
+            print("已签到，跳过")
+    gh_nzqc.update(nzqc.newList(all_data))
