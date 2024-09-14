@@ -208,7 +208,7 @@ class Nzqc:
             else:
                 print(result)
 
-    def main(self, mydict):
+    def main(self, index, mydict):
         random_row = self.brand_model.sample(n=1)
         self.brand = random_row['brand'].values[0]
         self.model = random_row['model'].values[0]
