@@ -79,7 +79,7 @@ class Nzqc:
         self.date_md = datetime.datetime.now().strftime("%m-%d")
         self.brand_model = pd.read_csv('utils/brand_model.csv')
 
-    def sha256_encode(self, mystr):
+    def sha256encode(self, mystr):
         hash_object = hashlib.sha256(mystr.encode('utf-8'))
         hex_dig = hash_object.hexdigest()
         return hex_dig
@@ -134,7 +134,7 @@ class Nzqc:
                 "nonce": str(nonce),
                 "phoneModel": f"{self.brand} {self.model}",
                 "timestamp": str(timestamp),
-                "sign": self.sha256_encode(sign),
+                "sign": self.sha256encode(sign),
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Host": "appapi-pki.chehezhi.cn:18443"
         }
