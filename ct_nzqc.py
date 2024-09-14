@@ -225,7 +225,7 @@ if __name__ == '__main__':
     gh_nzqc = GithubFile('哪吒汽车/nzqc.json')
     random.shuffle(all_data)
     for index, my_dict in enumerate(all_data, start = 1):
-        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['phone']}：")
+        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['mobile']}：")
         if my_dict['signdate'] != nzqc.date_md:
             nzqc.main(index, my_dict)
             if index < len(all_data):
