@@ -220,7 +220,7 @@ class Nzqc:
                 json.dump(all_data, f, indent=2)
      
 if __name__ == '__main__':
-    nzqc = nzqc()
+    nzqc = Nzqc()
     gh_nzqc = GithubFile('哪吒汽车/nzqc.json')
     random.shuffle(all_data)
     for index, my_dict in enumerate(all_data, start = 1):
