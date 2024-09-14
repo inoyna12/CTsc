@@ -14,6 +14,7 @@ import pandas as pd
 from github import Github
 from notify import send
 
+title_name = '哪吒汽车'
 appVersion = "6.4.2"
 
 filepath = "/ql/data/env/nzqc.json"
