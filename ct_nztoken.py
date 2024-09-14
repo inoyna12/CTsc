@@ -16,7 +16,7 @@ def ql_env(name):
         print("未添加变量")
         sys.exit(0)
         
-phone_list = ql_env("NZmy_phone")
+phone_list = ql_env("nzphone")
 print(f"共找到{len(phone_list)}个账号\n\n")
 filepath = "/ql/data/env/nzqc.json"
 
