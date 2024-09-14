@@ -34,7 +34,8 @@ def send_request(method, url, **kwargs):
             raise ValueError(f"不支持 {method} 请求方法")
             return False
         response = requests.request(method, url, timeout=time_out, **kwargs)
-        return response.json()
+        result = response.json()
+        return result
     except requests.exceptions.Timeout as e:
         print("请求超时:", str(e))
     except requests.exceptions.RequestException as e:
