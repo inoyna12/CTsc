@@ -40,7 +40,7 @@ def send_request(method, url, **kwargs):
     except requests.exceptions.RequestException as e:
         print("请求错误:", str(e))
     except ValueError as e:
-        print("值错误:", str(e))
+        return response.text
     except Exception as e:
         print("其他错误:", str(e))
     return False
@@ -102,8 +102,8 @@ class Nzqc:
                       "http": proxyMeta,
                       "https": proxyMeta,
                     }
-                    resp = requests.get(testurl, proxies=self.proxies)
-                    if resp.status_code == 200 and resp.text == proxy_ip:
+                    resp = send_request('GET', testurl, proxies=self.proxies)
+                    if resp:
                         return True
                     print(f"{self.proxies['http']}：连接失败！！！")
                 elif '白名单' in result['msg']:
