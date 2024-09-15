@@ -185,6 +185,8 @@ class Nzqc:
                 mydict['signdate'] = self.date_md
             elif result['message'] == "请不要重复签到":
                 pass
+            elif result['message'] == "服务器异常":
+                pass
             else:
                 print(result)
                 send(title_name + "---停止运行", "签到失败")
