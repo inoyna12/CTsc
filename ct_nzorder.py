@@ -117,11 +117,11 @@ class Order:
             if result['code'] == 0:
                 results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
                 for i in results['records']:
-                """
-                1：待发货
-                2：待收货
-                3：已完成
-                """
+                    """
+                    1：待发货
+                    2：待收货
+                    3：已完成
+                    """
                     quantity = i['listOrderItem'][0]['quantity']
                     userName = i['orderLogistics']['userName']
                     telNum = i['orderLogistics']['telNum']
