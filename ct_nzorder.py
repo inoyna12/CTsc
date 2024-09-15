@@ -15,7 +15,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from notify import send
 
-appVersion = "6.4.1"
+appVersion = "6.4.2"
 
 filepath = "/ql/data/env/nzqc.json"
 phone_lst = os.getenv("nzphone").split('\n')
@@ -84,11 +84,11 @@ class Order:
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Host": "appapi-pki.chehezhi.cn:18443"
         }
+        print(headers)
         data = f"refreshToken={refreshToken}"
         result = send_request('POST', url, headers=headers, data=data)
         if result:
             if result['code'] == 20000:
-                print("刷新token成功")
                 self.Authorization = result['data']['access_token']
                 return True
                 
@@ -115,8 +115,34 @@ class Order:
         result = send_request('GET', url, headers=headers)
         if result:
             if result['code'] == 0:
-                content = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
-                print(content)
+                results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
+                for i in results['records']:
+                '''
+                1：待发货
+                2：待收货
+                3：已完成
+                '''
+                    quantity = i['listOrderItem'][0]['quantity']
+                    userName = i['orderLogistics']['userName']
+                    telNum = i['orderLogistics']['telNum']
+                    address = i['orderLogistics']['address']
+                    if i['status'] == '1':
+                        print(f'''
+                          商品：{i['name']}*{quantity}
+                          收货地址：{userName} {telNum} {address}
+                          订单状态：{i['statusDesc']}
+                        ''')
+                    elif i['status'] == '2':
+                        print(f'''
+                          商品：{i['name']}*{quantity}
+                          收货地址：{userName} {telNum} {address}
+                          订单状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
+                        ''')
+                    elif i['status'] == '3':
+                        pass
+                    else:
+                        print(results)
+                        exit()
 
     def main(self, refreshtoken):
         if self.refreshApiToken(refreshtoken):
@@ -129,3 +155,4 @@ if __name__ == '__main__':
         for dct in all_data:
             if dct['mobile'] == phone:
                 order.main(dct['refresh_token'])
+        time.sleep(10)
