@@ -137,12 +137,12 @@ class Order:
                           收货地址：{userName} {telNum} {address}
                           订单状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
                         '''
-                    print(order_details.lstrip())
                     elif i['status'] == '3':
                         pass
                     else:
                         print(results)
                         exit()
+                    print(order_details.lstrip())
 
     def main(self, refreshtoken):
         if self.refreshApiToken(refreshtoken):
