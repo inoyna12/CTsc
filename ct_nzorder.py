@@ -84,7 +84,6 @@ class Order:
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Host": "appapi-pki.chehezhi.cn:18443"
         }
-        print(headers)
         data = f"refreshToken={refreshToken}"
         result = send_request('POST', url, headers=headers, data=data)
         if result:
@@ -131,13 +130,13 @@ class Order:
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
                           订单状态：{i['statusDesc']}
-                        ''')
+                        ''').strip()
                     elif i['status'] == '2':
                         print(f'''
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
                           订单状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
-                        ''')
+                        ''').strip()
                     elif i['status'] == '3':
                         pass
                     else:
