@@ -241,7 +241,7 @@ if __name__ == '__main__':
         if my_dict['signdate'] != nzqc.date_md:
             nzqc.main(index, my_dict)
             if index < len(all_data):
-                randomSleep(10,20)
+                randomSleep(0,10)
         else:
             print("已签到，跳过")
     gh_nzqc.update(nzqc.newList(all_data))
