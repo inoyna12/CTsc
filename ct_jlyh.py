@@ -1,25 +1,34 @@
 '''
-cron: 6 13 * * *
-new Env('哪吒汽车');
+cron: 36 6 * * *
+new Env('吉利银河');
 '''
 import requests
-import os
-import json
-import time
-import random
-import hashlib
 import datetime
+import time
+import uuid
+import textwrap
+import hmac
+import hashlib
 import base64
-import pandas as pd
+import json
+import random
+import string
+import os
+from urllib.parse import urlparse
 from github import Github
 from notify import send
 
-title_name = '哪吒汽车'
-appVersion = "6.4.2"
+title_name = "吉利银河"
+appVersion = "1.21.0"
 
-filepath = "/ql/data/env/nzqc.json"
+filepath = "/ql/data/env/jlyh.json"
 with open(filepath, 'r') as f:
     all_data = json.load(f)
+
+# 签到，分享，获取积分, 遍历帖子
+key = {'x-ca-key': '204453306', 'secret-key': 'uUwSi6m9m8Nx3Grx7dQghyxMpOXJKDGu'}
+# 刷新token
+key2 = {'x-ca-key': '204179735', 'secret-key': 'UhmsX3xStU4vrGHGYtqEXahtkYuQncMf'}
 
 def randomSleep(min_val, max_val):
     num = random.randint(min_val, max_val)
@@ -70,172 +79,412 @@ class GithubFile:
         except Exception as e:
             print(f"更新文件时出错: {e}")
 
-class Nzqc:
+class Jlyh:
     def __init__(self):
-        self.appKey = 'e0ae89fb37b6151889c6de3ba6b84e0d3a67f52cd5767758d4186fefff8f763c'
-        self.sign_str = '8b53846c4eb40e3f58df334a2f2ca0af6fba86f7999afd0b2ba794edc450b937'
-        self.tenant_id = '1501391403178266624'
-        self.orderKey = 'HOZON-AES-KEY-EN'
         self.date_md = datetime.datetime.now().strftime("%m-%d")
-        self.brand_model = pd.read_csv('utils/brand_model.csv')
+        self.id_list = self.get_id()
+        self.fail = 0
+        
 
-    def sha256_encode(self, mystr):
-        hash_object = hashlib.sha256(mystr.encode('utf-8'))
-        hex_dig = hash_object.hexdigest()
-        return hex_dig
-
-    def xiequProxy(self):
-        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=0&type=2&so=1&ow=1&spl=1&addr=&db=1'
-        testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
+    
+    def newList(self, lst):
+        new_lst = sorted(lst, key=lambda x: int(x['availablePoints']), reverse=True)
+        return new_lst
+                  
+    def getProxy(self):
+        url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
+        testurl = "https://www.juliangip.com/api/general/Test"
         for i in range(5):
             result = send_request('GET', url)
             if result:
-                if result['code'] == 0:
-                    proxy_ip = result['data'][0]['IP']
-                    proxy_port = result['data'][0]['Port']
+                if result['code'] == 200:
+                    proxy_ip = result['data']['proxy_list'][0]
                     print("代理：" + proxy_ip)
-                    proxyMeta = "http://%(host)s:%(port)s" % {
-                      "host" : proxy_ip,
-                      "port" : proxy_port,
-                    }
                     self.proxies = {
-                      "http": proxyMeta,
-                      "https": proxyMeta,
+                      "http": proxy_ip,
+                      "https": proxy_ip,
                     }
-                    resp = requests.get(testurl, proxies=self.proxies)
-                    if resp.status_code == 200 and resp.text == proxy_ip:
-                        return True
+                    res = send_request('GET', testurl, proxies=self.proxies)
+                    if res:
+                        if res['state'] == 'ok':
+                            return True
                     print(f"{self.proxies['http']}：连接失败！！！")
-                elif '白名单' in result['msg']:
-                    print(result)
-                    break
                 else:
                     print(result)
-            time.sleep(60)
-        send(title_name + "---停止运行", "获取代理IP失败！")
+            time.sleep(60)      
+        send(title_name + "---异常", "获取代理IP失败！")
         exit()
 
-    def newList(self, lst):
-        new_lst = sorted(lst, key=lambda x: x['creditScore'], reverse=True)
-        return new_lst
+    def hmacSHA256(self, key, message):
+        hmac_obj = hmac.new(key.encode(), message.encode(), hashlib.sha256)
+        hmac_digest = hmac_obj.digest()
+        hmac_base64 = base64.b64encode(hmac_digest).decode()
+        return hmac_base64
 
-    def refreshApiToken(self, mydict):
-        url = 'https://appapi-pki.chehezhi.cn/customer/account/info/refreshApiToken'
-        nonce  = ''.join(random.choices('0123456789', k=10))
-        timestamp = int(time.time() * 1000)
-        sign = f"POST%2Fcustomer%2Faccount%2Finfo%2FrefreshApiTokenappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}refreshtoken%3A{mydict['refresh_token']}{self.sign_str}"
-        headers = {
-                "Authorization": mydict['refresh_token'],
-                "appId": "HOZON-B-xKrgEvMt",
-                "appKey": self.appKey,
-                "appVersion": appVersion,
-                'login_channel': '1',
-                'channel': 'android',
-                "nonce": str(nonce),
-                "phoneModel": f"{self.brand} {self.model}",
-                "timestamp": str(timestamp),
-                "sign": self.sha256_encode(sign),
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Host": "appapi-pki.chehezhi.cn:18443"
-        }
-        data = f"refreshToken={mydict['refresh_token']}"
-        result = send_request('POST', url, headers=headers, data=data, proxies=self.proxies)
-        if result:
-            print(f"刷新token：{result['success']}")
-            if result['code'] == 20000:
-                self.Authorization = result['data']['access_token']
-                mydict['refresh_token'] = result['data']['refresh_token']
-                return True
-            else:
-                print(result)
-                send(title_name + "---停止运行", "刷新token失败")
-                exit()
+    def md5Base64(self, content):
+        md5_hash = hashlib.md5(content.encode()).digest()
+        base64_encoded = base64.b64encode(md5_hash).decode()
+        return base64_encoded
 
-    def sign(self, mydict):
-        url = 'https://appapi-pki.chehezhi.cn/hznz/customer/sign'
-        nonce  = ''.join(random.choices('0123456789', k=10))
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fcustomer%2Fsignappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
+    def s_s_info(self, str_dict):
+        sweet_security_info = json.loads(str_dict)
+        sweet_security_info['appVersion'] = appVersion
+        sweet_security_info['battery'] = str(random.randint(20, 99))
+        s_info = json.dumps(sweet_security_info, separators=(',', ':'))
+        return s_info
+            
+    def refreshtoken(self, my_dict):
+        url = f"https://galaxy-user-api.geely.com/api/v1/login/refresh?refreshToken={my_dict['refreshToken']}"
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        url_path = urlparse(url).path
+        x_ca_signature = textwrap.dedent(f"""\
+            GET
+            application/json; charset=utf-8
+            
+            application/x-www-form-urlencoded; charset=utf-8
+            {date}
+            x-ca-appcode:galaxy-app-user
+            x-ca-key:{key2['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}?{urlparse(url).query}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key2['secret-key'], x_ca_signature)
         headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': self.appKey,
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'galaxy-app-user',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key2['x-ca-key'],
+            'ca_version': '1',
+            'accept': 'application/json; charset=utf-8',
+            'x-ca-timestamp': x_ca_timestamp,
+            'tenantid': '569001701001',
+            'host': 'galaxy-user-api.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-timestamp,x-ca-key',
+            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'deviceSN': "",
+            'appId': 'galaxy-app',
             'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': f"{self.brand} {self.model}",
-            'timestamp': str(timestamp),
-            'sign': self.sha256encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': f'Mozilla/5.0 (Linux; U; Android 12; zh-cn; {self.model} Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {self.Authorization}",
-            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
             'Connection': 'Keep-Alive'
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
         if result:
-            print(f"签到：{result['message']}")
-            if result['code'] == 200 and "连续" in result['message']:
-                mydict['signdate'] = self.date_md
-            elif result['message'] == "请不要重复签到":
+            print(f"刷新token：{result['message']}")
+            if result['code'] == 'success' and result['message'] == '接口调用成功':
+                self.token = result['data']['centerTokenDto']['token']
+                my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
+                return True
+            elif result['code'] == 'user_refresh_invalid_expired':
+                invalid_list = gh_invalid.content
+                for i in invalid_list:
+                    if i['phone'] == my_dict['phone']:
+                        print("号码已存在，不加入")
+                        break
+                else:
+                    dict_new = {
+                        'phone': my_dict['phone'],
+                        'password': my_dict['password']
+                    }
+                    invalid_list.append(dict_new)
+            else:
+                print(result)
+                send(title_name + "==停止运行", str(result))
+                exit()
+                
+    def signAdd(self, my_dict):
+        url = 'https://galaxy-app.geely.com/app/v1/sign/add'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        body = {
+            "headers":{
+                "appVersion":appVersion,
+                "methodType":"6",
+                "use_security":"true"
+            },
+            "signType":0
+        }
+        str_body = json.dumps(body, separators=(',', ':'))
+        md5_base64 = self.md5Base64(str_body)
+        x_ca_signature = textwrap.dedent(f"""\
+            POST
+            application/json; charset=utf-8
+            {md5_base64}
+            application/json; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'methodtype': '6',
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'content-md5': md5_base64,
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'token': self.token,
+            'imei': my_dict['imei'],
+            'os': '12',
+            'sweet_security_info': self.sweet_security_info,
+            'deviceSN': my_dict['deviceSN'],
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json; charset=utf-8',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
+        if result:
+            print(result)
+            print(f"签到：{result['msg']}")
+            if result['msg'] == 'SUCCESS' and "success":
+                my_dict['signdate'] = self.date_md
+            elif result['msg'] == '今日已签到':
                 pass
             else:
                 print(result)
-                send(title_name + "---停止运行", "签到失败")
                 exit()
-
-    def getCustomer(self, mydict):
-        url = 'https://appapi-pki.chehezhi.cn/hznz/customer/getCustomer'
-        nonce  = ''.join(random.choices('0123456789', k=10))
-        timestamp = int(time.time() * 1000)
-        sign = f'GET%2Fhznz%2Fcustomer%2FgetCustomerappid%3AHOZON-B-xKrgEvMtappkey%3A{self.appKey}nonce%3A{nonce}timestamp%3A{timestamp}{self.sign_str}'
+        
+              
+    def get_id(self):
+        url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        
+        body = {
+            "pageSize": 20,
+            "type": 2,
+            "pageNum": 1
+        }
+        str_body = json.dumps(body, separators=(',', ':'))
+        md5_base64 = self.md5Base64(str_body)
+        x_ca_signature = textwrap.dedent(f"""\
+            POST
+            application/json; charset=utf-8
+            {md5_base64}
+            application/json; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        
         headers = {
-            'appId': 'HOZON-B-xKrgEvMt',
-            'appKey': self.appKey,
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'ca_version': '1',
+            'accept': 'application/json; charset=utf-8',
+            'content-md5': md5_base64,
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'appId': 'galaxy-app',
             'appVersion': appVersion,
-            'login_channel': '1',
-            'channel': 'android',
-            'nonce': str(nonce),
-            'phoneModel': f"{self.brand} {self.model}",
-            'timestamp': str(timestamp),
-            'sign': self.sha256encode(sign),
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'User-Agent': f'Mozilla/5.0 (Linux; U; Android 12; zh-cn; {self.model} Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-            'Authorization': f"Bearer {self.Authorization}",
-            'Host': 'appapi-pki.chehezhi.cn:18443',
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json; charset=utf-8',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request('POST', url, headers=headers, data=str_body)
+        if result:
+            id_list = []
+            for i in result['data']['list']:
+                text_data = i.get('longtext') or i.get('dynamic')
+                if text_data:
+                    createTime = text_data.get('createTime')
+                    id_list.append(text_data['id'])
+                    print(createTime)
+                    print(len(id_list))
+            if len(id_list) > 10:
+                return id_list
+        exit()
+                
+    def share(self, my_dict):
+        content_id = random.choice(self.id_list)
+        url = 'https://galaxy-app.geely.com/h5/v1/square/content/share'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        
+        body = {
+            "shareCode": "",
+            "headers": {
+                "appVersion": appVersion,
+                "methodType": "5",
+                "use_security": "true"
+            },
+            "openTimeStamp": int(x_ca_timestamp),
+            "shareMethod": "2",
+            "shareContentURL": f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/dynamic_detail/dynamic_detail?isCordova=1&showTitleBar=0&id={content_id}",
+            "shareContentType": 2
+        }
+        str_body = json.dumps(body, separators=(',', ':'))
+        md5_base64 = self.md5Base64(str_body)
+        x_ca_signature = textwrap.dedent(f"""\
+            POST
+            application/json; charset=utf-8
+            {md5_base64}
+            application/json; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'methodtype': '5',
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'content-md5': md5_base64,
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'token': self.token,
+            'imei': my_dict['imei'],
+            'os': '12',
+            'sweet_security_info': self.sweet_security_info,
+            'deviceSN': my_dict['deviceSN'],
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json; charset=utf-8',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
+        if result:
+            print(f"分享：{result['msg']}")
+            if result['msg'] == 'SUCCESS' and "success":
+                pass
+            else:
+                print(result)
+                exit()
+            
+    def getPoints(self, my_dict):
+        url = 'https://galaxy-app.geely.com/h5/v1/points/get'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        x_ca_signature = textwrap.dedent(f"""\
+            GET
+            application/json; charset=utf-8
+            
+            application/x-www-form-urlencoded; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'token': self.token,
+            'deviceSN': my_dict['deviceSN'],
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
             'Connection': 'Keep-Alive'
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
         if result:
-            if result['message'] == "成功":
-                creditScore = result['data']['creditScore']
-                print(f"积分：{creditScore}")
-                mydict['creditScore'] = creditScore
+            if result['msg'] == 'SUCCESS':
+                my_dict['availablePoints'] = result['data']['availablePoints']
+                print(f"吉分：{result['data']['availablePoints']}")
             else:
                 print(result)
-
-    def main(self, index, mydict):
-        random_row = self.brand_model.sample(n=1)
-        self.brand = random_row['brand'].values[0]
-        self.model = random_row['model'].values[0]
+                exit()
+              
+    def main(self, index, my_dict):
+        if self.fail >= 20:
+            exit()
+        self.sweet_security_info = self.s_s_info(my_dict['sweet_security_info'])
         self.index = index
-        self.xiequProxy()
-        if self.refreshApiToken(mydict):
-            self.sign(mydict)
-            self.getCustomer(mydict)
+        self.getProxy()
+        if self.refreshtoken(my_dict):
+            self.signAdd(my_dict)
+            self.share(my_dict)
+            self.getPoints(my_dict)
             with open(filepath, 'w') as f:
                 json.dump(all_data, f, indent=2)
-     
+
 if __name__ == '__main__':
-    nzqc = Nzqc()
-    gh_nzqc = GithubFile('哪吒汽车/nzqc.json')
+    gh_jlyh = GithubFile('吉利银河/jlyh.json')
+    gh_invalid = GithubFile('吉利银河/refreshTokenInvalid.json')
+    jlyh = Jlyh()
     random.shuffle(all_data)
     for index, my_dict in enumerate(all_data, start = 1):
-        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['mobile']}：")
-        if my_dict['signdate'] != nzqc.date_md:
-            nzqc.main(index, my_dict)
+        print(f"\n{index}/{len(all_data)}{'➠'*10}{my_dict['phone']}：")
+        if my_dict['signdate'] != jlyh.date_md:
+            jlyh.main(index, my_dict)
             if index < len(all_data):
-                randomSleep(10,20)
+                randomSleep(30,60)
         else:
             print("已签到，跳过")
-    gh_nzqc.update(nzqc.newList(all_data))
+    gh_jlyh.update(jlyh.newList(all_data))
+    if len(gh_invalid.content) > 0:
+        gh_invalid.update(gh_invalid.content)
