@@ -10,7 +10,6 @@ import random
 import hashlib
 import datetime
 import base64
-import textwrap
 import pandas as pd
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
@@ -127,17 +126,18 @@ class Order:
                     telNum = i['orderLogistics']['telNum']
                     address = i['orderLogistics']['address']
                     if i['status'] == '1':
-                        textwrap.dedent(f'''
+                        order_details = f'''
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
                           订单状态：{i['statusDesc']}
-                        ''')
+                        '''
                     elif i['status'] == '2':
-                        textwrap.dedent(f'''
+                        order_details = f'''
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
                           订单状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
-                        ''').strip()
+                        '''
+                    print(order_details.lstrip())
                     elif i['status'] == '3':
                         pass
                     else:
