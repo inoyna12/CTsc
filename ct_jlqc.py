@@ -1,6 +1,6 @@
 '''
 cron: 36 6 * * *
-new Env('吉利汽车签到');
+new Env('吉利汽车');
 '''
 import requests
 import json
