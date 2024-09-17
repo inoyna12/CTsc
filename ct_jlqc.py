@@ -61,8 +61,9 @@ class GithubFile:
 
 class Jlqc:
     def __init__(self, gh_list):
-        js_code = open('utils/jlqc.js', 'r', encoding='utf-8').read()
         current_time = datetime.now()
+        with open('utils/jlqc.js', 'r', encoding='utf-8') as file:
+            js_code = file.read()
         self.js = execjs.compile(js_code)
         self.md = current_time.strftime("%m-%d")
         self.day = current_time.day
