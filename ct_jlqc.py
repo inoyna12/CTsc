@@ -95,26 +95,32 @@ class Jlqc:
         new_lst = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
         return new_lst
                   
-    def get_proxies(self):
-        url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
-        for i in range(3):
+    def getProxy(self):
+        url = 'http://v2.api.juliangip.com/postpay/getips?num=1&pt=1&result_type=json&trade_no=6901259822440703&sign=778912e4b87a3a4f47da2f0a893ce02a'
+        testurl = "https://www.juliangip.com/api/general/Test"
+        for i in range(5):
             result = send_request('GET', url)
-            if not result:
-                break
-            if result['code'] == 200:
-                proxy_ip = result['data']['proxy_list'][0]
-                print("代理：" + proxy_ip)
-                self.proxies = {
-                  "http": proxy_ip,
-                  "https": proxy_ip,
-                }
-                if self.pin_network(self.proxies):
-                    return
-            else:
-                print(result)
-                time.sleep(60)
+            if result:
+                if result['code'] == 200:
+                    proxy_ip = result['data']['proxy_list'][0]
+                    print("代理：" + proxy_ip)
+                    self.proxies = {
+                      "http": proxy_ip,
+                      "https": proxy_ip,
+                    }
+                    resp = send_request('GET', testurl, proxies=self.proxies)
+                    if resp:
+                        if resp['state'] == 'ok':
+                            return True
+                    print(f"{self.proxies['http']}：连接失败！！！")
+                elif '白名单' in result['msg']:
+                    print(result)
+                    break
+                else:
+                    print(result)
+            time.sleep(60)      
         send(title_name + "---异常", "获取代理IP失败！")
-        exit()   
+        exit()
          
     def pin_network(self, proxies):
         url = "https://www.juliangip.com/api/general/Test"
@@ -242,7 +248,7 @@ class Jlqc:
                 
     def main(self, index, my_dict):
         self.index = index
-        self.get_proxies()
+        self.getProxy()
         if self.fail >= 20:
             send(title_name + "---停止运行", self.msg)
             exit()
