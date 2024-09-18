@@ -13,7 +13,7 @@ from fake_useragent import UserAgent
 from github import Github
 from notify import send
 
-title_name = '吉利汽车签到'
+title_name = '吉利汽车'
 version = "3.24.0"
 
 filepath = "/ql/data/env/jlqc.json"
