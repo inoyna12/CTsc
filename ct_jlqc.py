@@ -95,31 +95,35 @@ class Jlqc:
         new_lst = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
         return new_lst
                   
-    def getProxy(self):
-        url = 'http://v2.api.juliangip.com/postpay/getips?num=1&pt=1&result_type=json&trade_no=6901259822440703&sign=778912e4b87a3a4f47da2f0a893ce02a'
-        testurl = "https://www.juliangip.com/api/general/Test"
+    def xiequProxy(self):
+        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=0&type=2&so=1&ow=1&spl=1&addr=&db=1'
+        testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
         for i in range(5):
             result = send_request('GET', url)
             if result:
-                if result['code'] == 200:
-                    proxy_ip = result['data']['proxy_list'][0]
+                if result['code'] == 0:
+                    proxy_ip = result['data'][0]['IP']
+                    proxy_port = result['data'][0]['Port']
                     print("代理：" + proxy_ip)
+                    proxyMeta = "http://%(host)s:%(port)s" % {
+                      "host" : proxy_ip,
+                      "port" : proxy_port,
+                    }
                     self.proxies = {
-                      "http": proxy_ip,
-                      "https": proxy_ip,
+                      "http": proxyMeta,
+                      "https": proxyMeta,
                     }
                     resp = send_request('GET', testurl, proxies=self.proxies)
                     if resp:
-                        if resp['state'] == 'ok':
-                            return True
+                        return True
                     print(f"{self.proxies['http']}：连接失败！！！")
                 elif '白名单' in result['msg']:
                     print(result)
                     break
                 else:
                     print(result)
-            time.sleep(60)      
-        send(title_name + "---异常", "获取代理IP失败！")
+            time.sleep(10)
+        send(title_name + "---停止运行", "获取代理IP失败！")
         exit()
          
     def pin_network(self, proxies):
@@ -248,10 +252,7 @@ class Jlqc:
                 
     def main(self, index, my_dict):
         self.index = index
-        self.getProxy()
-        if self.fail >= 20:
-            send(title_name + "---停止运行", self.msg)
-            exit()
+        self.xiequProxy()
         if self.sign(my_dict):
             self.available(my_dict)
             if self.day in (1, 15):
