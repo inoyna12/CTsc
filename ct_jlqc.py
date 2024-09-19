@@ -31,9 +31,14 @@ def send_request(method, url, **kwargs):
         method = method.upper()
         if method not in ['GET', 'POST', 'PUT']:
             raise ValueError(f"不支持 {method} 请求方法")
-            return False
+        
         response = requests.request(method, url, timeout=time_out, **kwargs)
-        return response.json()
+        
+        try:
+            return response.json()  # 尝试解析为 JSON
+        except ValueError:
+            return response.text  # 如果解析失败，则返回文本内容
+        
     except requests.exceptions.Timeout as e:
         print("请求超时:", str(e))
     except requests.exceptions.RequestException as e:
@@ -42,6 +47,7 @@ def send_request(method, url, **kwargs):
         print("值错误:", str(e))
     except Exception as e:
         print("其他错误:", str(e))
+    
     return False
 
 class GithubFile:
