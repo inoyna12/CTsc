@@ -109,6 +109,7 @@ class Jlqc:
             if result:
                 if result['code'] == 0:
                     proxy_ip = result['data'][0]['ip']
+                    print("代理：" + proxy_ip)
                     self.proxies = {
                       "http": proxy_ip,
                       "https": proxy_ip,
