@@ -101,23 +101,17 @@ class Jlqc:
         new_lst = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
         return new_lst
                   
-    def xiequProxy(self):
-        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
+    def wuyiProxy(self):
+        url = 'http://bapi.51daili.com/traffic/getip?linePoolIndex=1&packid=12&time=1&qty=1&port=1&format=json&field=ipport&dt=3&providerIds=3,4&usertype=17&uid=49880'
         testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
         for i in range(5):
             result = send_request('GET', url)
             if result:
                 if result['code'] == 0:
-                    proxy_ip = result['data'][0]['IP']
-                    proxy_port = result['data'][0]['Port']
-                    print("代理：" + proxy_ip)
-                    proxyMeta = "http://%(host)s:%(port)s" % {
-                      "host" : proxy_ip,
-                      "port" : proxy_port,
-                    }
+                    proxy_ip = result['data'][0]['ip']
                     self.proxies = {
-                      "http": proxyMeta,
-                      "https": proxyMeta,
+                      "http": proxy_ip,
+                      "https": proxy_ip,
                     }
                     resp = send_request('GET', testurl, proxies=self.proxies)
                     if resp:
@@ -132,13 +126,6 @@ class Jlqc:
         send(title_name + "---停止运行", "获取代理IP失败！")
         exit()
          
-    def pin_network(self, proxies):
-        url = "https://www.juliangip.com/api/general/Test"
-        result = send_request('GET', url, proxies=proxies)
-        if result:
-            return True
-        print(f"{proxies['http']}：连接失败！！！")
-        return False 
     def sign_UA(self):
         android_version = str(random.randint(7, 14))
         device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
@@ -258,7 +245,7 @@ class Jlqc:
                 
     def main(self, index, my_dict):
         self.index = index
-        self.xiequProxy()
+        self.wuyiProxy()
         if self.sign(my_dict):
             self.available(my_dict)
             if self.day in (1, 15):
