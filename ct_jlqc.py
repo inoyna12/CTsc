@@ -102,7 +102,7 @@ class Jlqc:
         return new_lst
                   
     def xiequProxy(self):
-        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=0&type=2&so=1&ow=1&spl=1&addr=&db=1'
+        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
         testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
         for i in range(5):
             result = send_request('GET', url)
