@@ -119,8 +119,8 @@ class Jlqc:
                       "http": proxyMeta,
                       "https": proxyMeta,
                     }
-                    resp = requests.get(testurl, proxies=self.proxies)
-                    if resp.status_code == 200:
+                    resp = send_request('GET', testurl, proxies=self.proxies)
+                    if resp:
                         return True
                     print(f"{self.proxies['http']}：连接失败！！！")
                 elif '白名单' in result['msg']:
