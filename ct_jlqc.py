@@ -102,7 +102,7 @@ class Jlqc:
         return new_lst
                   
     def xiequProxy(self):
-        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
+        url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=getturn51&uid=148434&vkey=BD4E75D34471DA872A158633C8E543EB&num=200&time=6&plat=0&re=0&type=7&so=3&group=51&ow=1&spl=1&addr=&db=1'
         testurl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
         for i in range(5):
             result = send_request('GET', url)
@@ -111,7 +111,7 @@ class Jlqc:
                     proxy_ip = result['data'][0]['IP']
                     proxy_port = result['data'][0]['Port']
                     print("代理：" + proxy_ip)
-                    proxyMeta = "http://%(host)s:%(port)s" % {
+                    proxyMeta = "socks5://%(host)s:%(port)s" % {
                       "host" : proxy_ip,
                       "port" : proxy_port,
                     }
@@ -119,8 +119,8 @@ class Jlqc:
                       "http": proxyMeta,
                       "https": proxyMeta,
                     }
-                    resp = send_request('GET', testurl, proxies=self.proxies)
-                    if resp:
+                    resp = requests.get(testurl, proxies=self.proxies)
+                    if resp.status_code == 200:
                         return True
                     print(f"{self.proxies['http']}：连接失败！！！")
                 elif '白名单' in result['msg']:
@@ -132,13 +132,6 @@ class Jlqc:
         send(title_name + "---停止运行", "获取代理IP失败！")
         exit()
          
-    def pin_network(self, proxies):
-        url = "https://www.juliangip.com/api/general/Test"
-        result = send_request('GET', url, proxies=proxies)
-        if result:
-            return True
-        print(f"{proxies['http']}：连接失败！！！")
-        return False 
     def sign_UA(self):
         android_version = str(random.randint(7, 14))
         device_code = ''.join(random.choices('0123456789ABCDEF', k=8))
