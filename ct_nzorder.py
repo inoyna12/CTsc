@@ -116,13 +116,13 @@ class Order:
         if result:
             if result['code'] == 0:
                 results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
-                print(results)
                 for i in results['records']:
                     """
                     1：待发货
                     2：待收货
                     3：已完成
                     """
+                    orderStatus = i['listOrderItem'][0]['statusDesc']
                     quantity = i['listOrderItem'][0]['quantity']
                     userName = i['orderLogistics']['userName']
                     telNum = i['orderLogistics']['telNum']
@@ -131,14 +131,16 @@ class Order:
                         order_details = textwrap.dedent(f'''
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
-                          订单状态：{i['statusDesc']}
+                          订单状态：{orderStatus}
+                          快递状态：{i['statusDesc']}
                         ''')
                         print(order_details)
                     elif i['status'] == '2':
                         order_details = textwrap.dedent(f'''
                           商品：{i['name']}*{quantity}
                           收货地址：{userName} {telNum} {address}
-                          订单状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
+                          订单状态：{orderStatus}
+                          快递状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
                         ''')
                         print(order_details)
                     elif i['status'] == '3':
@@ -158,4 +160,4 @@ if __name__ == '__main__':
         for dct in all_data:
             if dct['mobile'] == phone:
                 order.main(dct['refresh_token'])
-        time.sleep(10)
+        time.sleep(3)
