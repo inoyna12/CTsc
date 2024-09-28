@@ -186,7 +186,7 @@ class Jlqc:
                     print(f"签到：{result['code']}")
                 return True
             elif result['code'] == 'fail' and result['message'] == '您已签到,请勿重复操作!':
-                pass
+                my_dict['signdate'] = self.md
             elif result['code'] == 'token.unchecked':
                 self.token_unchecked += 1
                 for i in self.gh_list:
