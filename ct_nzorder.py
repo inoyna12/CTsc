@@ -91,64 +91,6 @@ class Order:
             if result['code'] == 20000:
                 self.Authorization = result['data']['access_token']
                 return True
-                
-    def getorderinfo(self):
-        url = "https://shop-wap.hozonauto.com/gateway/mallapi/orderinfo/page?searchCount=false&current=1&size=10&descs=create_time"
-        headers = {
-            "Host": "shop-wap.hozonauto.com",
-            "Connection": "keep-alive",
-            "sec-ch-ua": '"Not)A;Brand";v="99", "Android WebView";v="127", "Chromium";v="127"',
-            "sec-ch-ua-mobile": "?1",
-            "Authorization": f"Bearer {self.Authorization}",
-            "User-Agent": f"Mozilla/5.0 (Linux; Android 12; {self.model} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.6533.103 Mobile Safari/537.36",
-            "third-session": "",
-            "app-id": "",
-            "tenant-id": self.tenant_id,
-            "client-type": "H5",
-            "sec-ch-ua-platform": '"Android"',
-            "Accept": "*/*",
-            "X-Requested-With": "com.hezhong.nezha",
-            "Sec-Fetch-Site": "same-origin",
-            "Referer": "https://shop-wap.hozonauto.com/review/pages/order/list",
-            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
-        result = send_request('GET', url, headers=headers)
-        if result:
-            if result['code'] == 0:
-                results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
-                for i in results['records']:
-                    """
-                    ['status']：
-                    1：待发货
-                    2：待收货
-                    3：已完成
-                    5：已取消
-                    """
-                    orderStatus = i['listOrderItem'][0]['statusDesc']
-                    quantity = i['listOrderItem'][0]['quantity']
-                    userName = i['orderLogistics']['userName']
-                    telNum = i['orderLogistics']['telNum']
-                    address = i['orderLogistics']['address']
-                    if i['status'] == '1':
-                        order_details = textwrap.dedent(f'''
-                          商品：{i['name']}*{quantity}
-                          收货地址：{userName} {telNum} {address}
-                          订单状态：{orderStatus}
-                          快递状态：{i['statusDesc']}
-                        ''')
-                        print(order_details)
-                    elif i['status'] == '2':
-                        order_details = textwrap.dedent(f'''
-                          商品：{i['name']}*{quantity}
-                          收货地址：{userName} {telNum} {address}
-                          订单状态：{orderStatus}
-                          快递状态：{i['orderLogistics']['logisticsDesc']} {i['orderLogistics']['logisticsNo']}
-                        ''')
-                        print(order_details)
-                    elif i['status'] == '3':
-                        pass
-                    else:
-                        print(results)
  
     def getorderinfo(self):
         url = "https://shop-wap.hozonauto.com/gateway/mallapi/orderinfo/page?searchCount=false&current=1&size=10&descs=create_time"
