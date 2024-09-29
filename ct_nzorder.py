@@ -147,7 +147,7 @@ class Order:
                         pass
                     else:
                         print(results)
-                        exit()
+                        
 
     def main(self, refreshtoken):
         if self.refreshApiToken(refreshtoken):
