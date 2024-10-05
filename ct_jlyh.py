@@ -176,7 +176,7 @@ class Jlyh:
         }
         result = send_request('GET', url, headers=headers, proxies=self.proxies)
         if result:
-            print(f"刷新token：{result['message']}")
+            print(f"刷新token：{result['code']}")
             if result['code'] == 'success' and result['message'] == '接口调用成功':
                 self.token = result['data']['centerTokenDto']['token']
                 my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
