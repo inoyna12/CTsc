@@ -260,19 +260,17 @@ class Jlyh:
         result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
         if result:
             if result['msg'] == 'SUCCESS' and "success":
-                if result['mysteryBoxPopFlag']:
-                    print(f"签到：{result['mysteryBoxPopFlag'][0]['prizeContent']}")
+                if result['data']['mysteryBoxPopFlag']:
+                    print(f"签到：{result['data']['mysteryBoxPops'][0]['prizeContent']}")
                 else:
                     print(f"签到：{result['msg']}")
-                my_dict['signdate'] = self.date_md
-                return
             elif result['msg'] == '今日已签到':
-                my_dict['signdate'] = self.date_md
                 print(result)
             else:
                 print(result)
                 exit()
-            
+            my_dict['signdate'] = self.date_md
+       
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
         now = datetime.datetime.now(datetime.timezone.utc)
