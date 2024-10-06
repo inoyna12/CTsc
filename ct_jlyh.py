@@ -279,7 +279,7 @@ class Jlyh:
         x_ca_nonce = str(uuid.uuid4())
         
         body = {
-            "pageSize": 20,
+            "pageSize": 40,
             "type": 2,
             "pageNum": 1
         }
