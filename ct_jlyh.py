@@ -261,12 +261,7 @@ class Jlyh:
         if result:
             if result['msg'] == 'SUCCESS' and "success":
                 if result['data']['mysteryBoxPopFlag']:
-                    prizeContent = result['data']['mysteryBoxPops'][0]['prizeContent']
-                    if '积分' in prizeContent:
-                        print(prizeContent)
-                    else:
-                        print(result)
-                        exit()
+                    print(result)
                 else:
                     print(f"签到：{result['msg']}")
             elif result['msg'] == '今日已签到':
