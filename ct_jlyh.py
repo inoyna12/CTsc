@@ -261,6 +261,15 @@ class Jlyh:
         if result:
             if result['msg'] == 'SUCCESS' and "success":
                 if result['data']['mysteryBoxPopFlag']:
+                    for my in result['data']['mysteryBoxPops']:
+                        if my['mysteryBoxTitle'] == '7天签到盲盒(循环)':
+                            print(f"{my['mysteryBoxTitle']}：{my['prizeContent']}")
+                        elif my['mysteryBoxTitle'] == '30天签到盲盒':
+                            self.openMysteryBox(my_dict, my['id'])
+                        else:
+                            print(result)
+                            exit()
+                            
                     print(result)
                 else:
                     print(f"签到：{result['msg']}")
@@ -270,6 +279,131 @@ class Jlyh:
                 print(result)
                 exit()
             my_dict['signdate'] = self.date_md
+
+    def openMysteryBox(self, my_dict, userMysteryBoxId):
+        url = 'https://galaxy-app.geely.com/app/v1/sign/openMysteryBox'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        body = {
+            "isLoading": False,
+            "headers": {
+                "appVersion": appVersion,
+                "methodType": "7",
+                "use_security": "true"
+            },
+            "id": userMysteryBoxId
+        }
+        str_body = json.dumps(body, separators=(',', ':'))
+        md5_base64 = self.md5Base64(str_body)
+        x_ca_signature = textwrap.dedent(f"""\
+            POST
+            application/json; charset=utf-8
+            {md5_base64}
+            application/json; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'methodtype': '7',
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'content-md5': md5_base64,
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'token': self.token,
+            'deviceSN': my_dict['deviceSN'],
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'imei': my_dict['imei'],
+            'os': '12',
+            'sweet_security_info': self.sweet_security_info,
+            'Content-Type': 'application/json; charset=utf-8',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request('POST', url, headers=headers, data=str_body, proxies=self.proxies)
+        if result:
+            print(result)
+            # if result['code'] == '0' and result['msg'] == 'SUCCESS':
+                # prizeContent = result['data']['prizeContent']
+            # elif result['msg'] == '盲盒已过期':
+                # prizeContent = result['msg']
+            # else:
+                # print(result)
+                # exit()
+            # return prizeContent
+
+    def getBaseData(self, my_dict):
+        url = 'https://galaxy-app.geely.com/app/v1/sign/getBaseData?isLoading=false'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        x_ca_signature = textwrap.dedent(f"""\
+            GET
+            application/json; charset=utf-8
+            
+            application/x-www-form-urlencoded; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path + '?' + urlparse(url).query}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'user-agent': 'ALIYUN-ANDROID-UA',
+            'token': self.token,
+            'deviceSN': my_dict['deviceSN'],
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'Connection': 'Keep-Alive'
+        }
+        result = send_request('GET', url, headers=headers, proxies=self.proxies)
+        if result:
+            for boxVos in result['data']['boxVos']:
+                if boxVos['title'] == '30天签到盲盒':
+                    if boxVos['mysteryBoxState'] == 1 and boxVos['mysteryBoxOpenState'] == 0:
+                        print(result)
+                        self.openMysteryBox(my_dict, boxVos['userMysteryBoxId'])
+
        
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
