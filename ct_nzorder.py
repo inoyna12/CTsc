@@ -8,10 +8,10 @@ import json
 import time
 import random
 import hashlib
-import datetime
 import base64
 import textwrap
 import pandas as pd
+from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from notify import send
@@ -42,6 +42,34 @@ def send_request(method, url, **kwargs):
         print("其他错误:", str(e))
     return False
 
+def days_difference(time_str):
+    """
+    计算当前时间与传入时间的整数天数差异。
+
+    :param time_str: 时间字符串，格式为 'YYYY-MM-DDTHH:MM:SS'
+    :return: 当前时间比传入时间大的整数天数，如果传入时间在未来，则返回负数
+    """
+    # 定义时间格式
+    time_format = "%Y-%m-%dT%H:%M:%S"
+    
+    try:
+        # 将字符串转换为 datetime 对象
+        given_time = datetime.strptime(time_str, time_format)
+        
+        # 获取当前时间
+        current_time = datetime.now()
+        
+        # 计算时间差
+        time_difference = current_time - given_time
+        
+        # 将时间差转换为整数天数
+        days_diff = time_difference.days
+        
+        return days_diff
+    
+    except ValueError as e:
+        print(f"时间格式错误: {e}")
+        return None
 
 class Order:
     def __init__(self):
@@ -116,22 +144,22 @@ class Order:
         if result:
             if result['code'] == 0:
                 results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
-                print(results)
                 for i in results['records']:
-                    """
-                    ['status']：
-                    1：待发货
-                    2：待收货
-                    3：已完成
-                    5：已取消
-                    """
-                    if i['status'] == '3':
-                        continue
                     orderStatus = i['listOrderItem'][0]['statusDesc']
                     quantity = i['listOrderItem'][0]['quantity']
                     userName = i['orderLogistics']['userName']
                     telNum = i['orderLogistics']['telNum']
                     address = i['orderLogistics']['address']
+                    createTime = i['orderLogistics']['createTime']
+                    if i['status'] == '3' or days_difference(createTime) > 7:
+                        """
+                        ['status']：
+                        1：待发货
+                        2：待收货
+                        3：已完成
+                        5：已取消
+                        """
+                        continue
                     print(f"商品：{i['name']}*{quantity}")
                     print(f"收货地址：{userName} {telNum} {address}")
                     print(f"订单状态：{orderStatus}")
