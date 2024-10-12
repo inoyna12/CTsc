@@ -116,6 +116,7 @@ class Order:
         if result:
             if result['code'] == 0:
                 results = json.loads(self.aes_ecb_decrypt(self.orderKey, result['data']))
+                print(results)
                 for i in results['records']:
                     """
                     ['status']：
