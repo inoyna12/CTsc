@@ -72,7 +72,7 @@ class Jlqc:
         self.add_num= 0
         self.filepath = filepath
         self.bef_num = len(self.all_data)
-        self.gh_jlyh = GithubFile('吉利汽车/jlyh.json')
+        self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
         self.gh_zdjl = GithubFile('吉利汽车/zdjl.json')
               
     def update(self):
@@ -95,7 +95,7 @@ class Jlqc:
                 self.add_num += 1
                 print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
         
-        self.gh_jlyh.update(self.all_data)
+        self.gh_jlqc.update(self.all_data)
         self.gh_zdjl.update([])
         with open(self.filepath, 'w') as f:
             json.dump(self.all_data, f, indent=2)
