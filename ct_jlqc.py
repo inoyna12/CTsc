@@ -260,7 +260,7 @@ class Jlqc:
                 json.dump(all_data, f, indent=2)
 
 if __name__ == '__main__':
-    accountInfo = GithubFile('吉利汽车/AccountInfo.json')
+    accountInfo = GithubFile('吉利汽车/jlqc.json')
     tokenUnchecked = GithubFile('吉利汽车/TokenUnchecked.json')
     jlqc = Jlqc(tokenUnchecked.content)
     random.shuffle(all_data)
