@@ -8,13 +8,14 @@ from github import Github
 from notify import send
 
 ql_jlyh_filepath = "/ql/data/env/jlyh.json"
+ql_jlqc_filepath = "/ql/data/env/jlqc.json"
   
 class GithubFile:
     def __init__(self, file_path):
         self.gh = Github(os.getenv('github_token'))
         self.repo = self.gh.get_repo('inoyna12/updateTeam')
         self.file_path = file_path
-        self.commit_message = "Updated the file"
+        self.commit_message = f"Update {self.file_path}"
         self.file_info = self.repo.get_contents(self.file_path)
         self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
         print(f"读取gtihub {self.file_path} 文件成功！")
@@ -63,4 +64,42 @@ class Jlyh:
             json.dump(self.all_data, f, indent=2)
         send("吉利银河更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
         
+class Jlqc:
+    def __init__(self, filepath):
+        with open(filepath, 'r') as f:
+            self.all_data = json.load(f)
+        self.update_num = 0
+        self.add_num= 0
+        self.filepath = filepath
+        self.bef_num = len(self.all_data)
+        self.gh_jlyh = GithubFile('吉利汽车/jlyh.json')
+        self.gh_zdjl = GithubFile('吉利汽车/zdjl.json')
+              
+    def update(self):
+        if len(self.gh_zdjl.content) == 0:
+            print("空列表，跳过")
+            return
+        for zdjl_dict in self.gh_zdjl.content:
+            for my_dict in self.all_data:
+                if my_dict['phone'] == zdjl_dict['phone']:
+                    my_dict['password'] = zdjl_dict['password']
+                    my_dict['token'] = zdjl_dict['token']
+                    my_dict['refreshToken'] = zdjl_dict['refreshToken']
+                    self.update_num += 1
+                    print(f"更新次数：{self.update_num}，号码：{zdjl_dict['phone']}")
+                    break
+            else:
+                zdjl_dict['availablePoint'] = 0
+                zdjl_dict['signdate'] = ''
+                self.all_data.append(zdjl_dict)
+                self.add_num += 1
+                print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
+        
+        self.gh_jlyh.update(self.all_data)
+        self.gh_zdjl.update([])
+        with open(self.filepath, 'w') as f:
+            json.dump(self.all_data, f, indent=2)
+        send("吉利汽车更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
+        
 Jlyh(ql_jlyh_filepath).update()
+Jlqc(ql_jlqc_filepath).update()
