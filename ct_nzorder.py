@@ -151,7 +151,7 @@ class Order:
                     telNum = i['orderLogistics']['telNum']
                     address = i['orderLogistics']['address']
                     createTime = i['orderLogistics']['createTime']
-                    if i['status'] == '3' and days_difference(createTime) > 7:
+                    if i['status'] == '3' or days_difference(createTime) > 15:
                         """
                         ['status']：
                         1：待发货
