@@ -19,7 +19,7 @@ from github import Github
 from notify import send
 
 title_name = "吉利银河"
-appVersion = "1.23.0"
+appVersion = "1.23.1"
 
 filepath = "/ql/data/env/jlyh.json"
 with open(filepath, 'r') as f:
