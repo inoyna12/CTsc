@@ -33,13 +33,12 @@ class Jlyh:
         self.add_num= 0
         self.filepath = filepath
         self.bef_num = len(self.all_data)
-        self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
         self.gh_zdjl = GithubFile('吉利银河/zdjl.json')
+        if len(self.gh_zdjl.content) > 0:
+            self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
+            self.update()
               
     def update(self):
-        if len(self.gh_zdjl.content) == 0:
-            print("空列表，跳过")
-            return
         for zdjl_dict in self.gh_zdjl.content:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
@@ -72,13 +71,12 @@ class Jlqc:
         self.add_num= 0
         self.filepath = filepath
         self.bef_num = len(self.all_data)
-        self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
         self.gh_zdjl = GithubFile('吉利汽车/zdjl.json')
+        if len(self.gh_zdjl.content) > 0:
+            self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
+            self.update()
               
     def update(self):
-        if len(self.gh_zdjl.content) == 0:
-            print("空列表，跳过")
-            return
         for zdjl_dict in self.gh_zdjl.content:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
@@ -101,5 +99,5 @@ class Jlqc:
             json.dump(self.all_data, f, indent=2)
         send("吉利汽车更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
         
-Jlyh(ql_jlyh_filepath).update()
-Jlqc(ql_jlqc_filepath).update()
+Jlyh(ql_jlyh_filepath)
+Jlqc(ql_jlqc_filepath)
