@@ -109,8 +109,7 @@ class Jlqc:
                 result = self.rts('get', testUrl, proxies=proxy)
                 if result:
                     return proxy
-            else:
-                time.sleep(5)
+            time.sleep(5)
         send(title_name + "---停止运行", "获取代理IP失败！")
         exit()
 
