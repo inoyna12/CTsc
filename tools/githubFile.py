@@ -1,3 +1,6 @@
+import os
+from github import Github
+
 class GithubFile:
     def __init__(self, file_path):
         self.gh = Github(os.getenv('github_token'))
