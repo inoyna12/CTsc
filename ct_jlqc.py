@@ -101,7 +101,7 @@ class Jlqc:
                 self.proxy_quantity += 1
                 ip = result["data"][0]["IP"]
                 port = result["data"][0]["Port"]
-                print(f"代理：{ip}")
+                print(f"代理：{ip}:{port}")
                 proxy = {
                     "http": f"http://{ip}:{port}",
                     "https": f"http://{ip}:{port}"
