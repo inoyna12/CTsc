@@ -1,4 +1,6 @@
-import requests,json
+import requests
+import json
+import time
 
 def rts(self, method, url, **kwargs):
         time_out = 10
@@ -18,3 +20,8 @@ def rts(self, method, url, **kwargs):
         except Exception as e:
             print("其他错误:", str(e))
         return False
+
+def randomSleep(min_val, max_val):
+    num = random.randint(min_val, max_val)
+    print(f"随机等待{num}秒后继续>>>>>>>>>>>")
+    time.sleep(num)
