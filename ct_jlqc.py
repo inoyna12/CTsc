@@ -137,7 +137,7 @@ class Jlqc:
                 'phone': my_dict['phone'],
                 'password': my_dict['password']
             }
-            self.edlst.append(dct)
+            self.ed_list.append(dct)
             self.gh_jlqced.update(self.ed_list)
     
     def newList(self, lst):
