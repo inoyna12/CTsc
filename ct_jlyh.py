@@ -2,7 +2,6 @@
 cron: 36 6 * * *
 new Env('吉利银河');
 '''
-import requests
 import datetime
 import time
 import uuid
