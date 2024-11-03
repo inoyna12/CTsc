@@ -1,3 +1,4 @@
+import time
 # 使用绝对路径导入，避免多次加载tool.py
 from tools.tool import rts
 
