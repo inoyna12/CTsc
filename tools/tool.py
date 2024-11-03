@@ -2,7 +2,7 @@ import requests
 import json
 import time
 
-def rts(self, method, url, **kwargs):
+def rts(method, url, **kwargs):
         time_out = 10
         try:
             method = method.upper()
