@@ -19,7 +19,7 @@ def xiequ():
             if result:
                 return proxy
         time.sleep(5)
-    print(❌获取代理ip失败❌)
+    print(获取代理ip失败)
     return None
         
 def juliang():
@@ -38,5 +38,5 @@ def juliang():
             if result:
                 return proxy
         time.sleep(5)
-    print(❌获取代理ip失败❌)
+    print(获取代理ip失败)
     return None
