@@ -421,7 +421,7 @@ class Jlyh:
                     if boxVos['mysteryBoxState'] == 1 and boxVos['mysteryBoxOpenState'] == 0:
                         print(result)
                         self.openMysteryBox(my_dict, boxVos['userMysteryBoxId'])
-                
+    # shareContentType：首页_推荐1，我们_广场_最新2          
     def share(self, my_dict):
         url = 'https://galaxy-app.geely.com/h5/v1/square/content/share'
         for i in range(5):
