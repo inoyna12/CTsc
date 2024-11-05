@@ -45,8 +45,8 @@ class Jlyh:
     def sendMsg(self):
         msg = f'''
             账号总数：{jlqc_length}
-            成功签到：{self.sign_success}
-            成功分享：{self.share_success}
+            签到：{self.sign_success}
+            分享：{self.share_success}
         ''' + "\n\n" + '\n'.join(self.error_list)
         return msg  
 
