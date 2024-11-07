@@ -90,7 +90,7 @@ class Jlyh:
         self.imei = my_dict['imei']
         self.os = ssinfo['osVersion']
         self.deviceSN = my_dict['deviceSN']
-        self.sweet_security_info = json.dumps(sweet_security_info, separators=(',', ':'))
+        self.sweet_security_info = json.dumps(ssinfo, separators=(',', ':'))
 
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
