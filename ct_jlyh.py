@@ -297,6 +297,7 @@ class Jlyh:
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive'
             }
+            print(headers)
             result = rts('post', url, headers=headers, data=str_body, proxies=self.proxies)
             if result:
                 self.signStatus(result, my_dict)
