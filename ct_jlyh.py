@@ -19,7 +19,8 @@ from urllib.parse import urlparse
 from notify import send
 
 title_name = "吉利银河"
-appVersion = "1.23.1"
+appVersion = "1.24.2"
+app_build = "12402001"
 
 today_date = datetime.datetime.now().strftime("%m-%d")
 
@@ -71,13 +72,25 @@ class Jlyh:
         md5_hash = hashlib.md5(content.encode()).digest()
         base64_encoded = base64.b64encode(md5_hash).decode()
         return base64_encoded
-
-    def new_s_s_info(self, str_dict):
-        sweet_security_info = json.loads(str_dict)
-        sweet_security_info['appVersion'] = appVersion
-        sweet_security_info['battery'] = str(random.randint(20, 99))
-        s_info = json.dumps(sweet_security_info, separators=(',', ':'))
-        return s_info
+        
+    def get_parameter(self, my_dict):
+        ssinfo = json.loads(my_dict['sweet_security_info'])
+        ssinfo['appVersion'] = appVersion
+        ssinfo['battery'] = str(random.randint(20, 99))
+        
+        self.gl_dev_id = my_dict['deviceSN']
+        self.gl_dev_name = 'diting'
+        self.gl_dev_model = ssinfo['model']
+        self.gl_dev_brand = ssinfo['brand']
+        self.gl_dev_platform = ssinfo['os']
+        self.gl_app_version = appVersion
+        self.gl_os_version = ssinfo['androidVersion']
+        self.gl_app_build = app_build
+        
+        self.imei = my_dict['imei']
+        self.os = ssinfo['osVersion']
+        self.deviceSN = my_dict['deviceSN']
+        self.sweet_security_info = json.dumps(sweet_security_info, separators=(',', ':'))
 
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
@@ -120,7 +133,14 @@ class Jlyh:
             'host': 'galaxy-app.geely.com',
             'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
             'x-refresh-token': 'true',
-            'user-agent': 'ALIYUN-ANDROID-UA',
+            'gl_dev_id': self.gl_dev_id,
+            'gl_dev_name': self.gl_dev_name,
+            'gl_dev_model': self.gl_dev_model,
+            'gl_dev_brand': self.gl_dev_brand,
+            'gl_dev_platform': self.gl_dev_platform,
+            'gl_app_version': self.gl_app_version,
+            'gl_os_version': self.gl_os_version,
+            'gl_app_build': self.gl_app_build,
             'appId': 'galaxy-app',
             'appVersion': appVersion,
             'platform': 'Android',
@@ -150,7 +170,6 @@ class Jlyh:
             date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
             x_ca_timestamp = str(int(now.timestamp() * 1000))
             x_ca_nonce = str(uuid.uuid4())
-            url_path = urlparse(url).path
             x_ca_signature = textwrap.dedent(f"""\
                 GET
                 application/json; charset=utf-8
@@ -177,8 +196,15 @@ class Jlyh:
                 'host': 'galaxy-user-api.geely.com',
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-timestamp,x-ca-key',
                 'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
-                'user-agent': 'ALIYUN-ANDROID-UA',
-                'deviceSN': "",
+                'gl_dev_id': self.gl_dev_id,
+                'gl_dev_name': self.gl_dev_name,
+                'gl_dev_model': self.gl_dev_model,
+                'gl_dev_brand': self.gl_dev_brand,
+                'gl_dev_platform': self.gl_dev_platform,
+                'gl_app_version': self.gl_app_version,
+                'gl_os_version': self.gl_os_version,
+                'gl_app_build': self.gl_app_build,
+                'deviceSN': self.deviceSN,
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
@@ -259,12 +285,19 @@ class Jlyh:
                 'host': 'galaxy-app.geely.com',
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
                 'x-refresh-token': 'true',
-                'user-agent': 'ALIYUN-ANDROID-UA',
                 'token': self.token,
-                'imei': my_dict['imei'],
-                'os': '12',
+                'gl_dev_id': self.gl_dev_id,
+                'gl_dev_name': self.gl_dev_name,
+                'gl_dev_model': self.gl_dev_model,
+                'gl_dev_brand': self.gl_dev_brand,
+                'gl_dev_platform': self.gl_dev_platform,
+                'gl_app_version': self.gl_app_version,
+                'gl_os_version': self.gl_os_version,
+                'gl_app_build': self.gl_app_build,
+                'imei': self.imei,
+                'os': self.os,
                 'sweet_security_info': self.sweet_security_info,
-                'deviceSN': my_dict['deviceSN'],
+                'deviceSN': self.deviceSN,
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
@@ -347,15 +380,22 @@ class Jlyh:
                 'host': 'galaxy-app.geely.com',
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
                 'x-refresh-token': 'true',
-                'user-agent': 'ALIYUN-ANDROID-UA',
                 'token': self.token,
-                'deviceSN': my_dict['deviceSN'],
+                'gl_dev_id': self.gl_dev_id,
+                'gl_dev_name': self.gl_dev_name,
+                'gl_dev_model': self.gl_dev_model,
+                'gl_dev_brand': self.gl_dev_brand,
+                'gl_dev_platform': self.gl_dev_platform,
+                'gl_app_version': self.gl_app_version,
+                'gl_os_version': self.gl_os_version,
+                'gl_app_build': self.gl_app_build,
+                'deviceSN': self.deviceSN,
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
                 'Cache-Control': 'no-cache',
-                'imei': my_dict['imei'],
-                'os': '12',
+                'imei': self.imei,
+                'os': self.os,
                 'sweet_security_info': self.sweet_security_info,
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive'
@@ -475,12 +515,19 @@ class Jlyh:
                 'host': 'galaxy-app.geely.com',
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
                 'x-refresh-token': 'true',
-                'user-agent': 'ALIYUN-ANDROID-UA',
                 'token': self.token,
-                'imei': my_dict['imei'],
-                'os': '12',
+                'gl_dev_id': self.gl_dev_id,
+                'gl_dev_name': self.gl_dev_name,
+                'gl_dev_model': self.gl_dev_model,
+                'gl_dev_brand': self.gl_dev_brand,
+                'gl_dev_platform': self.gl_dev_platform,
+                'gl_app_version': self.gl_app_version,
+                'gl_os_version': self.gl_os_version,
+                'gl_app_build': self.gl_app_build,
+                'imei': self.imei,
+                'os': self.os,
                 'sweet_security_info': self.sweet_security_info,
-                'deviceSN': my_dict['deviceSN'],
+                'deviceSN': self.deviceSN,
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
@@ -533,9 +580,16 @@ class Jlyh:
             'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
             'x-refresh-token': 'true',
             'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'user-agent': 'ALIYUN-ANDROID-UA',
             'token': self.token,
-            'deviceSN': my_dict['deviceSN'],
+            'gl_dev_id': self.gl_dev_id,
+            'gl_dev_name': self.gl_dev_name,
+            'gl_dev_model': self.gl_dev_model,
+            'gl_dev_brand': self.gl_dev_brand,
+            'gl_dev_platform': self.gl_dev_platform,
+            'gl_app_version': self.gl_app_version,
+            'gl_os_version': self.gl_os_version,
+            'gl_app_build': self.gl_app_build,
+            'deviceSN': self.deviceSN,
             'appId': 'galaxy-app',
             'appVersion': appVersion,
             'platform': 'Android',
@@ -552,11 +606,15 @@ class Jlyh:
                 print(result)
         self.error += 1
         self.error_list.append(f"{self.index}：查询积分失败")
+
+    
               
     def main(self, index, my_dict):
         self.index = index
         self.proxies = self.get_proxy()
-        self.sweet_security_info = self.new_s_s_info(my_dict['sweet_security_info']) 
+        self.get_parameter(my_dict)
+        
+        
         if self.refreshtoken(my_dict):
             self.signAdd(my_dict)
             self.share(my_dict)
