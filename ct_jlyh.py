@@ -74,7 +74,7 @@ class Jlyh:
         base64_encoded = base64.b64encode(md5_hash).decode()
         return base64_encoded
         
-    def ap_150(self, lst):
+    def ap150(self, lst):
         ap150_list = []
         for dct in lst:
             if int(dct['availablePoints']) >= 150:
