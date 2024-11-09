@@ -1,39 +1,37 @@
-import requests, json
-from notify import send
+from tools.githubFile import GithubFile
 
-notAdd = ['流量包', '畅听包', '畅享包', '娱乐包']
-msg = []
+def jlyh():
+    gh_jlyh = GithubFile("吉利银河/jlyh.json")
+    gh_ap150 = GithubFile("吉利银河/ap150.json")
+    new_list = []
+    for i in gh_jlyh.lst:
+        if int(i['availablePoints']) >= 150:
+            dct = {
+                'phone': i['phone'],
+                'password': i['password'],
+                'availablePoints': i['availablePoints']
+            }
+            new_list.append(dct)
+    lst = sorted(new_list, key=lambda x: int(x['availablePoints']), reverse=True)
+    print(len(lst))
+    gh_ap150.update(lst)
+    
+def jlqc():
+    gh_jlqc = GithubFile("吉利汽车/jlqc.json")
+    gh_ap150 = GithubFile("吉利汽车/ap150.json")
+    new_list = []
+    for i in gh_jlqc.lst:
+        if float(i['availablePoint']) >= 150:
+            dct = {
+                'phone': i['phone'],
+                'password': i['password'],
+                'availablePoint': i['availablePoint']
+            }
+            new_list.append(dct)
+    lst = sorted(new_list, key=lambda x: float(x['availablePoint']), reverse=True)
+    print(len(lst))
+    gh_ap150.update(lst)
 
-headers = {
-    'appVersion': '6.4.1',
-    'login_channel': '1',
-    'channel': 'android',
-    'phoneModel': 'Redmi 22081212C',
-    'Accept-Language': 'zh-CN,zh;q=0.8',
-    'User-Agent': 'Mozilla/5.0 (Linux; U; Android 12; zh-cn; 22081212C Build/SKQ1.220303.001) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Mobile Safari/533.1',
-    'Host': 'shop-gw.hozonauto.com',
-    'Connection': 'Keep-Alive',
-    # 'Accept-Encoding': 'gzip',
-    'Cache-Control': 'no-cache',
-}
 
-params = {
-    'current': '1',
-    'size': '50',
-    'categoryId': '',
-    'priceSort': '1',
-}
-
-response = requests.get('https://shop-gw.hozonauto.com/mallapi/goodsspu/page/category', params=params, headers=headers)
-result = response.json()
-for i in result['data']['records']:
-    if int(i['salesPrice']) > 200:
-        break
-    goods = f"{i['name']}，价格：{i['salesPrice']}，库存：{i['stock']}"
-    print(goods)
-    if any(name in i['name'] for name in notAdd):
-        pass
-    else:
-        if i['stock'] > 0:
-            msg.append(goods)
-send("哪吒库存", '\n'.join(msg))
+jlyh()
+jlqc()
