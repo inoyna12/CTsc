@@ -34,13 +34,13 @@ key = {'x-ca-key': '204453306', 'secret-key': 'uUwSi6m9m8Nx3Grx7dQghyxMpOXJKDGu'
 key2 = {'x-ca-key': '204179735', 'secret-key': 'UhmsX3xStU4vrGHGYtqEXahtkYuQncMf'}
 
 class Jlyh:
-    def __init__(self, expired):
-        self.expired = expired
-        self.expired_list = self.expired.lst
+    def __init__(self):
         self.error = 0
         self.error_list = []
         self.sign_success = 0
         self.share_success = 0
+        self.skip = 0
+        self.expired_list = []
         self.id_list = self.get_id()
         
     def sendMsg(self):
@@ -48,6 +48,7 @@ class Jlyh:
             账号总数：{jlqc_length}
             签到：{self.sign_success}
             分享：{self.share_success}
+            跳过：{self.skip}
         ''' + "\n\n" + '\n'.join(self.error_list)
         return msg  
 
@@ -73,7 +74,19 @@ class Jlyh:
         base64_encoded = base64.b64encode(md5_hash).decode()
         return base64_encoded
         
-    def get_parameter(self, my_dict):
+    def ap_150(self, lst):
+        ap150_list = []
+        for dct in lst:
+            if int(dct['availablePoints']) >= 150:
+                createdict = {
+                    'phone': dct['phone'],
+                    'password': dct['password']
+                }
+                ap150_list.append(createdict)
+        return self.newList(ap150_list)
+                
+        
+    def get_variable(self, my_dict):
         ssinfo = json.loads(my_dict['sweet_security_info'])
         ssinfo['appVersion'] = appVersion
         ssinfo['battery'] = str(random.randint(20, 99))
@@ -211,17 +224,12 @@ class Jlyh:
                     my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
                     return True
                 elif result['code'] == 'user_refresh_invalid_expired':
-                    for expired in self.expired_list:
-                        if expired['phone'] == my_dict['phone']:
-                            print("号码已存在，不加入")
-                            break
-                    else:
-                        createdict = {
-                            'phone': my_dict['phone'],
-                            'password': my_dict['password']
-                        }
-                        self.expired_list.append(createdict)
-                        self.expired.update(self.expired_list)
+                    createdict = {
+                        'phone': my_dict['phone'],
+                        'password': my_dict['password']
+                    }
+                    self.expired_list.append(createdict)
+                    gh_expired.update(self.expired_list)
                 else:
                     print(result)
                     break
@@ -603,9 +611,8 @@ class Jlyh:
               
     def main(self, index, my_dict):
         self.index = index
+        self.get_variable(my_dict)
         self.proxies = self.get_proxy()
-        self.get_parameter(my_dict)
-        
         
         if self.refreshtoken(my_dict):
             self.signAdd(my_dict)
@@ -620,8 +627,9 @@ if __name__ == '__main__':
     jlqc_length = len(jlyh_list)
     random.shuffle(jlyh_list)
     gh_jlyh = GithubFile('吉利银河/jlyh.json')
+    gh_ap150 = GithubFile('吉利银河/ap150.json')
     gh_expired = GithubFile('吉利银河/expired.json')
-    jlyh = Jlyh(gh_expired)
+    jlyh = Jlyh()
     for index, my_dict in enumerate(jlyh_list, start = 1):
         print(f"\n{index}/{jlqc_length}{'➠'*10}{my_dict['phone']}：")
         if my_dict['signdate'] != today_date:
@@ -631,7 +639,9 @@ if __name__ == '__main__':
             if index < jlqc_length:
                 randomSleep(30,60)
         else:
+            jlyh.skip += 1
             print("已签到，跳过")
      
     gh_jlyh.update(jlyh.newList(jlyh_list))
+    gh_ap150.update(jlyh.ap150(jlyh_list))
     send(title_name, jlyh.sendMsg())
