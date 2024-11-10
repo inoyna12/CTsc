@@ -628,7 +628,6 @@ if __name__ == '__main__':
     jlqc_length = len(jlyh_list)
     random.shuffle(jlyh_list)
     gh_jlyh = GithubFile('吉利银河/jlyh.json')
-    gh_ap150 = GithubFile('吉利银河/ap150.json')
     gh_expired = GithubFile('吉利银河/expired.json')
     jlyh = Jlyh()
     for index, my_dict in enumerate(jlyh_list, start = 1):
@@ -644,5 +643,4 @@ if __name__ == '__main__':
             print("已签到，跳过")
      
     gh_jlyh.update(jlyh.newList(jlyh_list))
-    gh_ap150.update(jlyh.ap150(jlyh_list))
     send(title_name, jlyh.sendMsg())
