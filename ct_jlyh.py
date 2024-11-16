@@ -616,7 +616,7 @@ class Jlyh:
         self.proxies = self.get_proxy()
         
         if self.refreshtoken(my_dict):
-            self.signAdd(my_dict)
+           # self.signAdd(my_dict)
             self.share(my_dict)
             self.getPoints(my_dict)
             
