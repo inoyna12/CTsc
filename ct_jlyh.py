@@ -541,6 +541,7 @@ class Jlyh:
                 print(f"分享：{result['msg']}")
                 if result['msg'] == 'SUCCESS' and "success":
                     self.share_success += 1
+                    my_dict['signdate'] = today_date
                     return
             else:
                 self.proxies = self.get_proxy()
