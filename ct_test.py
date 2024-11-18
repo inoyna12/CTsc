@@ -18,19 +18,28 @@ def jlyh():
     
 def jlqc():
     gh_jlqc = GithubFile("吉利汽车/jlqc.json")
+    gh_ap100 = GithubFile("吉利汽车/ap100.json")
     gh_ap150 = GithubFile("吉利汽车/ap150.json")
-    new_list = []
+    ap100_list = []
+    ap150_list = []
     for i in gh_jlqc.lst:
+        dct = {
+            'phone': i['phone'],
+            'password': i['password'],
+            'availablePoint': i['availablePoint']
+        }
+        if float(i['availablePoint']) >= 100:
+            ap100_list.append(dct)
         if float(i['availablePoint']) >= 150:
-            dct = {
-                'phone': i['phone'],
-                'password': i['password'],
-                'availablePoint': i['availablePoint']
-            }
-            new_list.append(dct)
-    lst = sorted(new_list, key=lambda x: float(x['availablePoint']), reverse=True)
-    print(len(lst))
-    gh_ap150.update(lst)
+            ap150_list.append(dct)
+
+    ap100lst = sorted(ap100_list, key=lambda x: float(x['availablePoint']), reverse=True)
+    print(len(ap100lst))
+    ap150lst = sorted(ap150_list, key=lambda x: float(x['availablePoint']), reverse=True)
+    print(len(ap150lst))
+    
+    gh_ap100.update(ap100lst)
+    gh_ap150.update(ap150lst)
 
 
 jlyh()
