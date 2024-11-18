@@ -231,6 +231,7 @@ class Jlyh:
                     }
                     self.expired_list.append(createdict)
                     gh_expired.update(self.expired_list)
+                    return False
                 else:
                     print(result)
                     break
