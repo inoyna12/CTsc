@@ -224,7 +224,7 @@ class Jlyh:
                     self.token = result['data']['centerTokenDto']['token']
                     my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
                     return True
-                elif result['code'] == 'user-crowded-out':
+                elif result['code'] in ['user-crowded-out', 'user_refresh_invalid_expired']:
                     createdict = {
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
