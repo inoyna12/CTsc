@@ -1,3 +1,8 @@
+'''
+cron: 36 6 * * *
+new Env('中国移动');
+'''
+
 import requests,json,base64,re
 import random
 import time
@@ -21,7 +26,10 @@ class SSLAdapter(HTTPAdapter):
 
 context = create_urllib3_context()
 context.set_ciphers("DEFAULT:@SECLEVEL=1")
-context.options |= ssl.OP_LEGACY_SERVER_CONNECT
+# python3.12可用
+# context.options |= ssl.OP_LEGACY_SERVER_CONNECT
+# 3.11可用
+context.options |= 0x4
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 adapter = SSLAdapter(ssl_context=context)
 
