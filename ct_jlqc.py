@@ -116,6 +116,7 @@ class Jlqc:
                     my_dict['signdate'] = today_date
                     return True
                 elif result['message'] == '您已签到,请勿重复操作!':
+                    print(result)
                     my_dict['signdate'] = today_date
                     return True
                 elif result['code'] == 'token.unchecked':
