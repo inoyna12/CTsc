@@ -74,17 +74,17 @@ class Jlyh:
         base64_encoded = base64.b64encode(md5_hash).decode()
         return base64_encoded
         
-    def ap150(self, lst):
-        ap150_list = []
+    def newAp(self, lst, ap):
+        ap_list = []
         for dct in lst:
-            if int(dct['availablePoints']) >= 150:
+            if int(dct['availablePoints']) >= ap:
                 createdict = {
                     'phone': dct['phone'],
                     'password': dct['password'],
                     'availablePoints': dct['availablePoints']
                 }
-                ap150_list.append(createdict)
-        return self.newList(ap150_list)
+                ap_list.append(createdict)
+        return self.newList(ap_list)
                 
         
     def get_variable(self, my_dict):
@@ -326,6 +326,7 @@ class Jlyh:
                     elif box['mysteryBoxTitle'] == '30天签到盲盒':
                         self.openMysteryBox(my_dict, box['id'])
         elif result['msg'] == '今日已签到':
+            print(result)
             pass
         else:
             print(result)
@@ -542,7 +543,7 @@ class Jlyh:
                 print(f"分享：{result['msg']}")
                 if result['msg'] == 'SUCCESS' and "success":
                     self.share_success += 1
-                    my_dict['signdate'] = today_date
+                    my_dict['sharedate'] = today_date
                     return
             else:
                 self.proxies = self.get_proxy()
@@ -618,8 +619,14 @@ class Jlyh:
         self.proxies = self.get_proxy()
         
         if self.refreshtoken(my_dict):
-           # self.signAdd(my_dict)
-            self.share(my_dict)
+            if my_dict['signdate'] != today_date:
+                self.signAdd(my_dict)
+            else:
+                print("已签到，跳过")
+            if my_dict['sharedate'] != today_date:
+                self.share(my_dict)
+            else:
+                print("已分享，跳过")
             self.getPoints(my_dict)
             
         if self.error > 20:
@@ -631,10 +638,12 @@ if __name__ == '__main__':
     random.shuffle(jlyh_list)
     gh_jlyh = GithubFile('吉利银河/jlyh.json')
     gh_expired = GithubFile('吉利银河/expired.json')
+    gh_ap100 = GithubFile('吉利银河/ap100.json')
+    gh_ap150 = GithubFile('吉利银河/ap150.json')
     jlyh = Jlyh()
     for index, my_dict in enumerate(jlyh_list, start = 1):
         print(f"\n{index}/{jlqc_length}{'➠'*10}{my_dict['phone']}：")
-        if my_dict['signdate'] != today_date:
+        if my_dict['signdate'] != today_date or my_dict['sharedate'] != today_date:
             jlyh.main(index, my_dict)
             with open(filepath, 'w') as f:
                 json.dump(jlyh_list, f, indent=2)
@@ -642,7 +651,9 @@ if __name__ == '__main__':
                 randomSleep(30,60)
         else:
             jlyh.skip += 1
-            print("已签到，跳过")
+            print("已完成，跳过")
      
     gh_jlyh.update(jlyh.newList(jlyh_list))
+    gh_ap100.update(jlyh.newAp(jlyh_list, 100))
+    gh_ap150.update(jlyh.newAp(jlyh_list, 150))
     send(title_name, jlyh.sendMsg())
