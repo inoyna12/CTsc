@@ -23,6 +23,7 @@ appVersion = "1.24.2"
 app_build = "12402001"
 
 today_date = datetime.datetime.now().strftime("%m-%d")
+yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
 
 filepath = "/ql/data/env/jlyh.json"
 with open(filepath, 'r') as f:
@@ -618,11 +619,22 @@ class Jlyh:
         self.get_variable(my_dict)
         self.proxies = self.get_proxy()
         
+        todaysign = 0
+        
         if self.refreshtoken(my_dict):
-            if my_dict['signdate'] != today_date:
+            if my_dict['signdate'] == yesterday_date:
                 self.signAdd(my_dict)
-            else:
+            elif my_dict['signdate'] == today_date:
                 print("已签到，跳过")
+            elif todaysign < 70:
+                self.signAdd(my_dict)
+                todaysign += 1
+            else:
+                print("签到数量超过70，跳过")
+            # if my_dict['signdate'] != today_date:
+                # self.signAdd(my_dict)
+            # else:
+                # print("已签到，跳过")
             if my_dict['sharedate'] != today_date:
                 self.share(my_dict)
             else:
