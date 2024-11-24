@@ -89,6 +89,7 @@ class Jlqc:
             else:
                 zdjl_dict['availablePoint'] = 0
                 zdjl_dict['signdate'] = ''
+                zdjl_dict['sharedate'] = ''
                 self.all_data.append(zdjl_dict)
                 self.add_num += 1
                 print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
