@@ -69,6 +69,18 @@ class Jlqc:
     def newList(self, lst):
         new_list = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
         return new_list
+        
+    def newAp(self, lst, ap):
+        ap_list = []
+        for dct in lst:
+            if float(dct['availablePoint']) >= ap:
+                createdict = {
+                    'phone': dct['phone'],
+                    'password': dct['password'],
+                    'availablePoint': dct['availablePoint']
+                }
+                ap_list.append(createdict)
+        return self.newList(ap_list)
        
     def sign_UA(self):
         android_version = str(random.randint(7, 14))
@@ -213,6 +225,8 @@ if __name__ == '__main__':
     jlqc = Jlqc()
     gh_jlqc = GithubFile('吉利汽车/jlqc.json')
     gh_expired = GithubFile('吉利汽车/expired.json')
+    gh_ap100 = GithubFile('吉利汽车/ap100.json')
+    gh_ap150 = GithubFile('吉利汽车/ap150.json')
     random.shuffle(jlqc_list)
     for index, jlqc_dict in enumerate(jlqc_list, start=1):
         print(f"\n{index}/{jlqc_length}{'➠'*10}{jlqc_dict['phone']}：")
@@ -226,4 +240,6 @@ if __name__ == '__main__':
             print("已签到，跳过")
     
     gh_jlqc.update(jlqc.newList(jlqc_list))
+    gh_ap100.update(jlqc.newAp(jlqc_list, 100))
+    gh_ap150.update(jlqc.newAp(jlqc_list, 150))
     send(title_name, jlqc.sendMsg())
