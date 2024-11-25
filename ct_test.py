@@ -17,5 +17,5 @@ for i in all_data:
 
 gh_jlyh = GithubFile('吉利银河/jlyh.json')
 gh_jlyh.update(all_data)    
-# with open(ql_jlyh_filepath, 'w') as f:
-     # json.dump(all_data, f, indent=2)
+with open(ql_jlyh_filepath, 'w') as f:
+     json.dump(all_data, f, indent=2)
