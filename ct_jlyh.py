@@ -43,10 +43,11 @@ class Jlyh:
         self.skip = 0
         self.expired_list = []
         self.id_list = self.get_id()
+        self.todaysign = 0
         
     def sendMsg(self):
         msg = f'''
-            账号总数：{jlqc_length}
+            账号总数：{jlyh_length}
             签到：{self.sign_success}
             分享：{self.share_success}
             跳过：{self.skip}
@@ -619,16 +620,14 @@ class Jlyh:
         self.get_variable(my_dict)
         self.proxies = self.get_proxy()
         
-        todaysign = 0
-        
         if self.refreshtoken(my_dict):
             if my_dict['signdate'] == yesterday_date:
                 self.signAdd(my_dict)
             elif my_dict['signdate'] == today_date:
                 print("已签到，跳过")
-            elif todaysign < 70:
+            elif self.todaysign < 70:
                 self.signAdd(my_dict)
-                todaysign += 1
+                self.todaysign += 1
             else:
                 print("签到数量超过70，跳过")
             # if my_dict['signdate'] != today_date:
@@ -646,7 +645,7 @@ class Jlyh:
             exit()
 
 if __name__ == '__main__':
-    jlqc_length = len(jlyh_list)
+    jlyh_length = len(jlyh_list)
     random.shuffle(jlyh_list)
     gh_jlyh = GithubFile('吉利银河/jlyh.json')
     gh_expired = GithubFile('吉利银河/expired.json')
@@ -654,12 +653,12 @@ if __name__ == '__main__':
     gh_ap150 = GithubFile('吉利银河/ap150.json')
     jlyh = Jlyh()
     for index, my_dict in enumerate(jlyh_list, start = 1):
-        print(f"\n{index}/{jlqc_length}{'➠'*10}{my_dict['phone']}：")
+        print(f"\n{index}/{jlyh_length}{'➠'*10}{my_dict['phone']}：")
         if my_dict['signdate'] != today_date or my_dict['sharedate'] != today_date:
             jlyh.main(index, my_dict)
             with open(filepath, 'w') as f:
                 json.dump(jlyh_list, f, indent=2)
-            if index < jlqc_length:
+            if index < jlyh_length:
                 randomSleep(30,60)
         else:
             jlyh.skip += 1
