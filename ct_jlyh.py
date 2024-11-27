@@ -542,11 +542,14 @@ class Jlyh:
             }
             result = rts('post', url, headers=headers, data=str_body, proxies=self.proxies)
             if result:
-                print(f"分享：{result['msg']}")
+                print(f"分享{content_id}：{result['msg']}")
                 if result['msg'] == 'SUCCESS' and "success":
                     self.share_success += 1
                     my_dict['sharedate'] = today_date
                     return
+                else:
+                    print(result)
+                    break
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_分享失败", "分享失败")
