@@ -625,11 +625,11 @@ class Jlyh:
                 self.signAdd(my_dict)
             elif my_dict['signdate'] == today_date:
                 print("已签到，跳过")
-            elif self.todaysign < 70:
+            elif self.todaysign < 50:
                 self.signAdd(my_dict)
                 self.todaysign += 1
             else:
-                print("签到数量超过70，跳过")
+                print("签到数量超过50，跳过")
             # if my_dict['signdate'] != today_date:
                 # self.signAdd(my_dict)
             # else:
