@@ -116,7 +116,7 @@ class Jlyh:
         x_ca_nonce = str(uuid.uuid4())
         
         body = {
-            "pageSize": 80,
+            "pageSize": 100,
             "type": 2,
             "pageNum": 1
         }
@@ -165,7 +165,7 @@ class Jlyh:
                     createTime = text_data.get('createTime')
                     id_list.append(text_data['id'])
                     print(createTime)
-                    print(len(id_list))
+                    print(text_data['id'], len(id_list))
             if len(id_list) > 50:
                 return id_list
         send(f"{title_name}_获取id列表失败", "获取id列表失败")
