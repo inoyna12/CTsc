@@ -488,8 +488,10 @@ class Jlyh:
             x_ca_nonce = str(uuid.uuid4())
             if share_dict['type'] == 'dynamic':
                 shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/dynamic_detail/dynamic_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
+                shareContentType = 2
             elif share_dict['type'] == 'longtext':
                 shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/long_text_detail/long_text_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
+                shareContentType = 1
             body = {
                 "shareCode": "",
                 "headers": {
@@ -500,7 +502,7 @@ class Jlyh:
                 "openTimeStamp": int(x_ca_timestamp),
                 "shareMethod": "2",
                 "shareContentURL": shareContentURL,
-                "shareContentType": 2
+                "shareContentType": shareContentType
             }
             str_body = json.dumps(body, separators=(',', ':'))
             md5_base64 = self.md5Base64(str_body)
