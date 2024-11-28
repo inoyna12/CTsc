@@ -486,9 +486,9 @@ class Jlyh:
             date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
             x_ca_timestamp = str(int(now.timestamp() * 1000))
             x_ca_nonce = str(uuid.uuid4())
-            if content_dict['type'] == 'dynamic':
+            if share_dict['type'] == 'dynamic':
                 shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/dynamic_detail/dynamic_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
-            elif content_dict['type'] == 'longtext':
+            elif share_dict['type'] == 'longtext':
                 shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/long_text_detail/long_text_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
             body = {
                 "shareCode": "",
