@@ -637,10 +637,10 @@ class Jlyh:
                 # self.signAdd(my_dict)
             # else:
                 # print("已签到，跳过")
-            if my_dict['sharedate'] != today_date:
-                self.share(my_dict)
-            else:
-                print("已分享，跳过")
+           # if my_dict['sharedate'] != today_date:
+             #   self.share(my_dict)
+           # else:
+             #   print("已分享，跳过")
             self.getPoints(my_dict)
             
         if self.error > 20:
