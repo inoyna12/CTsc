@@ -654,11 +654,11 @@ class Jlyh:
                 # self.signAdd(my_dict)
             # else:
                 # print("已签到，跳过")
-            if my_dict['sharedate'] != today_date:
-                self.share(my_dict)
-            else:
-                print("已分享，跳过")
-            self.getPoints(my_dict)
+            # if my_dict['sharedate'] != today_date:
+                # self.share(my_dict)
+            # else:
+                # print("已分享，跳过")
+            # self.getPoints(my_dict)
             
         if self.error > 20:
             send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
