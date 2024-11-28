@@ -42,7 +42,7 @@ class Jlyh:
         self.share_success = 0
         self.skip = 0
         self.expired_list = []
-        self.id_list = self.get_id()
+        self.share_list = self.get_id()
         self.todaysign = 0
         
     def sendMsg(self):
@@ -158,16 +158,27 @@ class Jlyh:
         }
         result = rts('post', url, headers=headers, data=str_body)
         if result:
-            id_list = []
+            share_list = []
             for i in result['data']['list']:
-                text_data = i.get('longtext') or i.get('dynamic')
-                if text_data:
-                    createTime = text_data.get('createTime')
-                    id_list.append(text_data['id'])
-                    print(createTime)
-                    print(text_data['id'], len(id_list))
-            if len(id_list) > 50:
-                return id_list
+                if i['dynamic'] is not None:
+                    print(i['dynamic']['createTime'])
+                    create_dict = {
+                        'type': 'dynamic',
+                        'id': i['dynamic']['id']
+                    }
+                elif i['longtext'] is not None:
+                    print(i['longtext']['createTime'])
+                    create_dict = {
+                        'type': 'longtext',
+                        'id': i['longtext']['id']
+                    }
+                else:
+                    send(f"{title_name}_未知文章属性", "未知文章属性")
+                    exit()
+                share_list.append(create_dict)
+                print(len(share_list))
+            if len(share_list) > 50:
+                return share_list
         send(f"{title_name}_获取id列表失败", "获取id列表失败")
         exit()
             
@@ -470,12 +481,15 @@ class Jlyh:
     def share(self, my_dict):
         url = 'https://galaxy-app.geely.com/h5/v1/square/content/share'
         for i in range(5):
-            content_id = random.choice(self.id_list)
+            share_dict = random.choice(self.share_list)
             now = datetime.datetime.now(datetime.timezone.utc)
             date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
             x_ca_timestamp = str(int(now.timestamp() * 1000))
             x_ca_nonce = str(uuid.uuid4())
-            
+            if content_dict['type'] == 'dynamic':
+                shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/dynamic_detail/dynamic_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
+            elif content_dict['type'] == 'longtext':
+                shareContentURL = f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/long_text_detail/long_text_detail?isCordova=1&showTitleBar=0&id={share_dict['id']}"
             body = {
                 "shareCode": "",
                 "headers": {
@@ -485,7 +499,7 @@ class Jlyh:
                 },
                 "openTimeStamp": int(x_ca_timestamp),
                 "shareMethod": "2",
-                "shareContentURL": f"https://galaxy-h5.geely.com/galaxy-app-h5/pages/dynamic_detail/dynamic_detail?isCordova=1&showTitleBar=0&id={content_id}",
+                "shareContentURL": shareContentURL,
                 "shareContentType": 2
             }
             str_body = json.dumps(body, separators=(',', ':'))
@@ -637,10 +651,10 @@ class Jlyh:
                 # self.signAdd(my_dict)
             # else:
                 # print("已签到，跳过")
-           # if my_dict['sharedate'] != today_date:
-             #   self.share(my_dict)
-           # else:
-             #   print("已分享，跳过")
+            if my_dict['sharedate'] != today_date:
+                self.share(my_dict)
+            else:
+                print("已分享，跳过")
             self.getPoints(my_dict)
             
         if self.error > 20:
