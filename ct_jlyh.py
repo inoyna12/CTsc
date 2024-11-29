@@ -564,6 +564,9 @@ class Jlyh:
                     self.share_success += 1
                     my_dict['sharedate'] = today_date
                     return
+                elif result['msg'] == '本次操作无星积分，请稍后再试':
+                    my_dict['sharedate'] = today_date
+                    return
                 else:
                     print(result)
                     break
@@ -645,11 +648,11 @@ class Jlyh:
                 self.signAdd(my_dict)
             elif my_dict['signdate'] == today_date:
                 print("已签到，跳过")
-            elif self.todaysign < 50:
+            elif self.todaysign < 30:
                 self.signAdd(my_dict)
                 self.todaysign += 1
             else:
-                print("签到数量超过50，跳过")
+                print("签到数量超过30，跳过")
             # if my_dict['signdate'] != today_date:
                 # self.signAdd(my_dict)
             # else:
