@@ -564,7 +564,7 @@ class Jlyh:
                     my_dict['sharedate'] = today_date
                     return
                 elif result['msg'] == '本次操作无星积分，请稍后再试':
-                    my_dict['sharestatus'] == 'false'
+                    my_dict['sharestatus'] = 'false'
                     return
                 else:
                     print(result)
