@@ -43,7 +43,6 @@ class Jlyh:
         self.skip = 0
         self.expired_list = []
         self.share_list = self.get_id()
-        self.todaysign = 0
         
     def sendMsg(self):
         msg = f'''
@@ -565,7 +564,7 @@ class Jlyh:
                     my_dict['sharedate'] = today_date
                     return
                 elif result['msg'] == '本次操作无星积分，请稍后再试':
-                    my_dict['sharedate'] = today_date
+                    my_dict['sharestatus'] == 'false'
                     return
                 else:
                     print(result)
@@ -644,23 +643,17 @@ class Jlyh:
         self.proxies = self.get_proxy()
         
         if self.refreshtoken(my_dict):
-            if my_dict['signdate'] == yesterday_date:
+            if my_dict['signdate'] != today_date:
                 self.signAdd(my_dict)
-            elif my_dict['signdate'] == today_date:
+            else:
                 print("已签到，跳过")
-            elif self.todaysign < 30:
-                self.signAdd(my_dict)
-                self.todaysign += 1
+            if my_dict['sharestatus'] == 'true':
+                if my_dict['sharedate'] != today_date:
+                    self.share(my_dict)
+                else:
+                    print("已分享，跳过")
             else:
-                print("签到数量超过30，跳过")
-            # if my_dict['signdate'] != today_date:
-                # self.signAdd(my_dict)
-            # else:
-                # print("已签到，跳过")
-            if my_dict['sharedate'] != today_date:
-                self.share(my_dict)
-            else:
-                print("已分享，跳过")
+                print("分享已关闭")
             self.getPoints(my_dict)
             
         if self.error > 20:
@@ -677,7 +670,7 @@ if __name__ == '__main__':
     jlyh = Jlyh()
     for index, my_dict in enumerate(jlyh_list, start = 1):
         print(f"\n{index}/{jlyh_length}{'➠'*10}{my_dict['phone']}：")
-        if my_dict['signdate'] != today_date or my_dict['sharedate'] != today_date:
+        if my_dict['signdate'] != today_date or (my_dict['sharedate'] != today_date and my_dict['sharestatus'] == 'true'):
             jlyh.main(index, my_dict)
             with open(filepath, 'w') as f:
                 json.dump(jlyh_list, f, indent=2)
