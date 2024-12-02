@@ -54,6 +54,7 @@ class Jlyh:
                 zdjl_dict['availablePoints'] = 0
                 zdjl_dict['signdate'] = ''
                 zdjl_dict['sharedate'] = ''
+                zdjl_dict['sharestatus'] = 'true'
                 self.all_data.append(zdjl_dict)
                 self.add_num += 1
                 print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
