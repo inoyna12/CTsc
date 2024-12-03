@@ -2,7 +2,9 @@ import requests
 import json
 import time
 import random
+from datetime import datetime
 
+# 网络请求
 def rts(method, url, **kwargs):
         time_out = 10
         try:
@@ -22,7 +24,12 @@ def rts(method, url, **kwargs):
             print("其他错误:", str(e))
         return False
 
+# 随机延时
 def randomSleep(min_val, max_val):
     num = random.randint(min_val, max_val)
     print(f"随机等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
+
+# 系统时间
+def get_current_time():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
