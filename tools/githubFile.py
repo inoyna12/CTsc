@@ -29,12 +29,14 @@ class GithubFile:
     def update(self, new_lst):
         """更新文件"""
         encoded_file_content = json.dumps(new_lst, indent=2).encode('utf-8')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        commit_message = f"Updated {self.file_path}\n{current_time}"
         try:
             # 在更新前先刷新文件信息
             self._refresh_file_info()
             self.repo.update_file(
                 self.file_path, 
-                self.commit_message, 
+                commit_message, 
                 encoded_file_content, 
                 self.file_info.sha
             )
