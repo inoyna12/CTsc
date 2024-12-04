@@ -15,7 +15,7 @@ def xiequ():
                 "http": f"http://{ip}:{port}",
                 "https": f"http://{ip}:{port}"
             }
-            result = rts('get', testUrl, proxies=proxy)
+            result = rts('get', testUrl, respType='text', proxies=proxy)
             if result:
                 return proxy
         time.sleep(5)
@@ -34,7 +34,7 @@ def juliang():
                 "http": f"http://{ip_port}",
                 "https": f"http://{ip_port}"
             }
-            result = rts('get', testUrl, proxies=proxy)
+            result = rts('get', testUrl, respType='text', proxies=proxy)
             if result:
                 return proxy
         time.sleep(5)
