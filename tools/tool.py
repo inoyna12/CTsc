@@ -5,17 +5,16 @@ import random
 from datetime import datetime
 
 # 网络请求
-def rts(method, url, **kwargs):
+def rts(method, url, respType='json', **kwargs):
         time_out = 10
         try:
             method = method.upper()
             if method not in ['GET', 'POST', 'PUT']:
                 raise ValueError(f"不支持 {method} 请求方法")
             response = requests.request(method, url, timeout=time_out, **kwargs)
-            try:
-                return response.json()
-            except ValueError:
+            if respType == 'text':
                 return response.text
+            return response.json()
         except requests.exceptions.Timeout as e:
             print(f"请求超时：{url}")
         except requests.exceptions.RequestException as e:
