@@ -14,7 +14,7 @@ import random
 import string
 from tools.tool import rts, randomSleep
 from tools.githubFile import GithubFile
-from tools.proxy import juliang
+from tools.proxy import xiequ
 from urllib.parse import urlparse
 from notify import send
 
@@ -54,7 +54,7 @@ class Jlyh:
         return msg  
 
     def get_proxy(self):
-        proxies = juliang()
+        proxies = xiequ()
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
