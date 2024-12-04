@@ -7,7 +7,6 @@ class GithubFile:
         self.gh = Github(os.getenv('github_token'))
         self.repo = self.gh.get_repo('inoyna12/updateTeam')
         self.file_path = file_path
-        self.commit_message = f"Updated {file_path}"
         self._refresh_file_info()
 
     def _refresh_file_info(self):
