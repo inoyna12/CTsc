@@ -557,7 +557,7 @@ class Jlyh:
             }
             result = rts('post', url, headers=headers, data=str_body, proxies=self.proxies)
             if result:
-                print(f"分享{share_dict['id']}：{result['msg']}")
+                print(f"分享：{result['msg']}")
                 if result['msg'] == 'SUCCESS' and "success":
                     self.share_success += 1
                     my_dict['sharedate'] = today_date
