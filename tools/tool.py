@@ -29,6 +29,6 @@ def randomSleep(min_val, max_val):
     print(f"随机等待{num}秒后继续>>>>>>>>>>>")
     time.sleep(num)
 
-# 系统时间
-def get_current_time():
+# 系统时间，格式：2024-12-04 10:54:23.740
+def current_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
