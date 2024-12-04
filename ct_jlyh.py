@@ -481,7 +481,6 @@ class Jlyh:
         url = 'https://galaxy-app.geely.com/h5/v1/square/content/share'
         for i in range(5):
             share_dict = random.choice(self.share_list)
-            print(share_dict)
             now = datetime.datetime.now(datetime.timezone.utc)
             date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
             x_ca_timestamp = str(int(now.timestamp() * 1000))
