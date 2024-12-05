@@ -4,26 +4,11 @@ new Env('更新账号');
 '''
 
 import json,os
-from github import Github
+from tools.githubFile import GithubFile
 from notify import send
 
 ql_jlyh_filepath = "/ql/data/env/jlyh.json"
 ql_jlqc_filepath = "/ql/data/env/jlqc.json"
-  
-class GithubFile:
-    def __init__(self, file_path):
-        self.gh = Github(os.getenv('github_token'))
-        self.repo = self.gh.get_repo('inoyna12/updateTeam')
-        self.file_path = file_path
-        self.commit_message = f"Update {self.file_path}"
-        self.file_info = self.repo.get_contents(self.file_path)
-        self.content = json.loads(self.file_info.decoded_content.decode('utf-8'))
-        print(f"读取gtihub {self.file_path} 文件成功！")
-        
-    def update(self, new_content):
-        encoded_file_content = json.dumps(new_content, indent=2).encode('utf-8')
-        self.repo.update_file(self.file_path, self.commit_message, encoded_file_content, self.file_info.sha)
-        print(f"更新github {self.file_path} 文件成功！")
 
 class Jlyh:
     def __init__(self, filepath):
@@ -34,12 +19,12 @@ class Jlyh:
         self.filepath = filepath
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('吉利银河/zdjl.json')
-        if len(self.gh_zdjl.content) > 0:
+        if len(self.gh_zdjl.lst) > 0:
             self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
             self.update()
               
     def update(self):
-        for zdjl_dict in self.gh_zdjl.content:
+        for zdjl_dict in self.gh_zdjl.lst:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['password'] = zdjl_dict['password']
@@ -74,12 +59,12 @@ class Jlqc:
         self.filepath = filepath
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('吉利汽车/zdjl.json')
-        if len(self.gh_zdjl.content) > 0:
+        if len(self.gh_zdjl.lst) > 0:
             self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
             self.update()
               
     def update(self):
-        for zdjl_dict in self.gh_zdjl.content:
+        for zdjl_dict in self.gh_zdjl.lst:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['password'] = zdjl_dict['password']
