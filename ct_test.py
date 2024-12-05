@@ -10,7 +10,8 @@ create_dict = {
     'networkState': 'WIFI',
     'osVersion': '12',
     'model': '22081212C',
-    'brand': 'Xiaomi'
+    'brand': 'Xiaomi',
+    'signdate': ''
 }
 create_list.append(create_dict)
 with open(ql_path, 'w') as f:
