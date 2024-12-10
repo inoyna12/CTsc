@@ -88,6 +88,44 @@ class FY:
           'User-Agent': "ford-evos",
           'Connection': "Keep-Alive",
           'Content-Type': "application/json",
+          'Host': 'evosapi.fuyu.club',
+          'appVersion': appVersion,
+          'os': "Android",
+          'loginChannel': "baidu",
+          'sign': md5_encrypt(sign),
+          'body': md5_encrypt(paramEncr),
+          'operatorName': "dx",
+          'networkState': my_dict['networkState'],
+          'token': my_dict['token'],
+          'osVersion': my_dict['osVersion'],
+          'seccode': rsa_encrypt(seccode, self.seccode_key),
+          'model': my_dict['model'],
+          'brand': my_dict['brand'],
+          'timestamp': timestamp,
+          'codelab': "codelabs"
+        }
+        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+        if result:
+            print(result)
+            if result['msg'] == '操作成功':
+                result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
+                print(result_decrypt)
+                
+    def myInfo(self, my_dict):
+        url = "https://evosapi.fuyu.club/user/myInfo"
+        timestamp = str(int(time.time() * 1000))
+        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+        seccode = timestamp + randomStr
+        paramEncr = json.dumps({})
+        body = json.dumps({
+          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+        }, separators=(',', ':'))
+        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+        headers = {
+          'User-Agent': "ford-evos",
+          'Connection': "Keep-Alive",
+          'Content-Type': "application/json",
+          'Host': 'evosapi.fuyu.club',
           'appVersion': appVersion,
           'os': "Android",
           'loginChannel': "baidu",
@@ -115,6 +153,7 @@ class FY:
         self.index = index
         self.proxies = self.get_proxy()
         self.signIn(my_dict)
+        self.myInfo(my_dict)
 
     
 if __name__ == '__main__':
