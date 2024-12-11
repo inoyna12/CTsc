@@ -111,6 +111,9 @@ class FY:
                 if result['msg'] == '操作成功':
                     result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
                     print(result_decrypt)
+                elif result['msg'] == '今天您已签到':
+                    print(result)
+                return
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
@@ -148,7 +151,6 @@ class FY:
         }
         result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
         if result:
-            print(result)
             if result['msg'] == '操作成功':
                 result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
                 print(result_decrypt)
