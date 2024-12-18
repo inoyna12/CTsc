@@ -341,6 +341,7 @@ class Jlyh:
                     elif box['mysteryBoxTitle'] == '30天签到盲盒':
                         self.openMysteryBox(my_dict, box['id'])
                     else:
+                        print(result)
                         send(f"{title_name}_未知签到奖励", "未知签到奖励")
                         exit()
         elif result['msg'] == '今日已签到':
