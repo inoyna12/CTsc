@@ -18,7 +18,6 @@ def xiequ():
                 if result:
                     return proxy
                 else:
-                    time.sleep(5)
                     continue
             else:
                 print(result)
