@@ -36,8 +36,11 @@ key2 = {'x-ca-key': '204179735', 'secret-key': 'UhmsX3xStU4vrGHGYtqEXahtkYuQncMf
 
 class Jlyh:
     def __init__(self):
+        self.SIGN_FAIL_STOP = 3
+        
         self.error = 0
         self.error_list = []
+        self.sign_fail = 0
         self.sign_success = 0
         self.share_success = 0
         self.skip = 0
@@ -337,9 +340,17 @@ class Jlyh:
                         print(f"{box['mysteryBoxTitle']}：{box['prizeContent']}")
                     elif box['mysteryBoxTitle'] == '30天签到盲盒':
                         self.openMysteryBox(my_dict, box['id'])
+                    else:
+                        send(f"{title_name}_未知签到奖励", "未知签到奖励")
+                        exit()
         elif result['msg'] == '今日已签到':
             print(result)
-            pass
+        elif '账号存在异常' in result['msg']:
+            print(result)
+            self.sign_fail += 1
+            if self.sign_fail > self.SIGN_FAIL_STOP:
+                send(f"{title_name}_账号签到异常", "账号签到异常")
+                exit()
         else:
             print(result)
             send(f"{title_name}_签到失败", "未知响应体")
