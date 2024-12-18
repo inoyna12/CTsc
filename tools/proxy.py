@@ -3,22 +3,26 @@ import time
 from tools.tool import rts
         
 def xiequ():
-    url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=0&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
+    url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=1&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
     testUrl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
     for i in range(5):
-        result = rts('get', url)
-        if result and result['code'] == 0:
-            ip = result["data"][0]["IP"]
-            port = result["data"][0]["Port"]
-            print(f"代理：{ip}:{port}")
-            proxy = {
-                "http": f"http://{ip}:{port}",
-                "https": f"http://{ip}:{port}"
-            }
-            result = rts('get', testUrl, respType='text', proxies=proxy)
-            if result:
-                return proxy
-        time.sleep(5)
+        result = rts('get', url, respType='text')
+        if result:
+            if len(result) <= 20:
+                print(f"代理：{result}")
+                proxy = {
+                    "http": f"http://{result}",
+                    "https": f"http://{result}"
+                }
+                result = rts('get', testUrl, respType='text', proxies=proxy)
+                if result:
+                    return proxy
+                else:
+                    time.sleep(5)
+                    continue
+            else:
+                print(result)
+        time.sleep(30)
     print("获取代理ip失败")
     return None
         
