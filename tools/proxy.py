@@ -8,7 +8,7 @@ def xiequ():
     for i in range(5):
         result = rts('get', url, respType='text')
         if result:
-            if len(result) <= 20:
+            if 12 <= len(result) <= 20:
                 print(f"代理：{result}")
                 proxy = {
                     "http": f"http://{result}",
