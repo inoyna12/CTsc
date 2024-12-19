@@ -5,7 +5,7 @@ from tools.tool import rts
 def xiequ():
     url = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=1&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
     testUrl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
-    for i in range(5):
+    for i in range(8):
         result = rts('get', url, respType='text')
         if result:
             if 12 <= len(result) <= 20:
