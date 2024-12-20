@@ -54,19 +54,25 @@ def rsa_encrypt(text, public_key):
     ciphertext = cipher.encrypt(text.encode('utf-8'))
     # 返回Base64编码的加密结果
     return base64.b64encode(ciphertext).decode()
-
-def md5_encrypt(text):
+    
+def md5_encrypt(text, uppercase=True):
     md5_hash = hashlib.md5()
     md5_hash.update(text.encode('utf-8'))
-    md5_result = md5_hash.hexdigest().upper()
-    return md5_result
+    if uppercase:
+        return md5_hash.hexdigest().upper()
+    else:
+        return md5_hash.hexdigest()
     
 class FY:
     def __init__(self):
         self.seccode_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUUKw74ULuOMsQT9EO64Ij8y/DAgmW2JvbPIa7XTLibr0lfG7nnbXhnIWFwx1tfgG04P1jYZBHBVcvP7sVIWVvVDg8N43RErIu+kNCEMMfq22iUahKK1vi+y2bsXfVCa4SWS5eDegQOsuBfsP30HlcA4uvH3+/elFepv+6ep9ZmwIDAQAB'
         self.gh_fy = GithubFile("福域/fy.json")
         self.skip = 0
-        
+    
+    def newList(self, lst):
+        new_lst = sorted(lst, key=lambda x: x['totalIntegral'], reverse=True)
+        return new_lst
+            
     def get_proxy(self):
         proxies = xiequ()
         if proxies:
@@ -109,8 +115,11 @@ class FY:
             if result:
                 print(f"签到：{result['msg']}")
                 if result['msg'] == '操作成功':
-                    result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
-                    print(result_decrypt)
+                    result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                    luckyBlessingBagId = result_decrypt['luckyBlessingBagId']
+                    print(f"已连续签到 {result_decrypt['ontinuous']} 天")
+                    if luckyBlessingBagId:
+                        self.luckDraw(luckyBlessingBagId, my_dict)
                 elif result['msg'] == '今天您已签到':
                     print(result)
                 return
@@ -118,7 +127,47 @@ class FY:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
         exit()
+
+    def getAllTasks(self, my_dict):
+        url = "https://evosapi.fuyu.club/userTask/getAllTasks"
+        timestamp = str(int(time.time() * 1000))
+        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+        seccode = timestamp + randomStr
+        paramEncr = json.dumps({})
+        body = json.dumps({
+          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+        }, separators=(',', ':'))
+        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+        headers = {
+          'User-Agent': "ford-evos",
+          'Connection': "Keep-Alive",
+          'Content-Type': "application/json",
+          'Host': 'evosapi.fuyu.club',
+          'appVersion': appVersion,
+          'os': "Android",
+          'loginChannel': "baidu",
+          'sign': md5_encrypt(sign),
+          'body': md5_encrypt(paramEncr),
+          'operatorName': "dx",
+          'networkState': my_dict['networkState'],
+          'token': my_dict['token'],
+          'osVersion': my_dict['osVersion'],
+          'seccode': rsa_encrypt(seccode, self.seccode_key),
+          'model': my_dict['model'],
+          'brand': my_dict['brand'],
+          'timestamp': timestamp,
+          'codelab': "codelabs"
+        }
+        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+        if result:
+            if result['msg'] == '操作成功':
+                result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                print(result_decrypt)
+                totalIntegral = result_decrypt[0]['userTatalScore']
+                print(f"福币：{totalIntegral}")
+                my_dict['totalIntegral'] = totalIntegral
                 
+    # 返回数据太多，暂时不用
     def myInfo(self, my_dict):
         url = "https://evosapi.fuyu.club/user/myInfo"
         timestamp = str(int(time.time() * 1000))
@@ -154,15 +203,51 @@ class FY:
             if result['msg'] == '操作成功':
                 result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
                 print(result_decrypt)
-    
+
+    def luckDraw(self, activityId, my_dict):
+        url = f"https://evosapi.fuyu.club/luckyBlessingBag/luckDraw/{activityId}"
+        timestamp = str(int(time.time() * 1000))
+        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+        seccode = timestamp + randomStr
+        paramEncr = json.dumps({
+            "activityId": str(activityId)
+        })
+        body = json.dumps({
+          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+        }, separators=(',', ':'))
+        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+        headers = {
+          'User-Agent': "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046291 Mobile Safari/537.36 ford-evos",
+          'Accept': "application/json, text/plain, */*",
+          'Content-Type': "application/json",
+          'Pragma': "no-cache",
+          'Cache-Control': "no-cache",
+          'seccode': rsa_encrypt(seccode, self.seccode_key),
+          'timestamp': timestamp,
+          'token': my_dict['token'],
+          'sign': md5_encrypt(sign),
+          'appVersion': appVersion,
+          'Origin': "https://evosh5.fuyu.club",
+          'X-Requested-With': "com.changanford.evos",
+          'Sec-Fetch-Site': "same-site",
+          'Sec-Fetch-Mode': "cors",
+          'Sec-Fetch-Dest': "empty",
+          'Referer': "https://evosh5.fuyu.club/",
+          'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+        }
+        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+        if result:
+            if result['msg'] == '操作成功':
+                result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                print(result_decrypt)
+                print(f"获得：{result_decrypt['prizeName']}")
     
     def main(self, index, my_dict):
         self.index = index
         self.proxies = self.get_proxy()
         self.signIn(my_dict)
-        self.myInfo(my_dict)
+        self.getAllTasks(my_dict)
 
-    
 if __name__ == '__main__':
     fy_length = len(fy_list)
     random.shuffle(fy_list)
@@ -178,3 +263,5 @@ if __name__ == '__main__':
         else:
             jlyh.skip += 1
             print("已完成，跳过")
+    
+    fy.gh_fy.update(fy.newList(fy_list))
