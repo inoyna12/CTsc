@@ -115,14 +115,20 @@ class FY:
             if result:
                 print(f"签到：{result['msg']}")
                 if result['msg'] == '操作成功':
+                    my_dict['signdate'] = today_date
                     result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                     luckyBlessingBagId = result_decrypt['luckyBlessingBagId']
                     print(f"已连续签到 {result_decrypt['ontinuous']} 天")
                     if luckyBlessingBagId:
                         self.luckDraw(luckyBlessingBagId, my_dict)
+                        return
                 elif result['msg'] == '今天您已签到':
                     print(result)
-                return
+                    my_dict['signdate'] = today_date
+                    return
+                else:
+                    print(result)
+                    break
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
@@ -162,7 +168,6 @@ class FY:
         if result:
             if result['msg'] == '操作成功':
                 result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
-                print(result_decrypt)
                 totalIntegral = result_decrypt[0]['userTatalScore']
                 print(f"福币：{totalIntegral}")
                 my_dict['totalIntegral'] = totalIntegral
