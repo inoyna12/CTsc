@@ -115,13 +115,13 @@ class FY:
             if result:
                 print(f"签到：{result['msg']}")
                 if result['msg'] == '操作成功':
-                    my_dict['signdate'] = today_date
                     result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                     luckyBlessingBagId = result_decrypt['luckyBlessingBagId']
                     print(f"已连续签到 {result_decrypt['ontinuous']} 天")
                     if luckyBlessingBagId:
                         self.luckDraw(luckyBlessingBagId, my_dict)
-                        return
+                    my_dict['signdate'] = today_date
+                    return
                 elif result['msg'] == '今天您已签到':
                     print(result)
                     my_dict['signdate'] = today_date
@@ -216,7 +216,7 @@ class FY:
         seccode = timestamp + randomStr
         paramEncr = json.dumps({
             "activityId": str(activityId)
-        })
+        }, separators=(',', ':'))
         body = json.dumps({
           "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
         }, separators=(',', ':'))
