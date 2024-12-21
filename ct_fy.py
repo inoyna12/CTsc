@@ -266,7 +266,7 @@ if __name__ == '__main__':
             if index < fy_length:
                 randomSleep(30,60)
         else:
-            jlyh.skip += 1
+            fy.skip += 1
             print("已完成，跳过")
     
     fy.gh_fy.update(fy.newList(fy_list))
