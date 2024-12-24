@@ -349,7 +349,7 @@ class Jlyh:
         elif '账号存在异常' in result['msg']:
             print(result)
             self.sign_fail += 1
-            if self.sign_fail > self.SIGN_FAIL_STOP:
+            if self.sign_fail >= self.SIGN_FAIL_STOP:
                 send(f"{title_name}_账号签到异常", "账号签到异常")
                 exit()
         else:
