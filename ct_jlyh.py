@@ -36,7 +36,7 @@ key2 = {'x-ca-key': '204179735', 'secret-key': 'UhmsX3xStU4vrGHGYtqEXahtkYuQncMf
 
 class Jlyh:
     def __init__(self):
-        self.SIGN_FAIL_STOP = 8
+        self.SIGN_FAIL_STOP = 10
         
         self.error = 0
         self.error_list = []
