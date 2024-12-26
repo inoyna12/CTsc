@@ -116,6 +116,7 @@ class FY:
                 print(f"签到：{result['msg']}")
                 if result['msg'] == '操作成功':
                     result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                    print(result_decrypt)
                     luckyBlessingBagId = result_decrypt['luckyBlessingBagId']
                     print(f"已连续签到 {result_decrypt['ontinuous']} 天")
                     if luckyBlessingBagId:
