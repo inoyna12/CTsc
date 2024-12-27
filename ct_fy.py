@@ -14,7 +14,7 @@ from tools.proxy import xiequ
 from notify import send
 
 title_name = "福域"
-appVersion = "1.4.7"
+appVersion = "1.5.2"
 
 today_date = datetime.datetime.now().strftime("%m-%d")
 
