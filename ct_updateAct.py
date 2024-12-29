@@ -9,6 +9,7 @@ from notify import send
 
 ql_jlyh_filepath = "/ql/data/env/jlyh.json"
 ql_jlqc_filepath = "/ql/data/env/jlqc.json"
+ql_fy_filepath = "/ql/data/env/fy.json"
 
 class Jlyh:
     def __init__(self, filepath):
@@ -86,5 +87,43 @@ class Jlqc:
             json.dump(self.all_data, f, indent=2)
         send("吉利汽车更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
         
+class FY:
+    def __init__(self, filepath):
+        with open(filepath, 'r') as f:
+            self.all_data = json.load(f)
+        self.update_num = 0
+        self.add_num= 0
+        self.filepath = filepath
+        self.bef_num = len(self.all_data)
+        self.gh_zdjl = GithubFile('福域/zdjl.json')
+        if len(self.gh_zdjl.lst) > 0:
+            self.gh_fy = GithubFile('福域/jlyh.json')
+            self.update()
+              
+    def update(self):
+        for zdjl_dict in self.gh_zdjl.lst:
+            for my_dict in self.all_data:
+                if my_dict['phone'] == zdjl_dict['phone']:
+                    my_dict['token'] = zdjl_dict['token']
+                    my_dict['osVersion'] = zdjl_dict['osVersion']
+                    my_dict['model'] = zdjl_dict['model']
+                    my_dict['brand'] = zdjl_dict['brand']
+                    self.update_num += 1
+                    print(f"更新次数：{self.update_num}，号码：{zdjl_dict['phone']}")
+                    break
+            else:
+                zdjl_dict['totalIntegral'] = 0
+                zdjl_dict['signdate'] = ''
+                self.all_data.append(zdjl_dict)
+                self.add_num += 1
+                print(f"增加次数：{self.add_num}，号码：{zdjl_dict['phone']}")
+        
+        self.gh_fy.update(self.all_data)
+        self.gh_zdjl.update([])
+        with open(self.filepath, 'w') as f:
+            json.dump(self.all_data, f, indent=2)
+        send("福域更新账号", f"增加账号{self.add_num}次，更新账号{self.update_num}次\n原账号数量：{self.bef_num}，现账号数量：{len(self.all_data)}")
+        
 Jlyh(ql_jlyh_filepath)
 Jlqc(ql_jlqc_filepath)
+FY(ql_fy_filepath)
