@@ -97,7 +97,7 @@ class FY:
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('福域/zdjl.json')
         if len(self.gh_zdjl.lst) > 0:
-            self.gh_fy = GithubFile('福域/jlyh.json')
+            self.gh_fy = GithubFile('福域/fy.json')
             self.update()
               
     def update(self):
