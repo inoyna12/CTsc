@@ -346,6 +346,8 @@ class Jlyh:
                         exit()
         elif result['msg'] == '今日已签到':
             print(result)
+        elif result['msg'] == '盲盒还在路上，稍等片刻':
+            print(result)
         elif '账号存在异常' in result['msg']:
             print(result)
             self.sign_fail += 1
