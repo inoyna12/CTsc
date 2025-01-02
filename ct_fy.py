@@ -223,7 +223,7 @@ class FY:
         }, separators=(',', ':'))
         sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
         headers = {
-          'User-Agent': "Mozilla/5.0 (Linux; Android 12; 22081212C Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046291 Mobile Safari/537.36 ford-evos",
+          'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046291 Mobile Safari/537.36 ford-evos",
           'Accept': "application/json, text/plain, */*",
           'Content-Type': "application/json",
           'Pragma': "no-cache",
