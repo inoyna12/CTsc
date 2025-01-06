@@ -656,18 +656,19 @@ class Jlyh:
         self.proxies = self.get_proxy()
         
         if self.refreshtoken(my_dict):
-            if my_dict['signdate'] != today_date:
-                self.signAdd(my_dict)
-            else:
-                print("已签到，跳过")
-            if my_dict['sharestatus'] == 'true':
-                if my_dict['sharedate'] != today_date:
-                    self.share(my_dict)
-                else:
-                    print("已分享，跳过")
-            else:
-                print("分享已关闭")
-            self.getPoints(my_dict)
+            pass
+            # if my_dict['signdate'] != today_date:
+                # self.signAdd(my_dict)
+            # else:
+                # print("已签到，跳过")
+            # if my_dict['sharestatus'] == 'true':
+                # if my_dict['sharedate'] != today_date:
+                    # self.share(my_dict)
+                # else:
+                    # print("已分享，跳过")
+            # else:
+                # print("分享已关闭")
+            # self.getPoints(my_dict)
             
         if self.error > 20:
             send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
