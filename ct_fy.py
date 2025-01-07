@@ -113,23 +113,20 @@ class FY:
             }
             result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
             if result:
-                print(f"签到：{result['msg']}")
+                d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 if result['msg'] == '操作成功':
-                    result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
-                    print(result_decrypt)
-                    luckyBlessingBagId = result_decrypt['luckyBlessingBagId']
-                    print(f"已连续签到 {result_decrypt['ontinuous']} 天")
+                    msg = f"已连续签到 {d_data['ontinuous']} 天"
+                    luckyBlessingBagId = d_data['luckyBlessingBagId']
                     if luckyBlessingBagId:
                         self.luckDraw(luckyBlessingBagId, my_dict)
-                    my_dict['signdate'] = today_date
-                    return
                 elif result['msg'] == '今天您已签到':
-                    print(result)
-                    my_dict['signdate'] = today_date
-                    return
+                    msg = result['msg']
                 else:
                     print(result)
                     break
+                print(f"签到：{msg}")
+                my_dict['signdate'] = today_date
+                return
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
