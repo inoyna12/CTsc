@@ -16,11 +16,7 @@ from notify import send
 title_name = "福域"
 appVersion = "1.5.2"
 
-today_date = datetime.datetime.now().strftime("%m-%d")
 
-filepath = "/ql/data/env/fy.json"
-with open(filepath, 'r') as f:
-    fy_list = json.load(f)
 
 def aes_cbc_encrypt(key_str, iv_str, data_str):
     key = key_str.encode('utf-8')
@@ -67,12 +63,22 @@ class FY:
     def __init__(self):
         self.seccode_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUUKw74ULuOMsQT9EO64Ij8y/DAgmW2JvbPIa7XTLibr0lfG7nnbXhnIWFwx1tfgG04P1jYZBHBVcvP7sVIWVvVDg8N43RErIu+kNCEMMfq22iUahKK1vi+y2bsXfVCa4SWS5eDegQOsuBfsP30HlcA4uvH3+/elFepv+6ep9ZmwIDAQAB'
         self.gh_fy = GithubFile("福域/fy.json")
+        
+        self.sign_true = 0
         self.skip = 0
     
     def newList(self, lst):
         new_lst = sorted(lst, key=lambda x: x['totalIntegral'], reverse=True)
         return new_lst
-            
+    
+    def sendMsg(self):
+        msg = f'''
+            账号总数：{my_length}
+            签到：{self.sign_true}
+            跳过：{self.skip}
+        '''
+        return msg
+         
     def get_proxy(self):
         proxies = xiequ()
         if proxies:
@@ -80,7 +86,7 @@ class FY:
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
         exit()
         
-    def signIn(self, my_dict):
+    def signIn(self):
         url = "https://evosapi.fuyu.club/user/signIn"
         for i in range(5):
             timestamp = str(int(time.time() * 1000))
@@ -115,10 +121,8 @@ class FY:
             if result:
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 if result['msg'] == '操作成功':
-                    msg = f"已连续签到 {d_data['ontinuous']} 天"
                     luckyBlessingBagId = d_data['luckyBlessingBagId']
-                    if luckyBlessingBagId:
-                        self.luckDraw(luckyBlessingBagId, my_dict)
+                    msg = f"已连续签到 {d_data['ontinuous']} 天"
                 elif result['msg'] == '今天您已签到':
                     msg = result['msg']
                 else:
@@ -126,13 +130,15 @@ class FY:
                     break
                 print(f"签到：{msg}")
                 my_dict['signdate'] = today_date
+                if luckyBlessingBagId:
+                    self.luckDraw(luckyBlessingBagId)
                 return
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
         exit()
 
-    def getAllTasks(self, my_dict):
+    def getAllTasks(self):
         url = "https://evosapi.fuyu.club/userTask/getAllTasks"
         timestamp = str(int(time.time() * 1000))
         randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
@@ -165,13 +171,13 @@ class FY:
         result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
         if result:
             if result['msg'] == '操作成功':
-                result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
-                totalIntegral = result_decrypt[0]['userTatalScore']
+                d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                totalIntegral = d_data[0]['userTatalScore']
                 print(f"福币：{totalIntegral}")
                 my_dict['totalIntegral'] = totalIntegral
                 
     # 返回数据太多，暂时不用
-    def myInfo(self, my_dict):
+    def myInfo(self):
         url = "https://evosapi.fuyu.club/user/myInfo"
         timestamp = str(int(time.time() * 1000))
         randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
@@ -207,7 +213,7 @@ class FY:
                 result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
                 print(result_decrypt)
 
-    def luckDraw(self, activityId, my_dict):
+    def luckDraw(self, activityId):
         url = f"https://evosapi.fuyu.club/luckyBlessingBag/luckDraw/{activityId}"
         timestamp = str(int(time.time() * 1000))
         randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
@@ -241,30 +247,38 @@ class FY:
         result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
         if result:
             if result['msg'] == '操作成功':
-                result_decrypt = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
-                print(result_decrypt)
-                print(f"获得：{result_decrypt['prizeName']}")
+                d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                print(f"抽奖：{d_data['prizeName']}")
+                return
+        send(f"{title_name}_签到失败", "签到失败")
+        exit()
+        
     
-    def main(self, index, my_dict):
-        self.index = index
+    def main(self):
         self.proxies = self.get_proxy()
-        self.signIn(my_dict)
-        self.getAllTasks(my_dict)
+        self.signIn()
+        self.getAllTasks()
 
 if __name__ == '__main__':
-    fy_length = len(fy_list)
-    random.shuffle(fy_list)
+    today_date = datetime.datetime.now().strftime("%m-%d")
+    filepath = "/ql/data/env/fy.json"
+    with open(filepath, 'r') as f:
+        my_list = json.load(f)
+    my_length = len(my_list)
+    random.shuffle(my_list)
+    
     fy = FY()
-    for index, my_dict in enumerate(fy_list, start = 1):
-        print(f"\n{index}/{fy_length}{'➠'*10}{my_dict['phone']}：")
+    for index, my_dict in enumerate(my_list, start = 1):
+        print(f"\n{index}/{my_length}{'➠'*10}{my_dict['phone']}：")
         if my_dict['signdate'] != today_date:
-            fy.main(index, my_dict)
+            fy.main()
             with open(filepath, 'w') as f:
-                json.dump(fy_list, f, indent=2)
-            if index < fy_length:
+                json.dump(my_list, f, indent=2)
+            if index < my_length:
                 randomSleep(30,60)
         else:
             fy.skip += 1
             print("已完成，跳过")
     
-    fy.gh_fy.update(fy.newList(fy_list))
+    fy.gh_fy.update(fy.newList(my_list))
+    send(title_name, fy.sendMsg())
