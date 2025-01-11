@@ -213,42 +213,46 @@ class FY:
 
     def luckDraw(self, activityId):
         url = f"https://evosapi.fuyu.club/luckyBlessingBag/luckDraw/{activityId}"
-        timestamp = str(int(time.time() * 1000))
-        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
-        seccode = timestamp + randomStr
-        paramEncr = json.dumps({
-            "activityId": str(activityId)
-        }, separators=(',', ':'))
-        body = json.dumps({
-          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
-        }, separators=(',', ':'))
-        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
-        headers = {
-          'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046291 Mobile Safari/537.36 ford-evos",
-          'Accept': "application/json, text/plain, */*",
-          'Content-Type': "application/json",
-          'Pragma': "no-cache",
-          'Cache-Control': "no-cache",
-          'seccode': rsa_encrypt(seccode, self.seccode_key),
-          'timestamp': timestamp,
-          'token': my_dict['token'],
-          'sign': md5_encrypt(sign),
-          'appVersion': appVersion,
-          'Origin': "https://evosh5.fuyu.club",
-          'X-Requested-With': "com.changanford.evos",
-          'Sec-Fetch-Site': "same-site",
-          'Sec-Fetch-Mode': "cors",
-          'Sec-Fetch-Dest': "empty",
-          'Referer': "https://evosh5.fuyu.club/",
-          'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
-        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
-        if result:
-            if result['msg'] == '操作成功':
-                d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
-                print(f"抽奖：{d_data['prizeName']}")
-                return
-            print(result)
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+            seccode = timestamp + randomStr
+            paramEncr = json.dumps({
+                "activityId": str(activityId)
+            }, separators=(',', ':'))
+            body = json.dumps({
+              "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+            }, separators=(',', ':'))
+            sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046291 Mobile Safari/537.36 ford-evos",
+              'Accept': "application/json, text/plain, */*",
+              'Content-Type': "application/json",
+              'Pragma': "no-cache",
+              'Cache-Control': "no-cache",
+              'seccode': rsa_encrypt(seccode, self.seccode_key),
+              'timestamp': timestamp,
+              'token': my_dict['token'],
+              'sign': md5_encrypt(sign),
+              'appVersion': appVersion,
+              'Origin': "https://evosh5.fuyu.club",
+              'X-Requested-With': "com.changanford.evos",
+              'Sec-Fetch-Site': "same-site",
+              'Sec-Fetch-Mode': "cors",
+              'Sec-Fetch-Dest': "empty",
+              'Referer': "https://evosh5.fuyu.club/",
+              'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                if result['msg'] == '操作成功':
+                    d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                    print(f"抽奖：{d_data['prizeName']}")
+                    return
+                print(result)
+                break
+            else:
+                self.proxies = self.get_proxy()
         send(f"{title_name}_抽奖失败", "抽奖失败")
         exit()
         
