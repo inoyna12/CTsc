@@ -16,8 +16,6 @@ from notify import send
 title_name = "福域"
 appVersion = "1.5.2"
 
-
-
 def aes_cbc_encrypt(key_str, iv_str, data_str):
     key = key_str.encode('utf-8')
     iv = iv_str.encode('utf-8')
@@ -250,7 +248,8 @@ class FY:
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 print(f"抽奖：{d_data['prizeName']}")
                 return
-        send(f"{title_name}_签到失败", "签到失败")
+            print(result)
+        send(f"{title_name}_抽奖失败", "抽奖失败")
         exit()
         
     
