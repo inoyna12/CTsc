@@ -118,6 +118,7 @@ class FY:
             result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
             if result:
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                luckyBlessingBagId = None
                 if result['msg'] == '操作成功':
                     luckyBlessingBagId = d_data['luckyBlessingBagId']
                     msg = f"已连续签到 {d_data['ontinuous']} 天"
