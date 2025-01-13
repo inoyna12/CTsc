@@ -129,6 +129,7 @@ class FY:
                     break
                 print(f"签到：{msg}")
                 my_dict['signdate'] = today_date
+                self.sign_true += 1
                 if luckyBlessingBagId:
                     self.luckDraw(luckyBlessingBagId)
                 return
