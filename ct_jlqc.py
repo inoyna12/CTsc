@@ -190,7 +190,7 @@ class Jlqc:
                     my_dict['refreshToken'] = result['data']['refreshToken']
                     print(f"刷新token：{result['code']}")
                     return
-                elif result['data'] == '登录已过期，请重新登录':
+                elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
                     createdict = {
                         'phone': my_dict['phone'],
