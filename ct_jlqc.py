@@ -211,14 +211,17 @@ class Jlqc:
         self.index = index
         self.proxies = self.get_proxy()
         
-        if self.sign(my_dict):
-            self.available(my_dict)
-            if self.day in (1, 15):
-                self.refresh_token(my_dict)
+        if self.day in (1, 15):
+            self.refresh_token(my_dict)
+        
+        # if self.sign(my_dict):
+            # self.available(my_dict)
+            # if self.day in (1, 15):
+                # self.refresh_token(my_dict)
 
-            if self.error > 20:
-                send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
-                exit()
+            # if self.error > 20:
+                # send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
+                # exit()
   
 if __name__ == '__main__':
     jlqc_length = len(jlqc_list)
