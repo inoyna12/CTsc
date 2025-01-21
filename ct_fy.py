@@ -62,8 +62,14 @@ class FY:
         self.seccode_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUUKw74ULuOMsQT9EO64Ij8y/DAgmW2JvbPIa7XTLibr0lfG7nnbXhnIWFwx1tfgG04P1jYZBHBVcvP7sVIWVvVDg8N43RErIu+kNCEMMfq22iUahKK1vi+y2bsXfVCa4SWS5eDegQOsuBfsP30HlcA4uvH3+/elFepv+6ep9ZmwIDAQAB'
         self.gh_fy = GithubFile("福域/fy.json")
         
+        # 签到成功数量
         self.sign_true = 0
-        self.skip = 0
+        
+        # 账号跳过数量
+        self.accout_skip = 0
+        
+        # 抽奖失败数量
+        self.luckDraw_fail = 0
     
     def newList(self, lst):
         new_lst = sorted(lst, key=lambda x: x['totalIntegral'], reverse=True)
@@ -73,7 +79,7 @@ class FY:
         msg = f'''
             账号总数：{my_length}
             签到：{self.sign_true}
-            跳过：{self.skip}
+            跳过：{self.accout_skip}
         '''
         return msg
          
@@ -251,6 +257,12 @@ class FY:
                     d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                     print(f"抽奖：{d_data['prizeName']}")
                     return
+                elif result['msg'] == '已无抽奖机会':
+                    print(result)
+                    self.luckDraw_fail += 1
+                    if self.luckDraw_fail > 5:
+                        print('抽奖失败次数过多')
+                        break
                 print(result)
                 break
             else:
@@ -282,7 +294,7 @@ if __name__ == '__main__':
             if index < my_length:
                 randomSleep(30,60)
         else:
-            fy.skip += 1
+            fy.accout_skip += 1
             print("已完成，跳过")
     
     fy.gh_fy.update(fy.newList(my_list))
