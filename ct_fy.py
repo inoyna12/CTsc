@@ -124,6 +124,7 @@ class FY:
             result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
             if result:
                 if result['data'] is None:
+                    print(result)
                     break
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 luckyBlessingBagId = None
