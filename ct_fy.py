@@ -125,7 +125,7 @@ class FY:
             if result:
                 if result['data'] is None:
                     print(result)
-                    break
+                    return
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 luckyBlessingBagId = None
                 if result['msg'] == '操作成功':
