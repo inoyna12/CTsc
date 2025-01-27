@@ -8,7 +8,7 @@ import os
 import time
 import random
 import execjs
-from datetime import datetime
+import datetime
 from fake_useragent import UserAgent
 from notify import send
 from tools.tool import rts, randomSleep
@@ -25,7 +25,7 @@ class JLQC:
         self.js = execjs.compile(js_code)
         
         # 当前时间的"日"
-        current_datetime = datetime.now()
+        current_datetime = datetime.datetime.now()
         self.day = current_datetime.day
         
         # 签到状态数量
@@ -85,7 +85,7 @@ class JLQC:
     def sign(self):
         url = 'https://app.geely.com/api/v1/userSign/sign/risk'
         for i in range(5):
-            current_time = datetime.now()
+            current_time = datetime.datetime.now()
             signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
             ts = int(time.time())
             body = {
@@ -180,8 +180,8 @@ class JLQC:
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
                     }
-                    self.expired_list.append(createdict)
-                    gh_expired.update(self.expired_list)
+                    self.accoutExpired_list.append(createdict)
+                    gh_expired.update(self.accoutExpired_list)
                     return
                 else:
                     print(result)
@@ -216,8 +216,9 @@ class JLQC:
                 # exit()
   
 if __name__ == '__main__':
-    today_date = datetime.now().strftime("%m-%d")
+    today_date = datetime.datetime.now().strftime("%m-%d")
     yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
+
     
     filepath = "/ql/data/env/jlqc.json"
     with open(filepath, 'r') as f:
