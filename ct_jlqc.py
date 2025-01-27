@@ -28,18 +28,8 @@ class JLQC:
         current_datetime = datetime.now()
         self.day = current_datetime.day
         
-        
-        
-        self.error_list = []
-        self.error = 0
-        
         # 签到状态数量
         self.sign_true = 0
-        self.prize = 0
-        self.id1 = 0
-        self.id2 = 0
-        self.id3 = 0
-        self.tokenInvalid = 0
         self.todaysign = 0
         
         # github
@@ -60,12 +50,8 @@ class JLQC:
         msg = f'''
             账号总数：{my_length}
             成功签到：{self.sign_true}
-            获得吉分：{self.prize}
-            8吉分：{self.id1}
-            16吉分：{self.id2}
-            66吉分：{self.id3}
-            token失效：{self.tokenInvalid}
-        ''' + "\n\n" + '\n'.join(self.error_list)
+            token失效：{len(self.accoutExpired_list)}
+        '''
         return msg
     
     def newList(self, lst):
