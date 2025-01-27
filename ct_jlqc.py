@@ -33,10 +33,10 @@ class JLQC:
         self.todaysign = 0
         
         # github
-        gh_jlqc = GithubFile('吉利汽车/jlqc.json')
-        gh_expired = GithubFile('吉利汽车/expired.json')
-        gh_ap100 = GithubFile('吉利汽车/ap100.json')
-        gh_ap150 = GithubFile('吉利汽车/ap150.json')
+        self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
+        self.gh_expired = GithubFile('吉利汽车/expired.json')
+        self.gh_ap100 = GithubFile('吉利汽车/ap100.json')
+        self.gh_ap150 = GithubFile('吉利汽车/ap150.json')
         self.accoutExpired_list = []
 
     def get_proxy(self):
@@ -121,7 +121,7 @@ class JLQC:
                         'password': my_dict['password']
                     }
                     self.accoutExpired_list.append(createdict)
-                    gh_expired.update(self.accoutExpired_list)
+                    self.gh_expired.update(self.accoutExpired_list)
                     return False
                 else:
                     print(result)
@@ -181,7 +181,7 @@ class JLQC:
                         'password': my_dict['password']
                     }
                     self.accoutExpired_list.append(createdict)
-                    gh_expired.update(self.accoutExpired_list)
+                    self.gh_expired.update(self.accoutExpired_list)
                     return
                 else:
                     print(result)
