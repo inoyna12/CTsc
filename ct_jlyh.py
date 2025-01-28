@@ -37,6 +37,8 @@ class JLYH:
         self.accout_skip = 0
         # token失效列表
         self.tokenExpired_list = []
+        # 今日签到数量
+        self.todaysign = 0
         
         self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
         self.gh_expired = GithubFile('吉利银河/expired.json')
@@ -643,11 +645,24 @@ class JLYH:
 
                 
     def main(self):
+        # self.get_variable()
+        # self.proxies = self.get_proxy()
+        # if self.refreshtoken():
+            # self.signAdd()
+            # self.getPoints()
+            
         self.get_variable()
         self.proxies = self.get_proxy()
         if self.refreshtoken():
-            self.signAdd()
-            self.getPoints()
+            if my_dict['signdate'] == yesterday_date:
+                self.signAdd()
+                self.getPoints()
+            elif self.todaysign < 85:
+                self.signAdd()
+                self.getPoints()
+                self.todaysign += 1
+            else:
+                print("签到数量超过85，跳过")
 
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
