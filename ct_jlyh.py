@@ -22,7 +22,6 @@ title_name = "吉利银河"
 appVersion = "1.24.2"
 app_build = "12402001"
 
-
 # 签到，分享，获取积分, 遍历帖子
 key = {'x-ca-key': '204453306', 'secret-key': 'uUwSi6m9m8Nx3Grx7dQghyxMpOXJKDGu'}
 # 刷新token
@@ -428,7 +427,68 @@ class JLYH:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_开启宝箱失败", "开启宝箱失败")
         exit()
-                
+
+    # 获取星积分
+    def getPoints(self):
+        url = 'https://galaxy-app.geely.com/h5/v1/points/get'
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        x_ca_timestamp = str(int(now.timestamp() * 1000))
+        x_ca_nonce = str(uuid.uuid4())
+        x_ca_signature = textwrap.dedent(f"""\
+            GET
+            application/json; charset=utf-8
+            
+            application/x-www-form-urlencoded; charset=utf-8
+            {date}
+            x-ca-appcode:SWGeelyCode
+            x-ca-key:{key['x-ca-key']}
+            x-ca-nonce:{x_ca_nonce}
+            x-ca-timestamp:{x_ca_timestamp}
+            {urlparse(url).path}\
+        """).strip()
+        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
+        headers = {
+            'date': date,
+            'x-ca-signature': x_ca_signature,
+            'x-ca-appcode': 'SWGeelyCode',
+            'x-ca-nonce': x_ca_nonce,
+            'x-ca-key': key['x-ca-key'],
+            'ca_version': '1',
+            'contenttype': 'application/json',
+            'accept': 'application/json; charset=utf-8',
+            'usetoken': '1',
+            'x-ca-timestamp': x_ca_timestamp,
+            'host': 'galaxy-app.geely.com',
+            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
+            'x-refresh-token': 'true',
+            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'token': self.token,
+            'gl_dev_id': self.gl_dev_id,
+            'gl_dev_name': self.gl_dev_name,
+            'gl_dev_model': self.gl_dev_model,
+            'gl_dev_brand': self.gl_dev_brand,
+            'gl_dev_platform': self.gl_dev_platform,
+            'gl_app_version': self.gl_app_version,
+            'gl_os_version': self.gl_os_version,
+            'gl_app_build': self.gl_app_build,
+            'deviceSN': self.deviceSN,
+            'appId': 'galaxy-app',
+            'appVersion': appVersion,
+            'platform': 'Android',
+            'Cache-Control': 'no-cache',
+            'Connection': 'Keep-Alive'
+        }
+        result = rts('get', url, headers=headers, proxies=self.proxies)
+        if result:
+            if result['msg'] == 'SUCCESS':
+                my_dict['availablePoints'] = result['data']['availablePoints']
+                print(f"星积分：{result['data']['availablePoints']}")
+            else:
+                print(result)
+                send(f"{title_name}_获取星积分余额失败", "未知响应体")
+                exit()
+
     # 获取盲盒状态
     def getBaseData(self):
         url = 'https://galaxy-app.geely.com/app/v1/sign/getBaseData?isLoading=false'
@@ -580,65 +640,7 @@ class JLYH:
         send(f"{title_name}_分享失败", "分享失败")
         exit()
             
-    def getPoints(self):
-        url = 'https://galaxy-app.geely.com/h5/v1/points/get'
-        now = datetime.datetime.now(datetime.timezone.utc)
-        date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        x_ca_timestamp = str(int(now.timestamp() * 1000))
-        x_ca_nonce = str(uuid.uuid4())
-        x_ca_signature = textwrap.dedent(f"""\
-            GET
-            application/json; charset=utf-8
-            
-            application/x-www-form-urlencoded; charset=utf-8
-            {date}
-            x-ca-appcode:SWGeelyCode
-            x-ca-key:{key['x-ca-key']}
-            x-ca-nonce:{x_ca_nonce}
-            x-ca-timestamp:{x_ca_timestamp}
-            {urlparse(url).path}\
-        """).strip()
-        x_ca_signature = self.hmacSHA256(key['secret-key'], x_ca_signature)
-        headers = {
-            'date': date,
-            'x-ca-signature': x_ca_signature,
-            'x-ca-appcode': 'SWGeelyCode',
-            'x-ca-nonce': x_ca_nonce,
-            'x-ca-key': key['x-ca-key'],
-            'ca_version': '1',
-            'contenttype': 'application/json',
-            'accept': 'application/json; charset=utf-8',
-            'usetoken': '1',
-            'x-ca-timestamp': x_ca_timestamp,
-            'host': 'galaxy-app.geely.com',
-            'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
-            'x-refresh-token': 'true',
-            'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'token': self.token,
-            'gl_dev_id': self.gl_dev_id,
-            'gl_dev_name': self.gl_dev_name,
-            'gl_dev_model': self.gl_dev_model,
-            'gl_dev_brand': self.gl_dev_brand,
-            'gl_dev_platform': self.gl_dev_platform,
-            'gl_app_version': self.gl_app_version,
-            'gl_os_version': self.gl_os_version,
-            'gl_app_build': self.gl_app_build,
-            'deviceSN': self.deviceSN,
-            'appId': 'galaxy-app',
-            'appVersion': appVersion,
-            'platform': 'Android',
-            'Cache-Control': 'no-cache',
-            'Connection': 'Keep-Alive'
-        }
-        result = rts('get', url, headers=headers, proxies=self.proxies)
-        if result:
-            if result['msg'] == 'SUCCESS':
-                my_dict['availablePoints'] = result['data']['availablePoints']
-                print(f"星积分：{result['data']['availablePoints']}")
-            else:
-                print(result)
-                send(f"{title_name}_获取星积分余额失败", "未知响应体")
-                exit()
+
                 
     def main(self):
         self.get_variable()
