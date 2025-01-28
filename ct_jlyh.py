@@ -22,38 +22,36 @@ title_name = "吉利银河"
 appVersion = "1.24.2"
 app_build = "12402001"
 
-today_date = datetime.datetime.now().strftime("%m-%d")
-yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
-
-filepath = "/ql/data/env/jlyh.json"
-with open(filepath, 'r') as f:
-    jlyh_list = json.load(f)
 
 # 签到，分享，获取积分, 遍历帖子
 key = {'x-ca-key': '204453306', 'secret-key': 'uUwSi6m9m8Nx3Grx7dQghyxMpOXJKDGu'}
 # 刷新token
 key2 = {'x-ca-key': '204179735', 'secret-key': 'UhmsX3xStU4vrGHGYtqEXahtkYuQncMf'}
 
-class Jlyh:
+class JLYH:
     def __init__(self):
-        self.SIGN_FAIL_STOP = 20
-        
-        self.error = 0
-        self.error_list = []
+        # 签到失败数量
         self.sign_fail = 0
-        self.sign_success = 0
-        self.share_success = 0
-        self.skip = 0
-        self.expired_list = []
-        self.share_list = self.get_id()
+        # 签到成功数量
+        self.sign_true = 0
+        # 账号跳过数量
+        self.accout_skip = 0
+        # token失效列表
+        self.tokenExpired_list = []
+        
+        self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
+        self.gh_expired = GithubFile('吉利银河/expired.json')
+        self.gh_ap100 = GithubFile('吉利银河/ap100.json')
+        self.gh_ap150 = GithubFile('吉利银河/ap150.json')
         
     def sendMsg(self):
         msg = f'''
-            账号总数：{jlyh_length}
-            签到：{self.sign_success}
-            分享：{self.share_success}
-            跳过：{self.skip}
-        ''' + "\n\n" + '\n'.join(self.error_list)
+            账号总数：{my_length}
+            成功签到：{self.sign_true}
+            失败签到：{self.sign_fail}
+            token失效：{len(self.tokenExpired_list)}
+            跳过：{self.accout_skip}
+        '''
         return msg  
 
     def get_proxy(self):
@@ -91,7 +89,7 @@ class Jlyh:
         return self.newList(ap_list)
                 
         
-    def get_variable(self, my_dict):
+    def get_variable(self):
         ssinfo = json.loads(my_dict['sweet_security_info'])
         ssinfo['appVersion'] = appVersion
         ssinfo['battery'] = str(random.randint(20, 99))
@@ -110,6 +108,7 @@ class Jlyh:
         self.deviceSN = my_dict['deviceSN']
         self.sweet_security_info = json.dumps(ssinfo, separators=(',', ':'))
 
+    # 获取文章id
     def get_id(self):
         url = 'https://galaxy-app.geely.com/app/v1/social/circle/channel/square/page'
         now = datetime.datetime.now(datetime.timezone.utc)
@@ -184,7 +183,7 @@ class Jlyh:
         send(f"{title_name}_获取id列表失败", "获取id列表失败")
         exit()
             
-    def refreshtoken(self, my_dict):
+    def refreshtoken(self):
         url = f"https://galaxy-user-api.geely.com/api/v1/login/refresh?refreshToken={my_dict['refreshToken']}"
         for i in range(5):
             now = datetime.datetime.now(datetime.timezone.utc)
@@ -240,12 +239,11 @@ class Jlyh:
                     my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
                     return True
                 elif result['code'] in ['user-crowded-out', 'user_refresh_invalid_expired']:
-                    createdict = {
+                    self.tokenExpired_list.append({
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
-                    }
-                    self.expired_list.append(createdict)
-                    gh_expired.update(self.expired_list)
+                    })
+                    self.gh_expired.update(self.tokenExpired_list)
                     return False
                 else:
                     print(result)
@@ -255,7 +253,7 @@ class Jlyh:
         send(f"{title_name}_刷新token失败", "刷新token失败")
         exit()
                 
-    def signAdd(self, my_dict):
+    def signAdd(self):
         url = 'https://galaxy-app.geely.com/app/v1/sign/add'
         for i in range(5):
             now = datetime.datetime.now(datetime.timezone.utc)
@@ -324,44 +322,37 @@ class Jlyh:
             }
             result = rts('post', url, headers=headers, data=str_body, proxies=self.proxies)
             if result:
-                self.signStatus(result, my_dict)
+                if result['msg'] == 'SUCCESS' and "success":
+                    msg = result['msg']
+                    if result['data']['mysteryBoxPopFlag']:
+                        for box in result['data']['mysteryBoxPops']:
+                            if box['mysteryBoxTitle'] == '7天签到盲盒(循环)':
+                                msg = box['prizeContent']
+                            elif box['mysteryBoxTitle'] == '30天签到盲盒':
+                                self.openMysteryBox(box['id'])
+                            else:
+                                print("未知签到奖励：", result)
+                                break
+                elif result['msg'] == '今日已签到':
+                    msg = result['msg']
+                elif '账号存在异常' in result['msg']:
+                    print(result)
+                    self.sign_fail += 1
+                    if self.sign_fail >= 20:
+                        break
+                else:
+                    print("未知响应体：", result)
+                    break
+                print(f"签到：{msg}")
+                self.sign_true += 1
+                my_dict['signdate'] = today_date
                 return
             else:
                 self.proxies = self.get_proxy()
-        send(f"{title_name}_签到失败", "签到失败")
+        send(f"{title_name}_签到异常", "签到异常")
         exit()
 
-    def signStatus(self, result, my_dict):
-        print(f"签到：{result['msg']}")
-        if result['msg'] == 'SUCCESS' and "success":
-            if result['data']['mysteryBoxPopFlag']:
-                for box in result['data']['mysteryBoxPops']:
-                    if box['mysteryBoxTitle'] == '7天签到盲盒(循环)':
-                        print(f"{box['mysteryBoxTitle']}：{box['prizeContent']}")
-                    elif box['mysteryBoxTitle'] == '30天签到盲盒':
-                        self.openMysteryBox(my_dict, box['id'])
-                    else:
-                        print(result)
-                        send(f"{title_name}_未知签到奖励", "未知签到奖励")
-                        exit()
-        elif result['msg'] == '今日已签到':
-            print(result)
-        elif result['msg'] == '盲盒还在路上，稍等片刻':
-            print(result)
-        elif '账号存在异常' in result['msg']:
-            print(result)
-            self.sign_fail += 1
-            if self.sign_fail >= self.SIGN_FAIL_STOP:
-                send(f"{title_name}_账号签到异常", "账号签到异常")
-                exit()
-        else:
-            print(result)
-            send(f"{title_name}_签到失败", "未知响应体")
-            exit()
-        self.sign_success += 1
-        my_dict['signdate'] = today_date
-
-    def openMysteryBox(self, my_dict, userMysteryBoxId):
+    def openMysteryBox(self, userMysteryBoxId):
         url = 'https://galaxy-app.geely.com/app/v1/sign/openMysteryBox'
         for i in range(5):
             now = datetime.datetime.now(datetime.timezone.utc)
@@ -439,7 +430,7 @@ class Jlyh:
         exit()
                 
     # 获取盲盒状态
-    def getBaseData(self, my_dict):
+    def getBaseData(self):
         url = 'https://galaxy-app.geely.com/app/v1/sign/getBaseData?isLoading=false'
         now = datetime.datetime.now(datetime.timezone.utc)
         date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
@@ -490,8 +481,10 @@ class Jlyh:
                     if boxVos['mysteryBoxState'] == 1 and boxVos['mysteryBoxOpenState'] == 0:
                         print(result)
                         self.openMysteryBox(my_dict, boxVos['userMysteryBoxId'])
+                        
+    # 无星积分
     # shareContentType：首页_推荐1，我们_广场_最新2          
-    def share(self, my_dict):
+    def share(self):
         url = 'https://galaxy-app.geely.com/h5/v1/square/content/share'
         for i in range(5):
             share_dict = random.choice(self.share_list)
@@ -587,7 +580,7 @@ class Jlyh:
         send(f"{title_name}_分享失败", "分享失败")
         exit()
             
-    def getPoints(self, my_dict):
+    def getPoints(self):
         url = 'https://galaxy-app.geely.com/h5/v1/points/get'
         now = datetime.datetime.now(datetime.timezone.utc)
         date = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
@@ -641,60 +634,43 @@ class Jlyh:
         if result:
             if result['msg'] == 'SUCCESS':
                 my_dict['availablePoints'] = result['data']['availablePoints']
-                print(f"吉分：{result['data']['availablePoints']}")
-                return
+                print(f"星积分：{result['data']['availablePoints']}")
             else:
                 print(result)
-        self.error += 1
-        self.error_list.append(f"{self.index}：查询积分失败")
-
-    
-              
-    def main(self, index, my_dict):
-        self.index = index
-        self.get_variable(my_dict)
+                send(f"{title_name}_获取星积分余额失败", "未知响应体")
+                exit()
+                
+    def main(self):
+        self.get_variable()
         self.proxies = self.get_proxy()
-        
-        if self.refreshtoken(my_dict):
-            pass
-            # if my_dict['signdate'] != today_date:
-                # self.signAdd(my_dict)
-            # else:
-                # print("已签到，跳过")
-            # if my_dict['sharestatus'] == 'true':
-                # if my_dict['sharedate'] != today_date:
-                    # self.share(my_dict)
-                # else:
-                    # print("已分享，跳过")
-            # else:
-                # print("分享已关闭")
-            # self.getPoints(my_dict)
-            
-        if self.error > 20:
-            send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
-            exit()
+        if self.refreshtoken():
+            self.signAdd()
+            self.getPoints()
 
 if __name__ == '__main__':
-    jlyh_length = len(jlyh_list)
-    random.shuffle(jlyh_list)
-    gh_jlyh = GithubFile('吉利银河/jlyh.json')
-    gh_expired = GithubFile('吉利银河/expired.json')
-    gh_ap100 = GithubFile('吉利银河/ap100.json')
-    gh_ap150 = GithubFile('吉利银河/ap150.json')
-    jlyh = Jlyh()
-    for index, my_dict in enumerate(jlyh_list, start = 1):
-        print(f"\n{index}/{jlyh_length}{'➠'*10}{my_dict['phone']}：")
-        if my_dict['signdate'] != today_date or (my_dict['sharedate'] != today_date and my_dict['sharestatus'] == 'true'):
-            jlyh.main(index, my_dict)
+    today_date = datetime.datetime.now().strftime("%m-%d")
+    yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
+    
+    filepath = "/ql/data/env/jlyh.json"
+    with open(filepath, 'r') as f:
+        my_list = json.load(f)
+    my_length = len(my_list)
+    random.shuffle(my_list)
+    
+    jlyh = JLYH()
+    for index, my_dict in enumerate(my_list, start = 1):
+        print(f"\n{index}/{my_length}{'➠'*10}{my_dict['phone']}：")
+        if my_dict['signdate'] != today_date:
+            jlyh.main()
             with open(filepath, 'w') as f:
-                json.dump(jlyh_list, f, indent=2)
-            if index < jlyh_length:
+                json.dump(my_list, f, indent=2)
+            if index < my_length:
                 randomSleep(30,60)
         else:
-            jlyh.skip += 1
+            jlyh.accout_skip += 1
             print("已完成，跳过")
      
-    gh_jlyh.update(jlyh.newList(jlyh_list))
-    gh_ap100.update(jlyh.newAp(jlyh_list, 100))
-    gh_ap150.update(jlyh.newAp(jlyh_list, 150))
+    jlyh.gh_jlyh.update(jlyh.newList(my_list))
+    jlyh.gh_ap100.update(jlyh.newAp(my_list, 100))
+    jlyh.gh_ap150.update(jlyh.newAp(my_list, 150))
     send(title_name, jlyh.sendMsg())
