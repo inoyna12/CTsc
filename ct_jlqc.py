@@ -196,12 +196,12 @@ class JLQC:
         if my_dict['signdate'] == yesterday_date:
             if self.sign():
                 self.available()
-        elif self.todaysign < 85:
+        elif self.todaysign < 70:
             if self.sign():
                 self.available()
                 self.todaysign += 1
         else:
-            print("签到数量超过85，跳过")
+            print("签到数量超过70，跳过")
          
         if self.day in (1, 15):
             self.refresh_token()
