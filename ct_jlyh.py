@@ -40,6 +40,8 @@ class JLYH:
         # 今日签到数量
         self.todaysign = 0
         
+        # 签到异常
+        
         self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
         self.gh_expired = GithubFile('吉利银河/expired.json')
         self.gh_ap100 = GithubFile('吉利银河/ap100.json')
@@ -338,6 +340,7 @@ class JLYH:
                     msg = result['msg']
                 elif '账号存在异常' in result['msg']:
                     print(result)
+                    msg = result['msg']
                     self.sign_fail += 1
                     if self.sign_fail >= 20:
                         break
