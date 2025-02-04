@@ -648,24 +648,24 @@ class JLYH:
 
                 
     def main(self):
-        # self.get_variable()
-        # self.proxies = self.get_proxy()
-        # if self.refreshtoken():
-            # self.signAdd()
-            # self.getPoints()
-            
         self.get_variable()
         self.proxies = self.get_proxy()
         if self.refreshtoken():
-            if my_dict['signdate'] == yesterday_date:
-                self.signAdd()
-                self.getPoints()
-            elif self.todaysign < 80:
-                self.signAdd()
-                self.getPoints()
-                self.todaysign += 1
-            else:
-                print("签到数量超过80，跳过")
+            self.signAdd()
+            self.getPoints()
+            
+        # self.get_variable()
+        # self.proxies = self.get_proxy()
+        # if self.refreshtoken():
+            # if my_dict['signdate'] == yesterday_date:
+                # self.signAdd()
+                # self.getPoints()
+            # elif self.todaysign < 80:
+                # self.signAdd()
+                # self.getPoints()
+                # self.todaysign += 1
+            # else:
+                # print("签到数量超过80，跳过")
 
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
