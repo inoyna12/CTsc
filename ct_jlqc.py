@@ -193,33 +193,29 @@ class JLQC:
                 
     def main(self):
         self.proxies = self.get_proxy()
-        if my_dict['signdate'] == yesterday_date:
-            if self.sign():
-                self.available()
-        elif self.todaysign < 70:
-            if self.sign():
-                self.available()
-                self.todaysign += 1
-        else:
-            print("签到数量超过70，跳过")
-         
+        if self.sign():
+            self.available()
         if self.day in (1, 15):
             self.refresh_token()
-        
-        # if self.sign(my_dict):
-            # self.available(my_dict)
-            # if self.day in (1, 15):
-                # self.refresh_token(my_dict)
 
-            # if self.error > 20:
-                # send(f"{title_name}_错误次数过多", '\n'.join(self.error_list))
-                # exit()
+        # self.proxies = self.get_proxy()
+        # if my_dict['signdate'] == yesterday_date:
+            # if self.sign():
+                # self.available()
+        # elif self.todaysign < 70:
+            # if self.sign():
+                # self.available()
+                # self.todaysign += 1
+        # else:
+            # print("签到数量超过70，跳过")
+         
+        # if self.day in (1, 15):
+            # self.refresh_token()
   
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
     yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
 
-    
     filepath = "/ql/data/env/jlqc.json"
     with open(filepath, 'r') as f:
         my_list = json.load(f)
