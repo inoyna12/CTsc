@@ -344,6 +344,7 @@ class JLYH:
                     self.sign_fail += 1
                     if self.sign_fail >= 20:
                         break
+                    return
                 else:
                     print("未知响应体：", result)
                     break
