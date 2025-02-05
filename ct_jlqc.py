@@ -30,10 +30,12 @@ class JLQC:
         
         # 签到状态数量
         self.sign_true = 0
-        
         # 今日签到数量
         self.todaysign = 0
-        
+        # 账号跳过数量
+        self.accout_skip = 0
+        # token失效列表
+        self.tokenExpired_list = []
         # 账号吉分大于等于150数量
         self.availablePoint_150 = 0
         
@@ -42,7 +44,7 @@ class JLQC:
         self.gh_expired = GithubFile('吉利汽车/expired.json')
         self.gh_ap100 = GithubFile('吉利汽车/ap100.json')
         self.gh_ap150 = GithubFile('吉利汽车/ap150.json')
-        self.accoutExpired_list = []
+        
 
     def get_proxy(self):
         proxies = xiequ()
@@ -55,7 +57,8 @@ class JLQC:
         msg = f'''
             账号总数：{my_length}
             成功签到：{self.sign_true}
-            token失效：{len(self.accoutExpired_list)}
+            token失效：{len(self.tokenExpired_list)}
+            跳过：{self.accout_skip}
             
             可用账号(150)：{self.availablePoint_150}
         '''
@@ -127,8 +130,8 @@ class JLQC:
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
                     }
-                    self.accoutExpired_list.append(createdict)
-                    self.gh_expired.update(self.accoutExpired_list)
+                    self.tokenExpired_list.append(createdict)
+                    self.gh_expired.update(self.tokenExpired_list)
                     return False
                 else:
                     print(result)
@@ -243,6 +246,7 @@ if __name__ == '__main__':
             if index < my_length:
                 randomSleep(30,60)
         else:
+            jlqc.accout_skip += 1
             print("已完成，跳过")
     
     jlqc.gh_jlqc.update(jlqc.newList(my_list))
