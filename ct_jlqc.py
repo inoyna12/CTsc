@@ -30,7 +30,12 @@ class JLQC:
         
         # 签到状态数量
         self.sign_true = 0
+        
+        # 今日签到数量
         self.todaysign = 0
+        
+        # 账号吉分大于等于150数量
+        self.availablePoint_150 = 0
         
         # github
         self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
@@ -51,6 +56,8 @@ class JLQC:
             账号总数：{my_length}
             成功签到：{self.sign_true}
             token失效：{len(self.accoutExpired_list)}
+            
+            可用账号(150)：{self.availablePoint_150}
         '''
         return msg
     
@@ -147,8 +154,12 @@ class JLQC:
         result = rts('get', url, headers=headers, proxies=self.proxies)
         if result:
             if result['code'] == "success":
-                my_dict['availablePoint'] = result['data']['availablePoint']
-                print(f"吉分：{result['data']['availablePoint']}")
+                availablePoint = result['data']['availablePoint']
+                my_dict['availablePoint'] = availablePoint
+                print(f"吉分：{availablePoint}")
+                if float(availablePoint) >= 150:
+                    self.availablePoint_150 += 1
+                
             else:
                 print(result)
                 send(title_name + "====停止运行", str(result))
