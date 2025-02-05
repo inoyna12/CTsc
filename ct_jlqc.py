@@ -28,7 +28,7 @@ class JLQC:
         current_datetime = datetime.datetime.now()
         self.day = current_datetime.day
         
-        # 签到状态数量
+        # 签到成功数量
         self.sign_true = 0
         # 今日签到数量
         self.todaysign = 0
