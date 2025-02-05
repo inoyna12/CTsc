@@ -39,8 +39,8 @@ class JLYH:
         self.tokenExpired_list = []
         # 今日签到数量
         self.todaysign = 0
-        
-        # 签到异常
+        # 账号吉分大于等于150数量
+        self.availablePoints_150 = 0
         
         self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
         self.gh_expired = GithubFile('吉利银河/expired.json')
@@ -54,6 +54,8 @@ class JLYH:
             失败签到：{self.sign_fail}
             token失效：{len(self.tokenExpired_list)}
             跳过：{self.accout_skip}
+            
+            可用账号(150)：{self.availablePoints_150}
         '''
         return msg  
 
@@ -488,8 +490,11 @@ class JLYH:
         result = rts('get', url, headers=headers, proxies=self.proxies)
         if result:
             if result['msg'] == 'SUCCESS':
-                my_dict['availablePoints'] = result['data']['availablePoints']
-                print(f"星积分：{result['data']['availablePoints']}")
+                availablePoints = result['data']['availablePoints']
+                my_dict['availablePoints'] = availablePoints
+                print(f"星积分：{availablePoints}")
+                if int(availablePoints) >= 150:
+                    self.availablePoints_150 += 1
             else:
                 print(result)
                 send(f"{title_name}_获取星积分余额失败", "未知响应体")
