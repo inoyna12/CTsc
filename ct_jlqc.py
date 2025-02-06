@@ -30,6 +30,8 @@ class JLQC:
         
         # 签到成功数量
         self.sign_true = 0
+        # 签到失败数量
+        self.sign_fail = 0
         # 今日签到数量
         self.todaysign = 0
         # 账号跳过数量
@@ -57,6 +59,7 @@ class JLQC:
         msg = f'''
             账号总数：{my_length}
             成功签到：{self.sign_true}
+            失败签到：{self.sign_fail}
             token失效：{len(self.tokenExpired_list)}
             跳过：{self.accout_skip}
             
@@ -132,6 +135,13 @@ class JLQC:
                     }
                     self.tokenExpired_list.append(createdict)
                     self.gh_expired.update(self.tokenExpired_list)
+                    return False
+                elif '账号存在异常' in result['msg']:
+                    print(result)
+                    msg = result['msg']
+                    self.sign_fail += 1
+                    if self.sign_fail >= 10:
+                        break
                     return False
                 else:
                     print(result)
