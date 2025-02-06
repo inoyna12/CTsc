@@ -89,6 +89,52 @@ class FY:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
         exit()
+    
+    # app启动
+    def app_launch(self):
+        url = "https://evosapi.fuyu.club/con/ads/list"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+            seccode = timestamp + randomStr
+            paramEncr = json.dumps({
+                "posCode": "app_launch"
+            }, separators=(',', ':'))
+            body = json.dumps({
+              "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+            }, separators=(',', ':'))
+            sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+            headers = {
+              'User-Agent': "ford-evos",
+              'Connection': "Keep-Alive",
+              'Content-Type': "application/json",
+              'Host': 'evosapi.fuyu.club',
+              'appVersion': appVersion,
+              'os': "Android",
+              'loginChannel': "baidu",
+              'sign': md5_encrypt(sign),
+              'body': md5_encrypt(paramEncr),
+              'operatorName': "yd",
+              'networkState': "WIFI",
+              'token': my_dict['token'],
+              'osVersion': my_dict['osVersion'],
+              'seccode': rsa_encrypt(seccode, self.seccode_key),
+              'model': my_dict['model'],
+              'brand': my_dict['brand'],
+              'timestamp': timestamp,
+              'codelab': "codelabs"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                print(f"app_launch：{result['msg']}")
+                if result['msg'] == '操作成功':
+                    return
+                else:
+                    print(result)
+                    send(f"{title_name}_app_launch", "未知响应体")
+                    exit()
+            else:
+                self.proxies = self.get_proxy()
         
     def signIn(self):
         url = "https://evosapi.fuyu.club/user/signIn"
@@ -271,11 +317,11 @@ class FY:
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_抽奖失败", "抽奖失败")
-        exit()
-        
+        exit() 
     
     def main(self):
         self.proxies = self.get_proxy()
+        self.app_launch()
         self.signIn()
         self.getAllTasks()
 
