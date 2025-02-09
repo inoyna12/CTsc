@@ -136,9 +136,9 @@ class JLQC:
                     self.tokenExpired_list.append(createdict)
                     self.gh_expired.update(self.tokenExpired_list)
                     return False
-                elif '账号存在异常' in result['msg']:
+                elif '账号存在异常' in result['data']['msg']:
                     print(result)
-                    msg = result['msg']
+                    msg = result['data']['msg']
                     self.sign_fail += 1
                     if self.sign_fail >= 10:
                         break
