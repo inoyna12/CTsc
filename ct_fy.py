@@ -14,7 +14,7 @@ from tools.proxy import xiequ
 from notify import send
 
 title_name = "福域"
-appVersion = "1.5.2"
+appVersion = "1.5.4"
 
 def aes_cbc_encrypt(key_str, iv_str, data_str):
     key = key_str.encode('utf-8')
