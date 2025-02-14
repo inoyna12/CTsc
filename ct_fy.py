@@ -186,7 +186,7 @@ class FY:
                 my_dict['signdate'] = today_date
                 self.sign_true += 1
                 if luckyBlessingBagId:
-                    self.luckDraw(luckyBlessingBagId)
+                    self._luckDraw(luckyBlessingBagId)
                 return True
             else:
                 self.proxies = self.get_proxy()
@@ -269,7 +269,8 @@ class FY:
                 result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
                 print(result_decrypt)
 
-    def luckDraw(self, activityId):
+    # 签到抽奖
+    def _luckDraw(self, activityId):
         url = f"https://evosapi.fuyu.club/luckyBlessingBag/luckDraw/{activityId}"
         for i in range(5):
             timestamp = str(int(time.time() * 1000))
@@ -414,13 +415,190 @@ class FY:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_getTempCode", "未知响应体")
         exit()
+
+    # 会员周领取奖励
+    def send_prize(self, token):
+        url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/send_prize"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            body = {}
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Mobile Safari/537.36 ford-evos",
+              'Accept-Encoding': "gzip, deflate, br, zstd",
+              'Content-Type': "application/json",
+              'pragma': "no-cache",
+              'cache-control': "no-cache",
+              'sec-ch-ua': "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Android WebView\";v=\"128\"",
+              'sec-ch-ua-mobile': "?1",
+              'o': token,
+              'c': "DJ8732FD21AW23ED",
+              't': timestamp,
+              'sec-ch-ua-platform': "\"Android\"",
+              'origin': "https://h5fyax.fuyu.club",
+              'x-requested-with': "com.changanford.evos",
+              'sec-fetch-site': "same-origin",
+              'sec-fetch-mode': "cors",
+              'sec-fetch-dest': "empty",
+              'referer': "https://h5fyax.fuyu.club/member-week/",
+              'accept-language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              'priority': "u=1, i"
+            }
+            result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
+            if result:
+                print(result)
+                if result['msg'] == '发放成功':
+                    return
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_", "未知响应体")
+        exit()
+
+    # 会员周获取token
+    def _appinfo(self):
+        url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/app_info"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            body = {
+              "c": self._getTempCode(),
+              "u": "https://evossys.changanford.cn/ssdmn/test/h5"
+            }
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Mobile Safari/537.36 ford-evos",
+              'Accept-Encoding': "gzip, deflate, br, zstd",
+              'Content-Type': "application/json",
+              'pragma': "no-cache",
+              'cache-control': "no-cache",
+              'sec-ch-ua': "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Android WebView\";v=\"128\"",
+              'sec-ch-ua-platform': "\"Android\"",
+              'c': "DJ8732FD21AW23ED",
+              't': timestamp,
+              'sec-ch-ua-mobile': "?1",
+              'origin': "https://h5fyax.fuyu.club",
+              'x-requested-with': "com.changanford.evos",
+              'sec-fetch-site': "same-origin",
+              'sec-fetch-mode': "cors",
+              'sec-fetch-dest': "empty",
+              'referer': "https://h5fyax.fuyu.club/member-week/",
+              'accept-language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              'priority': "u=1, i"
+            }
+            result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
+            if result:
+                if result['msg'] == '登录成功':
+                    token = result['data']['token']
+                    return token
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_appinfo", "未知响应体")
+        exit()
+
+    # 会员周行为动作
+    def option(self, token, p):
+        url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/option"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            body = {
+              "p": p
+            }
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Mobile Safari/537.36 ford-evos",
+              'Accept-Encoding': "gzip, deflate, br, zstd",
+              'Content-Type': "application/json",
+              'pragma': "no-cache",
+              'cache-control': "no-cache",
+              'sec-ch-ua': "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Android WebView\";v=\"128\"",
+              'sec-ch-ua-mobile': "?1",
+              'o': token,
+              'c': "DJ8732FD21AW23ED",
+              't': timestamp,
+              'sec-ch-ua-platform': "\"Android\"",
+              'origin': "https://h5fyax.fuyu.club",
+              'x-requested-with': "com.changanford.evos",
+              'sec-fetch-site': "same-origin",
+              'sec-fetch-mode': "cors",
+              'sec-fetch-dest': "empty",
+              'referer': "https://h5fyax.fuyu.club/member-week/",
+              'accept-language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              'priority': "u=1, i"
+            }
+            result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
+            if result:
+                print(f"{p}：{result['msg']}")
+                if result['msg'] == 'success':
+                    return 
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_option", "未知响应体")
+        exit()
+    
+    # 会员周任务状态，1：已完成，2：未完成
+    def status(self, token):
+        url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/status"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            body = {}
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Mobile Safari/537.36 ford-evos",
+              'Accept-Encoding': "gzip, deflate, br, zstd",
+              'Content-Type': "application/json",
+              'pragma': "no-cache",
+              'cache-control': "no-cache",
+              'sec-ch-ua': "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Android WebView\";v=\"128\"",
+              'sec-ch-ua-mobile': "?1",
+              'o': token,
+              'c': "DJ8732FD21AW23ED",
+              't': timestamp,
+              'sec-ch-ua-platform': "\"Android\"",
+              'origin': "https://h5fyax.fuyu.club",
+              'x-requested-with': "com.changanford.evos",
+              'sec-fetch-site': "same-origin",
+              'sec-fetch-mode': "cors",
+              'sec-fetch-dest': "empty",
+              'referer': "https://h5fyax.fuyu.club/member-week/",
+              'accept-language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              'priority': "u=1, i"
+            }
+            result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
+            if result:
+                if result['msg'] == 'success':
+                    return result['data']['status']
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_", "未知响应体")
+        exit()
+
+
+    def HuiYuanZhou(self):
+        token = self._appinfo()
+        status = self.status(token)
+        if status == 2:
+            self.option(token, '进入活动')
+            time.sleep(random.randint(15, 20))
+            self.option(token, '浏览完成发放福币')
+            self.send_prize(token)
+        elif status == 1:
+            print("会员周任务已完成")
+        else:
+            print("未知任务状态")
     
     def main(self):
         self.proxies = self.get_proxy()
         self.app_launch()
         if self.signIn():
             self.getAllTasks()
-            self.login()
+            self.HuiYuanZhou()
 
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
