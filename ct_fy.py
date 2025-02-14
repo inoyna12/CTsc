@@ -231,43 +231,6 @@ class FY:
                 totalIntegral = d_data[0]['userTatalScore']
                 print(f"福币：{totalIntegral}")
                 my_dict['totalIntegral'] = totalIntegral
-                
-    # 返回数据太多，暂时不用
-    def myInfo(self):
-        url = "https://evosapi.fuyu.club/user/myInfo"
-        timestamp = str(int(time.time() * 1000))
-        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
-        seccode = timestamp + randomStr
-        paramEncr = json.dumps({})
-        body = json.dumps({
-          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
-        }, separators=(',', ':'))
-        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
-        headers = {
-          'User-Agent': "ford-evos",
-          'Connection': "Keep-Alive",
-          'Content-Type': "application/json",
-          'Host': 'evosapi.fuyu.club',
-          'appVersion': appVersion,
-          'os': "Android",
-          'loginChannel': "baidu",
-          'sign': md5_encrypt(sign),
-          'body': md5_encrypt(paramEncr),
-          'operatorName': "dx",
-          'networkState': "WIFI",
-          'token': my_dict['token'],
-          'osVersion': my_dict['osVersion'],
-          'seccode': rsa_encrypt(seccode, self.seccode_key),
-          'model': my_dict['model'],
-          'brand': my_dict['brand'],
-          'timestamp': timestamp,
-          'codelab': "codelabs"
-        }
-        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
-        if result:
-            if result['msg'] == '操作成功':
-                result_decrypt = aes_cbc_decrypt(seccode, seccode, result['data'])
-                print(result_decrypt)
 
     # 签到抽奖
     def _luckDraw(self, activityId):
@@ -442,7 +405,7 @@ class FY:
             }
             result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
             if result:
-                print(result)
+                print(f"会员周奖励：{result['msg']}")
                 if result['msg'] == '发放成功':
                     return
                 else:
@@ -450,10 +413,10 @@ class FY:
                     break
             else:
                 self.proxies = self.get_proxy()
-        send(f"{title_name}_", "未知响应体")
+        send(f"{title_name}_send_prize", "未知响应体")
         exit()
 
-    # 会员周获取token
+    # 会员周登录获取token
     def app_info(self):
         url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/app_info"
         body_dict = {
@@ -489,14 +452,13 @@ class FY:
             result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
             if result:
                 if result['msg'] == '登录成功':
-                    token = result['data']['token']
-                    return token
+                    return result['data']['token']
                 else:
                     print(result)
                     break
             else:
                 self.proxies = self.get_proxy()
-        send(f"{title_name}_appinfo", "未知响应体")
+        send(f"{title_name}_app_info", "未知响应体")
         exit()
 
     # 会员周行为动作
@@ -577,10 +539,10 @@ class FY:
                     break
             else:
                 self.proxies = self.get_proxy()
-        send(f"{title_name}_", "未知响应体")
+        send(f"{title_name}_status", "未知响应体")
         exit()
 
-
+    # 畅享会员周
     def HuiYuanZhou(self):
         token = self.app_info()
         status = self.status(token)
@@ -598,9 +560,10 @@ class FY:
         self.proxies = self.get_proxy()
         self.app_launch()
         if self.signIn():
-            self.getAllTasks()
             self.HuiYuanZhou()
-
+            self.getAllTasks()
+            
+            
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
     filepath = "/ql/data/env/fy.json"
