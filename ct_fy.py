@@ -369,16 +369,13 @@ class FY:
         exit()
 
     # 获取code值
-    def _getTempCode(self):
+    def _getTempCode(self, body_dict):
         url = "https://evosapi.fuyu.club/idp/getTempCode"
         for i in range(5):
             timestamp = str(int(time.time() * 1000))
             randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
             seccode = timestamp + randomStr
-            paramEncr = json.dumps({
-                "clientId": "678960629228142593",
-                "redirectUrl":"https://h5fyaxo.fuyu.club/prod/h5-2025/ford-cyjl/dist/index.html"
-            }, separators=(',', ':'))
+            paramEncr = json.dumps(body_dict, separators=(',', ':'))
             body = json.dumps({
               "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
             }, separators=(',', ':'))
@@ -457,12 +454,16 @@ class FY:
         exit()
 
     # 会员周获取token
-    def _appinfo(self):
+    def app_info(self):
         url = "https://h5fyax.fuyu.club/member-week-api/api/v1/activity/app_info"
+        body_dict = {
+            "clientId": "678960629228142593",
+            "redirectUrl":"https://evossys.changanford.cn/ssdmn/test/h5"
+        }
         for i in range(5):
             timestamp = str(int(time.time() * 1000))
             body = {
-              "c": self._getTempCode(),
+              "c": self._getTempCode(body_dict),
               "u": "https://evossys.changanford.cn/ssdmn/test/h5"
             }
             headers = {
@@ -581,7 +582,7 @@ class FY:
 
 
     def HuiYuanZhou(self):
-        token = self._appinfo()
+        token = self.app_info()
         status = self.status(token)
         if status == 2:
             self.option(token, '进入活动')
