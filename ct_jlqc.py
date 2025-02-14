@@ -204,8 +204,8 @@ class JLQC:
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
                     }
-                    self.accoutExpired_list.append(createdict)
-                    self.gh_expired.update(self.accoutExpired_list)
+                    self.tokenExpired_list.append(createdict)
+                    self.gh_expired.update(self.tokenExpired_list)
                     return
                 else:
                     print(result)
@@ -219,8 +219,8 @@ class JLQC:
         self.proxies = self.get_proxy()
         if self.sign():
             self.available()
-        if self.day in (1, 15):
-            self.refresh_token()
+            if self.day in (1, 15):
+                self.refresh_token()
 
         # self.proxies = self.get_proxy()
         # if my_dict['signdate'] == yesterday_date:
