@@ -171,7 +171,7 @@ class FY:
             if result:
                 if result['data'] is None:
                     print(result)
-                    return
+                    return False
                 d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
                 luckyBlessingBagId = None
                 if result['msg'] == '操作成功':
@@ -187,12 +187,13 @@ class FY:
                 self.sign_true += 1
                 if luckyBlessingBagId:
                     self.luckDraw(luckyBlessingBagId)
-                return
+                return True
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
         exit()
 
+    # 查询福币
     def getAllTasks(self):
         url = "https://evosapi.fuyu.club/userTask/getAllTasks"
         timestamp = str(int(time.time() * 1000))
@@ -318,12 +319,108 @@ class FY:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_抽奖失败", "抽奖失败")
         exit() 
+
+    # 登录获取ssdmnToken
+    def login(self):
+        url = "https://h5fya.fuyu.club/ford-cyjl/user/login"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            body = json.dumps({
+                "data": self._getTempCode(),
+                "code": "https://h5fyaxo.fuyu.club/prod/h5-2025/ford-cyjl/dist/index.html",
+                "type": "APP"
+            }, separators=(',', ':'))
+            sign = 'ford-ssdmn-api-4531sadfs' + body + timestamp + 'ford-ssdmn-api-4531sadfs'
+            headers = {
+              'User-Agent': f"Mozilla/5.0 (Linux; Android 12; {my_dict['model']} Build/SKQ1.220303.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Mobile Safari/537.36 ford-evos",
+              'Accept': "application/json, text/plain, */*",
+              'Accept-Encoding': "gzip, deflate, br, zstd",
+              'Content-Type': "application/json",
+              'pragma': "no-cache",
+              'cache-control': "no-cache",
+              'sec-ch-ua': "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Android WebView\";v=\"128\"",
+              'channel-type': "APP",
+              'sec-ch-ua-mobile': "?1",
+              'channel_type': "APP",
+              'content-type': "application/json;charset=UTF-8",
+              'timestamp': timestamp,
+              'sign': md5_encrypt(sign, uppercase=False),
+              'sec-ch-ua-platform': "\"Android\"",
+              'origin': "https://h5fyaxo.fuyu.club",
+              'x-requested-with': "com.changanford.evos",
+              'sec-fetch-site': "same-site",
+              'sec-fetch-mode': "cors",
+              'sec-fetch-dest': "empty",
+              'referer': "https://h5fyaxo.fuyu.club/",
+              'accept-language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              'priority': "u=1, i"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                if result['msg'] == 'ok':
+                    self.ssdmnToken = result['data']['ssdmnToken']
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_login", "未知响应体")
+        exit()
+
+    # 获取code值
+    def _getTempCode(self):
+        url = "https://evosapi.fuyu.club/idp/getTempCode"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+            seccode = timestamp + randomStr
+            paramEncr = json.dumps({
+                "clientId": "678960629228142593",
+                "redirectUrl":"https://h5fyaxo.fuyu.club/prod/h5-2025/ford-cyjl/dist/index.html"
+            }, separators=(',', ':'))
+            body = json.dumps({
+              "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+            }, separators=(',', ':'))
+            sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+            headers = {
+              'User-Agent': "ford-evos",
+              'Connection': "Keep-Alive",
+              'Content-Type': "application/json",
+              'Host': 'evosapi.fuyu.club',
+              'appVersion': appVersion,
+              'os': "Android",
+              'loginChannel': "baidu",
+              'sign': md5_encrypt(sign),
+              'body': md5_encrypt(paramEncr),
+              'operatorName': "yd",
+              'networkState': "WIFI",
+              'token': my_dict['token'],
+              'osVersion': my_dict['osVersion'],
+              'seccode': rsa_encrypt(seccode, self.seccode_key),
+              'model': my_dict['model'],
+              'brand': my_dict['brand'],
+              'timestamp': timestamp,
+              'codelab': "codelabs"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                if result['msg'] == '操作成功':
+                    d_data = json.loads(aes_cbc_decrypt(seccode, seccode, result['data']))
+                    return d_data['code']
+                else:
+                    print(result)
+                    break
+            else:
+                self.proxies = self.get_proxy()
+        send(f"{title_name}_getTempCode", "未知响应体")
+        exit()
     
     def main(self):
         self.proxies = self.get_proxy()
         self.app_launch()
-        self.signIn()
-        self.getAllTasks()
+        if self.signIn():
+            self.getAllTasks()
+            self.login()
 
 if __name__ == '__main__':
     today_date = datetime.datetime.now().strftime("%m-%d")
