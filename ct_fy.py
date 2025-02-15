@@ -406,7 +406,7 @@ class FY:
             result = rts('post', url, headers=headers, data=json.dumps(body), proxies=self.proxies)
             if result:
                 print(f"会员周奖励：{result['msg']}")
-                if result['msg'] == '发放成功':
+                if result['msg'] in ('发放成功', '今日已获取浏览奖励'):
                     return
                 else:
                     print(result)
