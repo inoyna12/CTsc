@@ -560,7 +560,7 @@ class FY:
         self.proxies = self.get_proxy()
         self.app_launch()
         if self.signIn():
-            self.HuiYuanZhou()
+           # self.HuiYuanZhou()
             self.getAllTasks()
             
             
