@@ -242,7 +242,10 @@ class JLYH:
                 if result['code'] == 'success' and result['message'] == '接口调用成功':
                     self.token = result['data']['centerTokenDto']['token']
                     my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
+                    my_dict['status'] = 'true'
                     return True
+                elif result['code'] == 'USER_SERVICE_BLACKLIST_KICK_OUT':
+                    return
                 elif result['code'] in ['user-crowded-out', 'user_refresh_invalid_expired']:
                     self.tokenExpired_list.append({
                         'phone': my_dict['phone'],
@@ -657,8 +660,9 @@ class JLYH:
         self.get_variable()
         self.proxies = self.get_proxy()
         if self.refreshtoken():
-            self.signAdd()
-            self.getPoints()
+            pass
+            # self.signAdd()
+            # self.getPoints()
             
         # self.get_variable()
         # self.proxies = self.get_proxy()
