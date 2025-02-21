@@ -246,6 +246,8 @@ class JLYH:
                     return True
                 elif result['code'] == 'USER_SERVICE_BLACKLIST_KICK_OUT':
                     return
+                elif result['code'] == 'USER_SERVICE_ADD_ASH_KICK_OUT':
+                    return
                 elif result['code'] in ['user-crowded-out', 'user_refresh_invalid_expired']:
                     self.tokenExpired_list.append({
                         'phone': my_dict['phone'],
