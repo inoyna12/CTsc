@@ -100,7 +100,7 @@ class JLQC:
         for i in range(5):
             current_time = datetime.datetime.now()
             signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
-            ts = int(time.time())
+            ts = str(int(time.time()))
             body = {
                 "signDate": str(signDate),
                 "ts": ts,
