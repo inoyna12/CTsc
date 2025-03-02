@@ -277,8 +277,10 @@ class FY:
                     if self.luckDraw_fail > 5:
                         print('抽奖失败次数过多')
                         break
-                print(result)
-                break
+                    return
+                else:
+                    print(result)
+                    break
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_抽奖失败", "抽奖失败")
