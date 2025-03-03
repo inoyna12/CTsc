@@ -63,7 +63,7 @@ class JLQC:
             token失效：{len(self.tokenExpired_list)}
             跳过：{self.accout_skip}
             
-            可用账号(150)：{self.availablePoint_150}
+            可用账号(100)：{self.availablePoint_100}
         '''
         return msg
     
