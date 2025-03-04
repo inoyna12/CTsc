@@ -38,8 +38,8 @@ class JLQC:
         self.accout_skip = 0
         # token失效列表
         self.tokenExpired_list = []
-        # 账号吉分大于等于150数量
-        self.availablePoint_150 = 0
+        # 账号吉分大于等于100数量
+        self.availablePoint_100 = 0
         
         # github
         self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
@@ -170,8 +170,8 @@ class JLQC:
                 availablePoint = result['data']['availablePoint']
                 my_dict['availablePoint'] = availablePoint
                 print(f"吉分：{availablePoint}")
-                if float(availablePoint) >= 150:
-                    self.availablePoint_150 += 1
+                if float(availablePoint) >= 100:
+                    self.availablePoint_100 += 1
                 
             else:
                 print(result)
