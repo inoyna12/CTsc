@@ -11,7 +11,7 @@ def xiequ():
     for i in range(8):
         result = rts('get', url, respType='text')
         if result:
-            if 12 <= len(result) <= 20:
+            if result.count('.') == 3:
                 print(f"代理：{result}")
                 proxy = {
                     "http": f"http://{result}",
