@@ -19,8 +19,7 @@ from urllib.parse import urlparse
 from notify import send
 
 title_name = "吉利银河"
-appVersion = "1.24.2"
-app_build = "12402001"
+appVersion = "1.20.1"
 
 # 签到，分享，获取积分, 遍历帖子
 key = {'x-ca-key': '204453306', 'secret-key': 'uUwSi6m9m8Nx3Grx7dQghyxMpOXJKDGu'}
@@ -221,15 +220,8 @@ class JLYH:
                 'host': 'galaxy-user-api.geely.com',
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-timestamp,x-ca-key',
                 'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
-                'gl_dev_id': self.gl_dev_id,
-                'gl_dev_name': self.gl_dev_name,
-                'gl_dev_model': self.gl_dev_model,
-                'gl_dev_brand': self.gl_dev_brand,
-                'gl_dev_platform': self.gl_dev_platform,
-                'gl_app_version': self.gl_app_version,
-                'gl_os_version': self.gl_os_version,
-                'gl_app_build': self.gl_app_build,
-                'deviceSN': self.deviceSN,
+                'User-Agent': "ALIYUN-ANDROID-UA",
+                'deviceSN': my_dict['deviceSN'],
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
@@ -244,10 +236,6 @@ class JLYH:
                     my_dict['refreshToken'] = result['data']['centerTokenDto']['refreshToken']
                     my_dict['status'] = 'true'
                     return True
-                elif result['code'] == 'USER_SERVICE_BLACKLIST_KICK_OUT':
-                    return
-                elif result['code'] == 'USER_SERVICE_ADD_ASH_KICK_OUT':
-                    return
                 elif result['code'] in ['user-crowded-out', 'user_refresh_invalid_expired']:
                     self.tokenExpired_list.append({
                         'phone': my_dict['phone'],
@@ -311,18 +299,10 @@ class JLYH:
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
                 'x-refresh-token': 'true',
                 'token': self.token,
-                'gl_dev_id': self.gl_dev_id,
-                'gl_dev_name': self.gl_dev_name,
-                'gl_dev_model': self.gl_dev_model,
-                'gl_dev_brand': self.gl_dev_brand,
-                'gl_dev_platform': self.gl_dev_platform,
-                'gl_app_version': self.gl_app_version,
-                'gl_os_version': self.gl_os_version,
-                'gl_app_build': self.gl_app_build,
-                'imei': self.imei,
-                'os': self.os,
-                'sweet_security_info': self.sweet_security_info,
-                'deviceSN': self.deviceSN,
+                'imei': my_dict['imei'],
+                'os': json.loads(my_dict['sweet_security_info'])['osVersion'],
+                'sweet_security_info': my_dict['sweet_security_info'],
+                'deviceSN': my_dict['deviceSN'],
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
@@ -413,22 +393,14 @@ class JLYH:
                 'x-ca-signature-headers': 'x-ca-appcode,x-ca-nonce,x-ca-key,x-ca-timestamp',
                 'x-refresh-token': 'true',
                 'token': self.token,
-                'gl_dev_id': self.gl_dev_id,
-                'gl_dev_name': self.gl_dev_name,
-                'gl_dev_model': self.gl_dev_model,
-                'gl_dev_brand': self.gl_dev_brand,
-                'gl_dev_platform': self.gl_dev_platform,
-                'gl_app_version': self.gl_app_version,
-                'gl_os_version': self.gl_os_version,
-                'gl_app_build': self.gl_app_build,
-                'deviceSN': self.deviceSN,
+                'deviceSN': my_dict['deviceSN'],
                 'appId': 'galaxy-app',
                 'appVersion': appVersion,
                 'platform': 'Android',
                 'Cache-Control': 'no-cache',
-                'imei': self.imei,
-                'os': self.os,
-                'sweet_security_info': self.sweet_security_info,
+                'imei': my_dict['imei'],
+                'os': json.loads(my_dict['sweet_security_info'])['osVersion'],
+                'sweet_security_info': my_dict['sweet_security_info'],
                 'Content-Type': 'application/json; charset=utf-8',
                 'Connection': 'Keep-Alive'
             }
@@ -477,15 +449,7 @@ class JLYH:
             'x-refresh-token': 'true',
             'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
             'token': self.token,
-            'gl_dev_id': self.gl_dev_id,
-            'gl_dev_name': self.gl_dev_name,
-            'gl_dev_model': self.gl_dev_model,
-            'gl_dev_brand': self.gl_dev_brand,
-            'gl_dev_platform': self.gl_dev_platform,
-            'gl_app_version': self.gl_app_version,
-            'gl_os_version': self.gl_os_version,
-            'gl_app_build': self.gl_app_build,
-            'deviceSN': self.deviceSN,
+            'deviceSN': my_dict['deviceSN'],
             'appId': 'galaxy-app',
             'appVersion': appVersion,
             'platform': 'Android',
@@ -659,12 +623,10 @@ class JLYH:
 
                 
     def main(self):
-        self.get_variable()
         self.proxies = self.get_proxy()
         if self.refreshtoken():
-            pass
-            # self.signAdd()
-            # self.getPoints()
+            self.signAdd()
+            self.getPoints()
             
         # self.get_variable()
         # self.proxies = self.get_proxy()
