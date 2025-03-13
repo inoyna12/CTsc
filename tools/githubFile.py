@@ -21,11 +21,11 @@ class GithubFile:
         :param repo_name: 仓库名称（格式：用户名/仓库名）
         :param github_token: GitHub Token，优先使用参数传入，其次从环境变量读取
         """
-        self.gh = Github(github_token or os.getenv("GITHUB_TOKEN"))  # 更通用的环境变量名
+        self.gh = Github(os.getenv("GITHUB_TOKEN"))  # 更通用的环境变量名
         self.repo = self.gh.get_repo(repo_name)
         self.file_path = file_path
         self.file_info: Optional[ContentFile] = None
-        self.lst: Optional[list] = None
+        self.data: Optional[list] = None
         
         try:
             self._refresh_file_info()
@@ -43,7 +43,7 @@ class GithubFile:
                     f"文件 {self.file_path} 大小超过 {self.MAX_FILE_SIZE/1024/1024}MB 限制"
                 )
                 
-            self.lst = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            self.data = json.loads(self.file_info.decoded_content.decode("utf-8"))
             
         except GithubException as e:
             if e.status == 404:
@@ -80,7 +80,7 @@ class GithubFile:
             
             # 直接使用API返回的新内容更新本地信息
             self.file_info = update_result["content"]
-            self.lst = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            self.data = json.loads(self.file_info.decoded_content.decode("utf-8"))
             
             print(f"成功更新 {self.file_path}")
             
