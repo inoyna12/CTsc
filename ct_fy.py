@@ -135,6 +135,132 @@ class FY:
                     exit()
             else:
                 self.proxies = self.get_proxy()
+
+    def receiveList(self):
+        url = "https://evosapi.fuyu.club/mall/coupon/receiveList"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+            seccode = timestamp + randomStr
+            paramEncr = json.dumps({
+                "popup": "YES"
+            }, separators=(',', ':'))
+            body = json.dumps({
+              "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+            }, separators=(',', ':'))
+            sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+            headers = {
+              'User-Agent': "ford-evos",
+              'Connection': "Keep-Alive",
+              'Content-Type': "application/json",
+              'Host': 'evosapi.fuyu.club',
+              'appVersion': appVersion,
+              'os': "Android",
+              'loginChannel': "baidu",
+              'sign': md5_encrypt(sign),
+              'body': md5_encrypt(paramEncr),
+              'operatorName': "yd",
+              'networkState': "WIFI",
+              'token': my_dict['token'],
+              'osVersion': my_dict['osVersion'],
+              'seccode': rsa_encrypt(seccode, self.seccode_key),
+              'model': my_dict['model'],
+              'brand': my_dict['brand'],
+              'timestamp': timestamp,
+              'codelab': "codelabs"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                print(f"receiveList：{result['msg']}")
+                if result['msg'] == '操作成功':
+                    return
+                else:
+                    print(result)
+                    send(f"{title_name}receiveList", "未知响应体")
+                    exit()
+            else:
+                self.proxies = self.get_proxy()
+
+    def recommend(self):
+        url = "https://evosapi.fuyu.club/con/recommend/list"
+        for i in range(5):
+            timestamp = str(int(time.time() * 1000))
+            randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+            seccode = timestamp + randomStr
+            paramEncr = json.dumps({
+                "pageNo": 1,
+                "pageSize": 20
+            }, separators=(',', ':'))
+            body = json.dumps({
+              "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+            }, separators=(',', ':'))
+            sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+            headers = {
+              'User-Agent': "ford-evos",
+              'Connection': "Keep-Alive",
+              'Content-Type': "application/json",
+              'Host': 'evosapi.fuyu.club',
+              'appVersion': appVersion,
+              'os': "Android",
+              'loginChannel': "baidu",
+              'sign': md5_encrypt(sign),
+              'body': md5_encrypt(paramEncr),
+              'operatorName': "yd",
+              'networkState': "WIFI",
+              'token': my_dict['token'],
+              'osVersion': my_dict['osVersion'],
+              'seccode': rsa_encrypt(seccode, self.seccode_key),
+              'model': my_dict['model'],
+              'brand': my_dict['brand'],
+              'timestamp': timestamp,
+              'codelab': "codelabs"
+            }
+            result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+            if result:
+                print(f"recommend：{result['msg']}")
+                if result['msg'] == '操作成功':
+                    return
+                else:
+                    print(result)
+                    send(f"{title_name}recommend", "未知响应体")
+                    exit()
+            else:
+                self.proxies = self.get_proxy()
+
+    def myInfo(self):
+        url = "https://evosapi.fuyu.club/user/myInfo"
+        timestamp = str(int(time.time() * 1000))
+        randomStr = ''.join(random.sample(string.ascii_uppercase, 3))
+        seccode = timestamp + randomStr
+        paramEncr = json.dumps({})
+        body = json.dumps({
+          "paramEncr": aes_cbc_encrypt(seccode, seccode, paramEncr)
+        }, separators=(',', ':'))
+        sign = body + timestamp + 'hyzh-unistar-8KWAKH291IpaFB'
+        headers = {
+          'User-Agent': "ford-evos",
+          'Connection': "Keep-Alive",
+          'Content-Type': "application/json",
+          'Host': 'evosapi.fuyu.club',
+          'appVersion': appVersion,
+          'os': "Android",
+          'loginChannel': "baidu",
+          'sign': md5_encrypt(sign),
+          'body': md5_encrypt(paramEncr),
+          'operatorName': "dx",
+          'networkState': "WIFI",
+          'token': my_dict['token'],
+          'osVersion': my_dict['osVersion'],
+          'seccode': rsa_encrypt(seccode, self.seccode_key),
+          'model': my_dict['model'],
+          'brand': my_dict['brand'],
+          'timestamp': timestamp,
+          'codelab': "codelabs"
+        }
+        result = rts('post', url, headers=headers, data=body, proxies=self.proxies)
+        if result:
+            if result['msg'] == '操作成功':
+                print(f"myInfo：{result['msg']}")
         
     def signIn(self):
         url = "https://evosapi.fuyu.club/user/signIn"
@@ -561,6 +687,9 @@ class FY:
     def main(self):
         self.proxies = self.get_proxy()
         self.app_launch()
+        self.receiveList()
+        self.recommend()
+        self.myInfo()
         if self.signIn():
            # self.HuiYuanZhou()
             self.getAllTasks()
