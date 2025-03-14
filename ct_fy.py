@@ -691,7 +691,7 @@ class FY:
         self.recommend()
         self.myInfo()
         if self.signIn():
-            self.HuiYuanZhou()
+           # self.HuiYuanZhou()
             self.getAllTasks()
             
             
