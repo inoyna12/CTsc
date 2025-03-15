@@ -210,6 +210,7 @@ class JLQC:
                 elif result['data'] in ('拉黑', '灰名单'):
                     print(result)
                     my_dict['msg'] = result['data']
+                    return
                 else:
                     print(result)
                     break
