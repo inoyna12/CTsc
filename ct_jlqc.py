@@ -207,7 +207,7 @@ class JLQC:
                     self.tokenExpired_list.append(createdict)
                     self.gh_expired.update(self.tokenExpired_list)
                     return
-                elif result['data'] in ('拉黑', '灰名单'):
+                elif '拉黑' in result['data'] or '灰名单' in result['data']:
                     print(result)
                     my_dict['msg'] = result['data']
                     return
