@@ -20,12 +20,12 @@ class Jlyh:
         self.filepath = filepath
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('吉利银河/zdjl.json')
-        if len(self.gh_zdjl.lst) > 0:
+        if len(self.gh_zdjl.cont) > 0:
             self.gh_jlyh = GithubFile('吉利银河/jlyh.json')
             self.update()
               
     def update(self):
-        for zdjl_dict in self.gh_zdjl.lst:
+        for zdjl_dict in self.gh_zdjl.cont:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['password'] = zdjl_dict['password']
@@ -58,12 +58,12 @@ class Jlqc:
         self.filepath = filepath
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('吉利汽车/zdjl.json')
-        if len(self.gh_zdjl.lst) > 0:
+        if len(self.gh_zdjl.cont) > 0:
             self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
             self.update()
               
     def update(self):
-        for zdjl_dict in self.gh_zdjl.lst:
+        for zdjl_dict in self.gh_zdjl.cont:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['password'] = zdjl_dict['password']
@@ -94,12 +94,12 @@ class FY:
         self.filepath = filepath
         self.bef_num = len(self.all_data)
         self.gh_zdjl = GithubFile('福域/zdjl.json')
-        if len(self.gh_zdjl.lst) > 0:
+        if len(self.gh_zdjl.cont) > 0:
             self.gh_fy = GithubFile('福域/fy.json')
             self.update()
               
     def update(self):
-        for zdjl_dict in self.gh_zdjl.lst:
+        for zdjl_dict in self.gh_zdjl.cont:
             for my_dict in self.all_data:
                 if my_dict['phone'] == zdjl_dict['phone']:
                     my_dict['token'] = zdjl_dict['token']
