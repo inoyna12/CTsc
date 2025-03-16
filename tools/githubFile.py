@@ -25,7 +25,7 @@ class GithubFile:
         self.repo = self.gh.get_repo(repo_name)
         self.file_path = file_path
         self.file_info: Optional[ContentFile] = None
-        self.data: Optional[list] = None
+        self.cont: Optional[list] = None
         
         try:
             self._refresh_file_info()
@@ -43,7 +43,7 @@ class GithubFile:
                     f"文件 {self.file_path} 大小超过 {self.MAX_FILE_SIZE/1024/1024}MB 限制"
                 )
                 
-            self.data = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            self.cont = json.loads(self.file_info.decoded_content.decode("utf-8"))
             
         except GithubException as e:
             if e.status == 404:
@@ -80,7 +80,7 @@ class GithubFile:
             
             # 直接使用API返回的新内容更新本地信息
             self.file_info = update_result["content"]
-            self.data = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            self.cont = json.loads(self.file_info.decoded_content.decode("utf-8"))
             
             print(f"成功更新 {self.file_path}")
             
