@@ -120,6 +120,7 @@ class JLQC:
             }
             result = rts('post', url, headers=headers, json=body, proxies=self.proxies)
             if result:
+                print(result)
                 if result['code'] == 'success' and 'msg' not in result['data']:
                     if not result['data']:
                         msg = result['code']
@@ -258,7 +259,7 @@ if __name__ == '__main__':
             with open(filepath, 'w') as f:
                 json.dump(my_list, f, indent=2)
             if index < my_length:
-                randomSleep(30,60)
+                randomSleep(10,30)
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
