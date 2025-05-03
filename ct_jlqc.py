@@ -45,7 +45,7 @@ class JLQC:
         self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
         self.gh_expired = GithubFile('吉利汽车/expired.json')
         self.gh_ap100 = GithubFile('吉利汽车/ap100.json')
-        self.gh_ap150 = GithubFile('吉利汽车/ap150.json')
+        self.gh_ap50 = GithubFile('吉利汽车/ap50.json')
         
 
     def get_proxy(self):
@@ -266,5 +266,4 @@ if __name__ == '__main__':
     
     jlqc.gh_jlqc.update(jlqc.newList(my_list))
     jlqc.gh_ap100.update(jlqc.newAp(my_list, 100))
-    jlqc.gh_ap150.update(jlqc.newAp(my_list, 150))
     send(title_name, jlqc.sendMsg())
