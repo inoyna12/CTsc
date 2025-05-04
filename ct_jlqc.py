@@ -18,6 +18,19 @@ from tools.proxy import xiequ
 title_name = '吉利汽车'
 version = "3.24.0"
 
+def updateGithubFiles(data: list):
+    availablePoint_50 = []
+    availablePoint_100 = []
+    new_data = sorted(data, key=lambda x: int(float(x['availablePoint'])), reverse=True)
+    for i in new_data:
+        if int(float(i['availablePoint'])) >= 100:
+            availablePoint_100.append(i)
+        if int(float(i['availablePoint'])) >= 50 and i['password'] == '':
+            availablePoint_50.append(i)
+    gh_jlqc.update(new_data)
+    gh_availablePoint_50.update(availablePoint_50)
+    gh_availablePoint_100.update(availablePoint_100)
+
 class JLQC:
     def __init__(self):
         with open('utils/jlqc.js', 'r', encoding='utf-8') as file:
@@ -38,16 +51,7 @@ class JLQC:
         self.accout_skip = 0
         # token失效列表
         self.tokenExpired_list = []
-        # 账号吉分大于等于100数量
-        self.availablePoint_100 = 0
         
-        # github
-        self.gh_jlqc = GithubFile('吉利汽车/jlqc.json')
-        self.gh_expired = GithubFile('吉利汽车/expired.json')
-        self.gh_ap100 = GithubFile('吉利汽车/ap100.json')
-        self.gh_ap50 = GithubFile('吉利汽车/ap50.json')
-        
-
     def get_proxy(self):
         proxies = xiequ()
         if proxies:
@@ -63,25 +67,10 @@ class JLQC:
             token失效：{len(self.tokenExpired_list)}
             跳过：{self.accout_skip}
             
-            可用账号(100)：{self.availablePoint_100}
+            可用账号(50)：{len(gh_availablePoint_50.cont)}
+            可用账号(100)：{len(gh_availablePoint_100.cont)}
         '''
         return msg
-    
-    def newList(self, lst):
-        new_list = sorted(lst, key=lambda x: float(x['availablePoint']), reverse=True)
-        return new_list
-        
-    def newAp(self, lst, ap):
-        ap_list = []
-        for dct in lst:
-            if float(dct['availablePoint']) >= ap:
-                createdict = {
-                    'phone': dct['phone'],
-                    'password': dct['password'],
-                    'availablePoint': dct['availablePoint']
-                }
-                ap_list.append(createdict)
-        return self.newList(ap_list)
        
     def sign_UA(self):
         android_version = str(random.randint(7, 14))
@@ -121,40 +110,13 @@ class JLQC:
             result = rts('post', url, headers=headers, json=body, proxies=self.proxies)
             if result:
                 print(result)
-                if result['code'] == 'success' and 'msg' not in result['data']:
-                    if not result['data']:
-                        msg = result['code']
-                    elif 'id' in result['data']:
-                        msg = result['data']['prizeName']
-                elif result['message'] == '您已签到,请勿重复操作!':
-                    msg = result['message']
-                elif result['code'] == 'token.unchecked':
-                    print(result)
-                    createdict = {
-                        'phone': my_dict['phone'],
-                        'password': my_dict['password']
-                    }
-                    self.tokenExpired_list.append(createdict)
-                    self.gh_expired.update(self.tokenExpired_list)
-                    return False
-                elif '账号存在异常' in result['data']['msg']:
-                    print(result)
-                    msg = result['data']['msg']
-                    self.sign_fail += 1
-                    if self.sign_fail >= 10:
-                        break
-                    return False
+                if result['code'] == 'success' and 'msg' not in result['data'] or result['message'] == '您已签到,请勿重复操作!':
+                    self.sign_true += 1
+                    my_dict['signdate'] = today_date
+                    return True
                 else:
-                    print(result)
-                    break
-                print(f"签到：{msg}")
-                self.sign_true += 1
-                my_dict['signdate'] = today_date
-                return True
-            else:
-                self.proxies = self.get_proxy()
-        send(f"{title_name}_签到失败", "签到失败")
-        exit()
+                    self.sign_fail += 1
+                    return False
             
     def available(self):
         url = 'https://app.geely.com/api/v1/point/available'
@@ -171,9 +133,6 @@ class JLQC:
                 availablePoint = result['data']['availablePoint']
                 my_dict['availablePoint'] = availablePoint
                 print(f"吉分：{availablePoint}")
-                if float(availablePoint) >= 100:
-                    self.availablePoint_100 += 1
-                
             else:
                 print(result)
                 send(title_name + "====停止运行", str(result))
@@ -201,16 +160,16 @@ class JLQC:
                     return
                 elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
+                    if my_dict['password'] == '':
+                        delete_account_list.append(my_dict)
                     createdict = {
                         'phone': my_dict['phone'],
                         'password': my_dict['password']
                     }
                     self.tokenExpired_list.append(createdict)
                     self.gh_expired.update(self.tokenExpired_list)
-                    return
-                elif '拉黑' in result['data'] or '灰名单' in result['data']:
-                    print(result)
-                    my_dict['msg'] = result['data']
+                    if createdict['password'] == '':
+                        delete_account_list.append(my_dict)
                     return
                 else:
                     print(result)
@@ -226,6 +185,10 @@ class JLQC:
             self.available()
             if self.day in (1, 15):
                 self.refresh_token()
+                
+        if self.sign_fail >= 10 or len(self.tokenExpired_list) >= 20:
+            send(f"{title_name}_异常次数过多", "异常次数过多")
+            exit()
 
         # self.proxies = self.get_proxy()
         # if my_dict['signdate'] == yesterday_date:
@@ -242,6 +205,13 @@ class JLQC:
             # self.refresh_token()
   
 if __name__ == '__main__':
+    jlqc = JLQC()
+    gh_jlqc = GithubFile('吉利汽车/jlqc.json')
+    gh_expired = GithubFile('吉利汽车/expired.json')
+    gh_availablePoint_50 = GithubFile('吉利汽车/availablePoint_50.json')
+    gh_availablePoint_100 = GithubFile('吉利汽车/availablePoint_100.json')
+    
+    delete_account_list = [] #需要删除的账号列表
     today_date = datetime.datetime.now().strftime("%m-%d")
     yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
 
@@ -249,7 +219,6 @@ if __name__ == '__main__':
     with open(filepath, 'r') as f:
         my_list = json.load(f)
     my_length = len(my_list)
-    jlqc = JLQC()
     random.shuffle(my_list)
     
     for index, my_dict in enumerate(my_list, start=1):
@@ -264,6 +233,5 @@ if __name__ == '__main__':
             jlqc.accout_skip += 1
             print("已完成，跳过")
     
-    jlqc.gh_jlqc.update(jlqc.newList(my_list))
-    jlqc.gh_ap100.update(jlqc.newAp(my_list, 100))
+    updateGithubFiles(my_list)
     send(title_name, jlqc.sendMsg())
