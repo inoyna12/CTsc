@@ -69,6 +69,7 @@ class Jlqc:
                     my_dict['password'] = zdjl_dict['password']
                     my_dict['token'] = zdjl_dict['token']
                     my_dict['refreshToken'] = zdjl_dict['refreshToken']
+                    my_dict['availablePoint'] = 0
                     self.update_num += 1
                     print(f"更新次数：{self.update_num}，号码：{zdjl_dict['phone']}")
                     break
