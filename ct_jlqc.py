@@ -119,6 +119,7 @@ class JLQC:
                     return False
             else:
                 self.proxies = self.get_proxy()
+                time.sleep(30)
         send(f"{title_name}_签到失败", "签到失败")
         exit()
             
