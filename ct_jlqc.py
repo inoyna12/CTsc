@@ -165,6 +165,7 @@ class JLQC:
                     return
                 elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
+                    my_dict['status'] = 'refreshToken expired'
                     self.tokenExpired_list.append(my_dict)
                     gh_expired.update(self.tokenExpired_list)
                     return
@@ -220,12 +221,12 @@ if __name__ == '__main__':
     
     for index, my_dict in enumerate(my_list, start=1):
         print(f"\n{index}/{my_length}{'➠'*10}{my_dict['phone']}：")
-        if my_dict['signdate'] != today_date:
+        if my_dict['signdate'] != today_date and 'status' not in my_dict:
             jlqc.main()
             with open(filepath, 'w') as f:
                 json.dump(my_list, f, indent=2)
             if index < my_length:
-                randomSleep(5,20)
+                randomSleep(30,60)
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
