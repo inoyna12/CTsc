@@ -23,9 +23,9 @@ def updateGithubFiles(data: list):
     availablePoint_100 = []
     new_data = sorted(data, key=lambda x: int(float(x['availablePoint'])), reverse=True)
     for i in new_data:
-        if int(float(i['availablePoint'])) >= 100:
+        if int(float(i['availablePoint'])) >= 100 and 'status' not in i:
             availablePoint_100.append(i)
-        if int(float(i['availablePoint'])) >= 50 and i['password'] == '':
+        if int(float(i['availablePoint'])) >= 50 and i['password'] == '' and 'status' not in i:
             availablePoint_50.append(i)
     gh_jlqc.update(new_data)
     gh_availablePoint_50.update(availablePoint_50)
@@ -165,6 +165,7 @@ class JLQC:
                     return
                 elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
+                    my_dict['status'] = 'refreshToken expired'
                     self.tokenExpired_list.append(my_dict)
                     gh_expired.update(self.tokenExpired_list)
                     return
@@ -228,6 +229,6 @@ if __name__ == '__main__':
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
-    
+        
     updateGithubFiles(my_list)
     send(title_name, jlqc.sendMsg())
