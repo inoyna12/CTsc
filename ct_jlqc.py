@@ -115,6 +115,7 @@ class JLQC:
                     my_dict['signdate'] = today_date
                     return True
                 else:
+                    print("签到失败")
                     self.sign_fail += 1
                     return False
             else:
