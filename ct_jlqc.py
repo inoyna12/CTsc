@@ -165,7 +165,6 @@ class JLQC:
                     return
                 elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
-                    my_dict['status'] = 'refreshToken expired'
                     self.tokenExpired_list.append(my_dict)
                     gh_expired.update(self.tokenExpired_list)
                     return
@@ -208,8 +207,7 @@ if __name__ == '__main__':
     gh_expired = GithubFile('吉利汽车/expired.json')
     gh_availablePoint_50 = GithubFile('吉利汽车/availablePoint_50.json')
     gh_availablePoint_100 = GithubFile('吉利汽车/availablePoint_100.json')
-    
-    delete_account_list = [] #需要删除的账号列表
+
     today_date = datetime.datetime.now().strftime("%m-%d")
     yesterday_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%m-%d")
 
