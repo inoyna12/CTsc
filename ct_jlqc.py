@@ -164,16 +164,8 @@ class JLQC:
                     return
                 elif result['data'] in ['登录已过期，请重新登录', '您的账号已在其他设备登录，如非本人操作，请及时修改密码']:
                     print(result)
-                    if my_dict['password'] == '':
-                        delete_account_list.append(my_dict)
-                    createdict = {
-                        'phone': my_dict['phone'],
-                        'password': my_dict['password']
-                    }
-                    self.tokenExpired_list.append(createdict)
-                    self.gh_expired.update(self.tokenExpired_list)
-                    if createdict['password'] == '':
-                        delete_account_list.append(my_dict)
+                    self.tokenExpired_list.append(my_dict)
+                    gh_expired.update(self.tokenExpired_list)
                     return
                 else:
                     print(result)
@@ -232,7 +224,7 @@ if __name__ == '__main__':
             with open(filepath, 'w') as f:
                 json.dump(my_list, f, indent=2)
             if index < my_length:
-                randomSleep(30,60)
+                randomSleep(5,20)
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
