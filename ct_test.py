@@ -13,3 +13,6 @@ for i in my_list:
         new_my_list.append(i)
 
 print(len(new_my_list))
+
+with open(filepath, 'w') as f:
+    json.dump(new_my_list, f, indent=2)
