@@ -114,10 +114,11 @@ class JLQC:
                     self.sign_true += 1
                     my_dict['signdate'] = today_date
                     return True
-                else:
-                    print("签到失败")
-                    self.sign_fail += 1
-                    return False
+                elif result['code'] == 'token.unchecked':
+                    my_dict['status'] = 'sign：token.unchecked'
+                print("签到失败")
+                self.sign_fail += 1
+                return False
             else:
                 self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
