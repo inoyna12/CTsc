@@ -43,7 +43,7 @@ def juliang():
                 }
                 test_result = rts('get', testUrl, respType='text', proxies=proxy)
                 if test_result:
-                    return result
+                    return proxy
                 else:
                     time.sleep(10)
                     continue
