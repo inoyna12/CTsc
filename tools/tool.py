@@ -33,7 +33,7 @@ def randomSleep(min_val, max_val):
 def current_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-# 代理ip
+# ip代理，获取代理链接需直接返回ip:端口
 def proxy(proxyUrl, testUrl='https://www.juliangip.com/api/general/Test'):
     for i in range(8):
         result = rts('get', proxyUrl, respType='text')
