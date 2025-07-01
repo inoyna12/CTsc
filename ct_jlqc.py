@@ -11,26 +11,12 @@ import execjs
 import datetime
 from fake_useragent import UserAgent
 from notify import send
-from tools.tool import rts, randomSleep, proxy
+from tools.tool import rts, randomSleep
 from tools.githubFile import GithubFile
+from tools.proxy import xiequ,juliang
 
 title_name = '吉利汽车'
 version = "3.24.0"
-
-juliang_url='http://v2.api.juliangip.com/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6837909473421528&sign=783ee998438307f6d236ecc99dff6bc0'
-juliang_testUrl='https://www.juliangip.com/api/general/Test'
-xuequ_url='http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=1&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
-xiequ_testUrl='https://www.xiequ.cn/OnlyIp.aspx?yyy=123'
-
-# 全局代理
-def global_proxy():
-    proxies = proxy(juliang_url, juliang_testUrl)
-    if proxies:
-        os.environ["HTTP_PROXY"] = proxies['http']
-        os.environ["HTTPS_PROXY"] = proxies['https']
-        return
-    send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
-    exit()
 
 def updateGithubFiles(data: list):
     availablePoint_50 = []
@@ -121,7 +107,7 @@ class JLQC:
                 'referer': 'https://app.geely.com/app-h5/sign-in?showTitleBar=0',
                 'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
             }
-            result = rts('post', url, headers=headers, json=body)
+            result = rts('post', url, headers=headers, json=body, proxies=self.proxies)
             if result:
                 print(result)
                 if result['code'] == 'success' and 'msg' not in result['data'] or result['message'] == '您已签到,请勿重复操作!':
@@ -129,13 +115,12 @@ class JLQC:
                     my_dict['signdate'] = today_date
                     return True
                 elif result['code'] == 'token.unchecked':
-                elif result['code'] == 'token.unchecked':
                     my_dict['status'] = 'sign：token.unchecked'
                 print("签到失败")
                 self.sign_fail += 1
                 return False
             else:
-                global_proxy()
+                self.proxies = self.get_proxy()
         send(f"{title_name}_签到失败", "签到失败")
         exit()
             
@@ -148,7 +133,7 @@ class JLQC:
             "token": my_dict['token'],
             "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
-        result = rts('get', url, headers=headers)
+        result = rts('get', url, headers=headers, proxies=self.proxies)
         if result:
             if result['code'] == "success":
                 availablePoint = result['data']['availablePoint']
@@ -172,7 +157,7 @@ class JLQC:
             "platform": "Android"
         }
         for i in range(5):
-            result = rts('get', url, params=params, headers=headers)
+            result = rts('get', url, params=params, headers=headers, proxies=self.proxies)
             if result:
                 if result['code'] == "success":
                     my_dict['token'] = result['data']['token']
@@ -189,12 +174,12 @@ class JLQC:
                     print(result)
                     break
             else:
-                global_proxy()
+                self.proxies = self.get_proxy()
         send(f"{title_name}_刷新token失败", "刷新token失败")
         exit()
                 
     def main(self):
-        global_proxy()
+        self.proxies = self.get_proxy()
         if self.sign():
             self.available()
             if self.day in (1, 15):
