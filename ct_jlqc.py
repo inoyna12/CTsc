@@ -25,13 +25,13 @@ xiequ_testUrl='https://www.xiequ.cn/OnlyIp.aspx?yyy=123'
 # 全局代理
 def global_proxy(get_proxy_url, testUrl):
     proxies = proxy(juliang_url, juliang_testUrl)
-        if proxies:
-            os.environ["HTTP_PROXY"] = proxies['http']
-            os.environ["HTTPS_PROXY"] = proxies['https']
-            print(os.environ["HTTP_PROXY"], os.environ["HTTPS_PROXY"])
-            return
-        send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
-        exit()
+    if proxies:
+        os.environ["HTTP_PROXY"] = proxies['http']
+        os.environ["HTTPS_PROXY"] = proxies['https']
+        print(os.environ["HTTP_PROXY"], os.environ["HTTPS_PROXY"])
+        return
+    send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
+    exit()
 
 def updateGithubFiles(data: list):
     availablePoint_50 = []
