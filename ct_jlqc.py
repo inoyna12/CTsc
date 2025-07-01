@@ -23,7 +23,7 @@ xuequ_url='http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D5303
 xiequ_testUrl='https://www.xiequ.cn/OnlyIp.aspx?yyy=123'
 
 # 全局代理
-def global_proxy(get_proxy_url, testUrl):
+def global_proxy():
     proxies = proxy(juliang_url, juliang_testUrl)
     if proxies:
         os.environ["HTTP_PROXY"] = proxies['http']
