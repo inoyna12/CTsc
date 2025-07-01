@@ -30,20 +30,25 @@ def xiequ():
     return None
         
 def juliang():
-    url = 'http://v2.api.juliangip.com/company/postpay/getips?num=1&pt=1&result_type=json&trade_no=6130652715138961&sign=3b1896626239e61a182b00ac5582d07f'
+    url = 'http://v2.api.juliangip.com/company/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6726674112912379&sign=00172a7a3b4dde08a9849bb858b4756c'
     testUrl = "https://www.juliangip.com/api/general/Test"
-    for i in range(5):
-        result = rts('get', url)
-        if result and result['code'] == 200:
-            ip_port = result['data']['proxy_list'][0]
-            print("代理：" + ip_port)
-            proxy = {
-                "http": f"http://{ip_port}",
-                "https": f"http://{ip_port}"
-            }
-            result = rts('get', testUrl, respType='text', proxies=proxy)
-            if result:
-                return proxy
-        time.sleep(5)
+    for i in range(8):
+        result = rts('get', url, respType='text')
+        if result:
+            if result.count('.') == 3:
+                print(f"代理：{result}")
+                proxy = {
+                    "http": f"http://{result}",
+                    "https": f"http://{result}"
+                }
+                test_result = rts('get', testUrl, respType='text', proxies=proxy)
+                if test_result:
+                    return result
+                else:
+                    time.sleep(10)
+                    continue
+            else:
+                print(result)
+        time.sleep(30)
     print("获取代理ip失败")
     return None
