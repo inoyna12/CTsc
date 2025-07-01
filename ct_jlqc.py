@@ -18,6 +18,10 @@ from tools.proxy import xiequ,juliang
 title_name = '吉利汽车'
 version = "3.24.0"
 
+juliang_proxy="
+
+def global_proxy():
+
 def updateGithubFiles(data: list):
     availablePoint_50 = []
     availablePoint_100 = []
