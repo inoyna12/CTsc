@@ -194,7 +194,7 @@ class JLQC:
         exit()
                 
     def main(self):
-        self.proxies = self.get_proxy()
+        global_proxy()
         if self.sign():
             self.available()
             if self.day in (1, 15):
