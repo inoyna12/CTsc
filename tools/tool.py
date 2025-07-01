@@ -32,3 +32,26 @@ def randomSleep(min_val, max_val):
 # 系统时间，格式：2024-12-04 10:54:23.740
 def current_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
+# 代理ip
+def proxy(proxyUrl, testUrl='https://www.juliangip.com/api/general/Test'):
+    for i in range(8):
+        result = rts('get', proxyUrl, respType='text')
+        if result:
+            if result.count('.') == 3:
+                print(f"使用代理：{result}")
+                proxy = {
+                    "http": f"http://{result}",
+                    "https": f"http://{result}"
+                }
+                test_result = rts('get', testUrl, respType='text', proxies=proxy)
+                if test_result:
+                    return proxy
+                else:
+                    time.sleep(10)
+                    continue
+            else:
+                print(result)
+        time.sleep(30)
+    print("获取代理ip失败")
+    return None
