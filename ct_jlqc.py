@@ -129,6 +129,7 @@ class JLQC:
                     my_dict['signdate'] = today_date
                     return True
                 elif result['code'] == 'token.unchecked':
+                elif result['code'] == 'token.unchecked':
                     my_dict['status'] = 'sign：token.unchecked'
                 print("签到失败")
                 self.sign_fail += 1
