@@ -30,7 +30,7 @@ def xiequ():
     return None
         
 def juliang():
-    url = 'http://v2.api.juliangip.com/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6837909473421528&sign=783ee998438307f6d236ecc99dff6bc0'
+    url = 'http://v2.api.juliangip.com/company/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6726674112912379&sign=00172a7a3b4dde08a9849bb858b4756c'
     testUrl = "https://www.juliangip.com/api/general/Test"
     for i in range(8):
         result = rts('get', url, respType='text')
