@@ -28,7 +28,6 @@ def global_proxy():
     if proxies:
         os.environ["HTTP_PROXY"] = proxies['http']
         os.environ["HTTPS_PROXY"] = proxies['https']
-        print(os.environ["HTTP_PROXY"], os.environ["HTTPS_PROXY"])
         return
     send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
     exit()
