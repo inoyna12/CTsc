@@ -18,7 +18,7 @@ title_name = '吉利汽车'
 version = "3.24.0"
 
 juliang_url='http://v2.api.juliangip.com/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6837909473421528&sign=783ee998438307f6d236ecc99dff6bc0'
-juliang_testUrl='ttps://www.juliangip.com/api/general/Test'
+juliang_testUrl='https://www.juliangip.com/api/general/Test'
 xuequ_url='http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=1&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
 xiequ_testUrl='https://www.xiequ.cn/OnlyIp.aspx?yyy=123'
 
