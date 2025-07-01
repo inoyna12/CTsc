@@ -13,7 +13,7 @@ from fake_useragent import UserAgent
 from notify import send
 from tools.tool import rts, randomSleep
 from tools.githubFile import GithubFile
-from tools.proxy import xiequ
+from tools.proxy import xiequ,juliang
 
 title_name = '吉利汽车'
 version = "3.24.0"
@@ -53,7 +53,7 @@ class JLQC:
         self.tokenExpired_list = []
         
     def get_proxy(self):
-        proxies = xiequ()
+        proxies = juliang()
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
