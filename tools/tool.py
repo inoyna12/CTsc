@@ -34,7 +34,7 @@ def current_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
 # ip代理，获取代理链接需直接返回ip:端口
-def proxy(proxyUrl, testUrl='https://www.juliangip.com/api/general/Test'):
+def proxy(proxyUrl, testUrl):
     for i in range(8):
         result = rts('get', proxyUrl, respType='text')
         if result:
