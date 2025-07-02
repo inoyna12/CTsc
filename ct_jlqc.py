@@ -94,14 +94,17 @@ class JLQC:
             'appversion': version,
             "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
-        result = rts('get', url, headers=headers, proxies=self.proxies)
-        if result:
-            if result['code'] == "success":
-                return result['data']
+        for i in range(5):
+            result = rts('get', url, headers=headers, proxies=self.proxies)
+            if result:
+                if result['code'] == "success":
+                    return result['data']
+                else:
+                    print(result)
             else:
-                print(result)
-                send(title_name + "====停止运行", str(result))
-                exit()
+                self.proxies = self.get_proxy()
+        send(title_name + "====停止运行", str(result))
+        exit()
     
     def sign(self):
         url = 'https://app.geely.com/api/v1/userSign/sign/risk'
