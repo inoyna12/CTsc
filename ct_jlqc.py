@@ -84,17 +84,35 @@ class JLQC:
         custom_ua = f"{base_ua} MQQBrowser/6.2 TBS/046281 Mobile Safari/537.36/android/geelyApp"
         return custom_ua   
 
+    def currentTime(self):
+        url = 'https://app.geely.com/api/v1/api/close/currentTime'
+        headers = {
+            "Host": "app.geely.com",
+            "accept": "application/json, text/plain, */*",
+            "user-agent": self.available_UA(),
+            "token": my_dict['token'],
+            'appversion': version,
+            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+        }
+        result = rts('get', url, headers=headers, proxies=self.proxies)
+        if result:
+            if result['code'] == "success":
+                return result['data']
+            else:
+                print(result)
+                send(title_name + "====停止运行", str(result))
+                exit()
+    
     def sign(self):
         url = 'https://app.geely.com/api/v1/userSign/sign/risk'
         for i in range(5):
-            current_time = datetime.datetime.now()
-            signDate = current_time.strftime("%Y-%m-%d %H:%M:%S")
-            ts = str(int(time.time()))
+            ts = self.currentTime()
             body = {
                 "signDate": str(signDate),
                 "ts": ts,
                 "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
             }
+            print(body)
             headers = {
                 'Host': 'app.geely.com',
                 'accept': 'application/json, text/plain, */*',
