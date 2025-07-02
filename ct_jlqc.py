@@ -109,9 +109,8 @@ class JLQC:
             ts = self.currentTime()
             body = {
                 "ts": ts,
-                "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
+                "cId": "BLqo2nmmoPgGuJtFDWlUjRI2b1b"
             }
-            print(body)
             headers = {
                 'Host': 'app.geely.com',
                 'accept': 'application/json, text/plain, */*',
