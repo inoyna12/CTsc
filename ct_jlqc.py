@@ -11,12 +11,20 @@ import execjs
 import datetime
 from fake_useragent import UserAgent
 from notify import send
-from tools.tool import rts, randomSleep
+from tools.tool import rts, randomSleep, proxy
 from tools.githubFile import GithubFile
-from tools.proxy import xiequ,juliang
 
 title_name = '吉利汽车'
 version = "3.24.0"
+
+xiequUrl = 'http://api.xiequ.cn/VAD/GetIp.aspx?act=get&uid=148434&vkey=1FB88D53032912792BD945D41B22AD0B&num=1&time=30&plat=1&re=1&type=2&so=1&ow=1&spl=1&addr=&db=1'
+xietestUrl = "https://www.xiequ.cn/OnlyIp.aspx?yyy=123"
+
+# 0.005一个
+juliangUrl = 'http://v2.api.juliangip.com/company/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6726674112912379&sign=00172a7a3b4dde08a9849bb858b4756c'
+# 0.001一个
+juliangUrl2 = 'http://v2.api.juliangip.com/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6837909473421528&sign=783ee998438307f6d236ecc99dff6bc0'
+juliangtestUrl = "https://www.juliangip.com/api/general/Test"
 
 def updateGithubFiles(data: list):
     availablePoint_50 = []
@@ -53,7 +61,7 @@ class JLQC:
         self.tokenExpired_list = []
         
     def get_proxy(self):
-        proxies = xiequ()
+        proxies = proxy(juliangUrl2, juliangtestUrl)
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
