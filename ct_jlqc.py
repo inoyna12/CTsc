@@ -53,7 +53,7 @@ class JLQC:
         self.tokenExpired_list = []
         
     def get_proxy(self):
-        proxies = juliang()
+        proxies = xiequ()
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
