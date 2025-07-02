@@ -108,7 +108,6 @@ class JLQC:
         for i in range(5):
             ts = self.currentTime()
             body = {
-                "signDate": str(signDate),
                 "ts": ts,
                 "cId":"BLqo2nmmoPgGuJtFDWlUjRI2b1b"
             }
