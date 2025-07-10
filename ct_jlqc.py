@@ -61,7 +61,10 @@ class JLQC:
         self.tokenExpired_list = []
         
     def get_proxy(self):
-        proxies = proxy(juliangUrl2, juliangtestUrl)
+        if self.day in (1, 15):
+            proxies = proxy(juliangUrl, juliangtestUrl)
+        else:
+            proxies = proxy(juliangUrl2, juliangtestUrl)
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
