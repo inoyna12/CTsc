@@ -34,7 +34,7 @@ def current_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
 # ip代理，获取代理链接需直接返回ip:端口
-def proxy(proxyUrl, testUrl):
+def proxy(proxyUrl, testUrl, isTest=False):
     for i in range(8):
         result = rts('get', proxyUrl, respType='text')
         if result:
@@ -44,6 +44,8 @@ def proxy(proxyUrl, testUrl):
                     "http": f"http://{result}",
                     "https": f"http://{result}"
                 }
+                if not isTest:
+                    return proxy
                 test_result = rts('get', testUrl, respType='text', proxies=proxy)
                 if test_result:
                     return proxy
