@@ -215,7 +215,7 @@ class JLQC:
             if self.day in (1, 15):
                 self.refresh_token()
                 
-        if self.sign_fail >= 10 or len(self.tokenExpired_list) >= 20:
+        if self.sign_fail >= 20 or len(self.tokenExpired_list) >= 20:
             send(f"{title_name}_异常次数过多", "异常次数过多")
             exit()
 
