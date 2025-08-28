@@ -39,6 +39,24 @@ class HaoZhu:
             docked_list.extend(result['data'])
             page += 1
         return docked_list
+
+    # 删除对接码
+    def del_uid(self, uid):
+        url = f'https://h5.haozhuyun.com/api.php?type=41&open=del&uid={uid}'
+        result = requests.get(url, headers=self.headers()).json()
+        print(result['msg'])
+
+    # 删除对接码
+    def ydj_del_uid(self):
+        json_data = self.get_docked()
+        for item in json_data:
+            if item['djzt'] == '已对接':
+                parts = item['djzt'].split('/')
+                zx = parts[0].split(':')[1]
+                ky = parts[1].split(':')[1]
+                if int(ky) / int(zx) < 0.1:
+                    print(item)
+                    self.del_uid(item['uid'])
         
     def statistics_docked(self):
         json_data = self.get_docked()
@@ -102,11 +120,12 @@ class HaoZhu:
             for i in result['data']:
                 money += Decimal(i['dj'])
             page += 1
-        print(f"当日消费数量{total}\n当日消费金额{money}")
+        print(f"{nowdate}消费数量{total}\n{nowdate}消费金额{money}")
               
     def main(self):
         if self.haozhu_api():
             self.get_expenses()
+            self.ydj_del_uid()
             self.statistics_docked()
         
 haozhu = HaoZhu(cookie)
