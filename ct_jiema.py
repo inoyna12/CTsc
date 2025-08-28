@@ -110,4 +110,5 @@ class HaoZhu:
             self.statistics_docked()
         
 haozhu = HaoZhu(cookie)
+
 haozhu.main()
