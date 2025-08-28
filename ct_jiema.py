@@ -54,7 +54,7 @@ class HaoZhu:
                 parts = item['djzt'].split('/')
                 zx = parts[0].split(':')[1]
                 ky = parts[1].split(':')[1]
-                if int(ky) / int(zx) < 0.1:
+                if int(ky) == 0:
                     print(item)
                     self.del_uid(item['uid'])
         
@@ -131,3 +131,4 @@ class HaoZhu:
 haozhu = HaoZhu(cookie)
 
 haozhu.main()
+
