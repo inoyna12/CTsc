@@ -156,7 +156,7 @@ class YeZiYun:
                 "token": self.token,
                 "index": str(index)
             }
-            result = requests.get(url, headers=self.headers()).json()
+            result = requests.get(url, headers=self.headers(), data=data).json()
             if result['data'] is None:
                 break 
             for data in result['data']:
@@ -167,11 +167,12 @@ class YeZiYun:
                 index += 40
         print(f"椰子云：消费数量{self.use_quantity}\n椰子云：消费金额{self.use_money}")
             
-        def main(self):
-            self.get_expenditure()
+    def main(self):
+        self.get_expenditure()
         
 haozhu = HaoZhu(cookie)
 haozhu.main()
 
 yeziyun = YeZiYun(token)
 yeziyun.main()
+
