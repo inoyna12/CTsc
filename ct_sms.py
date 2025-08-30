@@ -167,7 +167,7 @@ class YeZiYun:
             if result['data'] == []:
                 break 
             for data in result['data']:
-                data_time = date.fromtimestamp(int(data['time'])- 28800)
+                data_time = date.fromtimestamp(int(data['time']) - 28800)
                 if today_date == data_time:
                     self.use_quantity += 1
                     self.use_money -= Decimal(data['money'])
@@ -185,3 +185,4 @@ class YeZiYun:
 
 yeziyun = YeZiYun(token)
 yeziyun.main()
+
