@@ -186,4 +186,6 @@ haozhu.main()
 yeziyun = YeZiYun(token)
 yeziyun.main()
 
+print(f'总消费数量{haozhu.use_quantity + yeziyun.use_quantity}\n
+        总消费金额{Decimal(haozhu.use_money) + Decimal(yeziyun.use_money)}')
 
