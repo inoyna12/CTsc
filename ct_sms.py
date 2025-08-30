@@ -1,11 +1,12 @@
 import requests 
 import json
-from datetime import datetime
+import time
+from datetime import datetime,date
 from decimal import Decimal
 from notify import send
 
 cookie = 'PHPSESSID=g30b2dhlthv2i7lg1lih2vd9l3; sl-session=C04iQorRsWhxEGQZB5XWag=='
-token = 'eD/rrPvm7dDgzG8JXTUcu792PQ/c8e08bx7J7IOldlgLA2k5w+ACe6zFz4FaU9pQKk1fm3VfaGH8i9aZ67K1U7EePTGS2ndOeis7sY4en4X02vT0xcI1qT59cIjKQIJpdAdG/pLURTlC+Ztmvg1SNJcuSxXn6tkhkYGfwKJssUU='
+token = 'eD/rrPvm7dDgzG8JXTUcu792PQ/c8e08bx7J7IOldlgLA2k5w ACe6zFz4FaU9pQKk1fm3VfaGH8i9aZ67K1U7EePTGS2ndOeis7sY4en4X02vT0xcI1qT59cIjKQIJpdAdG/pLURTlC Ztmvg1SNJcuSxXn6tkhkYGfwKJssUU=;'
 
 class HaoZhu:
     def __init__(self, cookie):
@@ -141,8 +142,14 @@ class YeZiYun:
     
     def headers(self):
         headers = {
-            'Host': self.host,
-            'Content-Length': '0'
+        'Host': self.host,
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36 EdgA/132.0.0.0",
+        'Accept': "application/json, text/plain, */*",
+        'Accept-Encoding': "gzip, deflate",
+        'Origin': "http://h5.yezi66.net:90",
+        'X-Requested-With': "mark.via",
+        'Referer': "http://h5.yezi66.net:90/",
+        'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
         return headers    
                 
@@ -150,29 +157,31 @@ class YeZiYun:
     def get_expenditure(self):
         url = f"http://{self.host}/api/get_expenditure"
         index = 0
-        today_date = datetime.date.today()
-        while True:
-            data = {
-                "token": self.token,
-                "index": str(index)
+        today_date = date.today()
+        stop_while = True
+        while stop_while:
+            payload = {
+                'token': f"{self.token}index={index}"
             }
-            result = requests.get(url, headers=self.headers(), data=data).json()
-            if result['data'] is None:
+            result = requests.post(url, headers=self.headers(), data=payload).json()
+            if result['data'] == []:
                 break 
             for data in result['data']:
-                data_time = datetime.date.fromtimestamp(int(data['time']))
+                data_time = date.fromtimestamp(int(data['time'])- 28800)
                 if today_date == data_time:
                     self.use_quantity += 1
-                    self.use_money += Decimal(data['money'])
-                index += 40
+                    self.use_money -= Decimal(data['money'])
+                else:
+                    stop_while = False
+                    break
+            index += 40
         print(f"椰子云：消费数量{self.use_quantity}\n椰子云：消费金额{self.use_money}")
             
     def main(self):
         self.get_expenditure()
         
-haozhu = HaoZhu(cookie)
-haozhu.main()
+#haozhu = HaoZhu(cookie)
+#haozhu.main()
 
 yeziyun = YeZiYun(token)
 yeziyun.main()
-
