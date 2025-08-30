@@ -180,9 +180,10 @@ class YeZiYun:
     def main(self):
         self.get_expenditure()
         
-#haozhu = HaoZhu(cookie)
-#haozhu.main()
+haozhu = HaoZhu(cookie)
+haozhu.main()
 
 yeziyun = YeZiYun(token)
 yeziyun.main()
+
 
