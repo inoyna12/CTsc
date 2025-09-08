@@ -26,6 +26,10 @@ juliangUrl = 'http://v2.api.juliangip.com/company/postpay/getips?auto_white=1&nu
 juliangUrl2 = 'http://v2.api.juliangip.com/postpay/getips?auto_white=1&num=1&pt=1&result_type=text&split=1&trade_no=6837909473421528&sign=783ee998438307f6d236ecc99dff6bc0'
 juliangtestUrl = "https://www.juliangip.com/api/general/Test"
 
+# 51代理 转发池 固定30秒  0.0015积分
+daili51Url = 'http://bapi.51daili.com/getapi2?linePoolIndex=3&packid=2&time=1&qty=1&port=1&format=txt&dt=4&dtc=2&usertype=17&uid=64249'
+
+
 def updateGithubFiles(data: list):
     availablePoint_50 = []
     availablePoint_100 = []
@@ -64,7 +68,7 @@ class JLQC:
         if self.day in (1, 15):
             proxies = proxy(juliangUrl, juliangtestUrl)
         else:
-            proxies = proxy(juliangUrl2, juliangtestUrl)
+            proxies = proxy(daili51Url, juliangtestUrl)
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
