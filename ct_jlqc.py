@@ -262,7 +262,7 @@ if __name__ == '__main__':
             with open(filepath, 'w') as f:
                 json.dump(my_list, f, indent=2)
             if index < my_length:
-                randomSleep(0,10)
+                randomSleep(5,15)
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
