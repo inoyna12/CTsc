@@ -70,7 +70,7 @@ class JLQC:
         if self.day in (1, 15):
             proxies = proxy(daili51Url, juliangtestUrl)
         else:
-            proxies = proxy(daili51Url2, juliangtestUrl)
+            proxies = proxy(daili51Url, juliangtestUrl)
         if proxies:
             return proxies
         send(f"{title_name}_获取代理ip失败", "获取代理ip失败")
@@ -262,7 +262,7 @@ if __name__ == '__main__':
             with open(filepath, 'w') as f:
                 json.dump(my_list, f, indent=2)
             if index < my_length:
-                randomSleep(5,15)
+                randomSleep(5,20)
         else:
             jlqc.accout_skip += 1
             print("已完成，跳过")
