@@ -5,7 +5,7 @@ from datetime import datetime,date
 from decimal import Decimal
 from notify import send
 
-cookie = 'PHPSESSID=g30b2dhlthv2i7lg1lih2vd9l3; sl-session=C04iQorRsWhxEGQZB5XWag=='
+cookie = 'PHPSESSID=g30b2dhlthv2i7lg1lih2vd9l3; sl-session=C04iQorRsWhxEGQZB5XWag==' #zhou808080
 token = 'eD/rrPvm7dDgzG8JXTUcu792PQ/c8e08bx7J7IOldlgLA2k5w ACe6zFz4FaU9pQKk1fm3VfaGH8i9aZ67K1U7EePTGS2ndOeis7sY4en4X02vT0xcI1qT59cIjKQIJpdAdG/pLURTlC Ztmvg1SNJcuSxXn6tkhkYGfwKJssUU=;'
 
 class HaoZhu:
@@ -14,6 +14,10 @@ class HaoZhu:
         self.host = 'h5.haozhuyun.com'
         self.use_quantity = 0
         self.use_money = Decimal(0)
+        if self.haozhu_api():
+           self.my_ydj: list[dict] = self.get_ydj()
+           self.get_expenses()
+          # print(self.my_ydj)
     
     def headers(self):
         headers = {
@@ -33,85 +37,53 @@ class HaoZhu:
             send('豪猪', 'cookie失效')
             return False
     
-    # 查询加入的对接码
-    def get_docked(self):
+    # 查询加入的对接码，并且状态是已对接的，自动删除可用数量不足的对接码
+    def get_ydj(self) -> list[dict]:
         page = 1
-        docked_list = []
+        data = []
         while True:
             url = f'https://{self.host}/api.php?type=3&gjc=&page={page}'
             result = requests.get(url, headers=self.headers()).json()
             if result['data'] is None:
                 break 
-            docked_list.extend(result['data'])
+            for item in result['data']:
+                if item['djzt'] == '已对接':
+                    ky = int(item['zxky'].split('/')[1].split(':')[1])
+                    if ky == 0:
+                        print(f"删除对接码：{item['uid']}（{item['zxky']}，价格:{item['yhj']}）")
+                        self.del_uid(item['uid'])
+                    else:
+                        data.append(item)
             page += 1
-        return docked_list
+        return data
 
     # 删除对接码
     def del_uid(self, uid):
         url = f'https://{self.host}/api.php?type=41&open=del&uid={uid}'
         result = requests.get(url, headers=self.headers()).json()
         print(result['msg'])
-
-    # 删除对接码
-    def ydj_del_uid(self):
-        json_data = self.get_docked()
-        for item in json_data:
-            if item['djzt'] == '已对接':
-                parts = item['zxky'].split('/')
-                zx = parts[0].split(':')[1]
-                ky = parts[1].split(':')[1]
-                if int(ky) == 0:
-                    print(item)
-                    self.del_uid(item['uid'])
-        
-    def statistics_docked(self):
-        json_data = self.get_docked()
-        stats = {}
-        # 遍历data列表中的每个字典元素
-        for item in json_data:
-            # 检查'djzt'键的值是否为'已对接'
-            if item.get('djzt') == '已对接':
-                mc = item.get('mc')
-                zxky = item.get('zxky')
-                
-                # 提取'zxky'中的可用数量
-                available_count = 0
-                if zxky and '可用:' in zxky:
-                    try:
-                        # 分割字符串以获取数字部分
-                        count_str = zxky.split('可用:')[1]
-                        available_count = int(count_str)
-                    except (IndexError, ValueError):
-                        # 如果格式不正确或无法转换为整数，则保持为0
-                        available_count = 0
-                
-                # 如果mc键值是第一次出现，则在stats字典中创建新条目
-                if mc not in stats:
-                    stats[mc] = {
-                        'mc_count': 1,
-                        'available_total': available_count
-                    }
-                # 如果mc键值已存在，则更新计数和总数
-                else:
-                    stats[mc]['mc_count'] += 1
-                    stats[mc]['available_total'] += available_count
-        # 将统计结果从字典转换为列表格式
-        result_list = []
-        for mc, data in stats.items():
-            result_list.append({
-                "mc": mc,
-                "djsl": data['mc_count'],
-                "kysl": data['available_total']
-            })
-        list1 = []
-        for i in result_list:
-            str1 = f"{i['mc']}：已对接{i['djsl']}，可用号码{i['kysl']}"
-            print(str1)
-            if i['djsl'] < 2 or i['kysl'] < 100:
-                list1.append(str1)
-        send('豪猪', '\n'.join(list1))
     
- 
+    # 搜索项目公开对接码
+    def get_project_uid(self, sid, sim_type):
+        url = f'https://{self.host}/api.php?type=8&sid={sid}'
+        result = requests.get(url, headers=self.headers()).json()
+        if result['msg'] != "Success":
+            return []
+        new_data = []
+        for item in result['data']:
+            zx = int(item['zxky'].split('/')[0].split(':')[1])
+            ky = int(item['zxky'].split('/')[1].split(':')[1])
+            if ky > 10 and ky / zx > 0.1 and any(s in item['yyy'] for s in sim_type):
+                new_data.append(item)
+        sorted_data = sorted(new_data, key=lambda x: float(x['yhj']))
+        return sorted_data
+    
+    # 加入对接码
+    def join_uid(self, djm):
+        url = f'https://{self.host}/api.php?type=4&djm={djm}'
+        result = requests.get(url, headers=self.headers()).json()
+        print(result['msg']) 
+           
     # 查询当日消费记录
     def get_expenses(self):
         nowdate = datetime.now().strftime('%Y-%m-%d')
@@ -126,12 +98,34 @@ class HaoZhu:
                 self.use_money += Decimal(i['dj'])
             page += 1
         print(f"豪猪：消费数量{self.use_quantity}\n豪猪：消费金额{self.use_money}")
-              
-    def main(self):
-        if self.haozhu_api():
-            self.get_expenses()
-            self.ydj_del_uid()
-            self.statistics_docked()
+
+    # 自动对接
+    def zddj(self, data):
+        ydjsl = 0
+        kysl = 0
+        for item in self.my_ydj:
+            if data['sid'] in item['mc']:
+                print(f"{item['uid']}（{item['zxky']}，价格:{item['yhj']}）")
+                ydjsl += 1
+                kysl += int(item['zxky'].split('/')[1].split(':')[1])
+
+            if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
+                print(f"{item['mc']}：（可用对接数量：{ydjsl}，可用号码数量：{kysl}）")
+                return
+        
+        uids_data = self.get_project_uid(data['search_sid'], data['sim_type'])
+        for uids in uids_data:
+            print(f"添加对接码：{uids['uid']}（{uids['zxky']}，价格:{uids['yhj']}）")
+            self.join_uid(uids['uid'])
+            ydjsl += 1
+            kysl += int(uids['zxky'].split('/')[1].split(':')[1])
+            if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
+                print(f"{uids['mc']}：（可用对接数量：{ydjsl}，可用号码数量：{kysl}）")
+                return
+
+    # 主线程                    
+    def main(self, data: dict):
+        self.zddj(data)
 
 class YeZiYun:
     def __init__(self, token):
@@ -142,14 +136,14 @@ class YeZiYun:
     
     def headers(self):
         headers = {
-        'Host': self.host,
-        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36 EdgA/132.0.0.0",
-        'Accept': "application/json, text/plain, */*",
-        'Accept-Encoding': "gzip, deflate",
-        'Origin': "http://h5.yezi66.net:90",
-        'X-Requested-With': "mark.via",
-        'Referer': "http://h5.yezi66.net:90/",
-        'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            'Host': self.host,
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36 EdgA/132.0.0.0",
+            'Accept': "application/json, text/plain, */*",
+            'Accept-Encoding': "gzip, deflate",
+            'Origin': "http://h5.yezi66.net:90",
+            'X-Requested-With': "mark.via",
+            'Referer': "http://h5.yezi66.net:90/",
+            'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
         }
         return headers    
                 
@@ -179,12 +173,20 @@ class YeZiYun:
             
     def main(self):
         self.get_expenditure()
-        
-haozhu = HaoZhu(cookie)
-haozhu.main()
 
-yeziyun = YeZiYun(token)
-yeziyun.main()
+if __name__ == '__main__':
+    with open('utils/sms.json', 'r', encoding='utf-8') as f:
+        deploy_data = json.load(f)
+    haozhu = HaoZhu(cookie)
+    for data in deploy_data:
+        print(f"{data['project_name']}：")
+        if data['haozhu']['zddj']:
+            haozhu.main(data['haozhu'])
+        else:
+            print(f"{data['project_name']}：自动对接已关闭")
+        print(f"{'-'*50}")
+ 
+    yeziyun = YeZiYun(token)
+    yeziyun.main()
 
 print(f'总消费数量{haozhu.use_quantity + yeziyun.use_quantity}\n总消费金额{Decimal(haozhu.use_money) + Decimal(yeziyun.use_money)}')
-
