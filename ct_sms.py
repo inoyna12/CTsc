@@ -12,12 +12,12 @@ class HaoZhu:
     def __init__(self, cookie):
         self.cookie = cookie
         self.host = 'h5.haozhuyun.com'
+        self.RemoveLxfs = ["88888888888", "nezha77"]
         self.use_quantity = 0
         self.use_money = Decimal(0)
         if self.haozhu_api():
            self.my_ydj: list[dict] = self.get_ydj()
            self.get_expenses()
-          # print(self.my_ydj)
     
     def headers(self):
         headers = {
@@ -73,7 +73,7 @@ class HaoZhu:
         for item in result['data']:
             zx = int(item['zxky'].split('/')[0].split(':')[1])
             ky = int(item['zxky'].split('/')[1].split(':')[1])
-            if ky > 10 and ky / zx > 0.1 and any(s in item['yyy'] for s in sim_type):
+            if ky > 10 and ky / zx > 0.2 and any(s in item['yyy'] for s in sim_type) and item['lxfs'] not in self.RemoveLxfs and item['hd'][0] == '1':
                 new_data.append(item)
         sorted_data = sorted(new_data, key=lambda x: float(x['yhj']))
         return sorted_data
@@ -98,6 +98,7 @@ class HaoZhu:
                 self.use_money += Decimal(i['dj'])
             page += 1
         print(f"豪猪：消费数量{self.use_quantity}\n豪猪：消费金额{self.use_money}")
+        print(f"{'-'*45}")
 
     # 自动对接
     def zddj(self, data):
@@ -108,10 +109,9 @@ class HaoZhu:
                 print(f"{item['uid']}（{item['zxky']}，价格:{item['yhj']}）")
                 ydjsl += 1
                 kysl += int(item['zxky'].split('/')[1].split(':')[1])
-
-            if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
-                print(f"{item['mc']}：（可用对接数量：{ydjsl}，可用号码数量：{kysl}）")
-                return
+        if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
+            print(f"可用对接数量：{ydjsl}，可用号码数量：{kysl}")
+            return
         
         uids_data = self.get_project_uid(data['search_sid'], data['sim_type'])
         for uids in uids_data:
@@ -120,7 +120,7 @@ class HaoZhu:
             ydjsl += 1
             kysl += int(uids['zxky'].split('/')[1].split(':')[1])
             if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
-                print(f"{uids['mc']}：（可用对接数量：{ydjsl}，可用号码数量：{kysl}）")
+                print(f"可用对接数量：{ydjsl}，可用号码数量：{kysl}")
                 return
 
     # 主线程                    
@@ -157,7 +157,10 @@ class YeZiYun:
             payload = {
                 'token': f"{self.token}index={index}"
             }
-            result = requests.post(url, headers=self.headers(), data=payload).json()
+            result = requests.post(url, headers=self.headers(), data=payload)
+            if result.status_code != 200:
+                return
+            result = result.json()
             if result['data'] == []:
                 break 
             for data in result['data']:
@@ -175,16 +178,16 @@ class YeZiYun:
         self.get_expenditure()
 
 if __name__ == '__main__':
-    with open('utils/sms.json', 'r', encoding='utf-8') as f:
+    with open('sms/data.json', 'r', encoding='utf-8') as f:
         deploy_data = json.load(f)
     haozhu = HaoZhu(cookie)
     for data in deploy_data:
-        print(f"{data['project_name']}：")
         if data['haozhu']['zddj']:
+            print(f"{data['project_name']}：")
             haozhu.main(data['haozhu'])
         else:
             print(f"{data['project_name']}：自动对接已关闭")
-        print(f"{'-'*50}")
+        print(f"{'-'*45}")
  
     yeziyun = YeZiYun(token)
     yeziyun.main()
