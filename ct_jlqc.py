@@ -39,7 +39,7 @@ def updateGithubFiles(data: list):
     for i in new_data:
         if int(float(i['availablePoint'])) >= 100 and 'status' not in i:
             availablePoint_100.append(i)
-        if int(float(i['availablePoint'])) >= 50 and i['password'] == '' and 'status' not in i:
+        if int(float(i['availablePoint'])) >= 50 and 'status' not in i:
             availablePoint_50.append(i)
     gh_jlqc.update(new_data)
     gh_availablePoint_50.update(availablePoint_50)
