@@ -17,7 +17,7 @@ def get_md5(string):
 def add_mailbox(panel,api_sk):
     url = f'{panel}/plugin?action=a&name=mail_sys&s=add_mailbox'
     request_time = int(time.time())
-      payload = {
+    payload = {
       'request_token': get_md5(str(request_time) + get_md5(api_sk)),
       'request_time': request_time,
       'quota': "2 MB",
