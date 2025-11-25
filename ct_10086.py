@@ -42,6 +42,7 @@ class Yd:
         self.iv = '9791027341711819'
         self.my_data = self.aes_cbc_decrypt(self.key, self.iv, encrypted_data)
         self.my_dict = json.loads(self.my_data)
+        print(self.my_dict)
         self.session = requests.Session()
         self.session.mount('https://', adapter)
         self.jsUrl = 'https://wap.js.10086.cn/nact/action.do'
