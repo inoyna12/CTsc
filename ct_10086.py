@@ -3,7 +3,7 @@ cron: 1 0 * * *
 new Env('中国移动');
 '''
 
-import requests,json,base64,re
+import requests,json,base64,re,os
 import random
 import time
 import hashlib
@@ -33,7 +33,7 @@ context.options |= 0x4
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 adapter = SSLAdapter(ssl_context=context)
 
-encrypted_data = 'udq+c0DByFbi7Fi6+wi8OwobCIsifgjK1niSls0LE7r6VkBExr8imEDyaetoy6q31pmT2eyN5/vRwE8kMh4BDaOrEFwIXesGEx4pA77i7uR7RBrks+jK+2jpadjbyRJULd7YSRUttXvQvOoqdy7iYUCtOnI5BsLMx8nYa4lAScZHGiieEKjMrY3iahVCiy5zVDsnwRmH7hqK/oRgrmvZxP+H+V0S00Dah/VWKEmjGxchXsn2wXiUuoT2WIG3NTT9OTyRwbsARn2Gr28rUo7A1UvoRJkBEl3WCDXzJ+otbFACbZTQR7xEfHeLnb9AAUaI2CFlcvABmco5ykr5y6NqBy3hdSRL+kAZKpY44qhGiCahmxwH1UZ2koANpKsgbcvUsDHBmVRfi7+TPaxdtY++k5V9YJTH2SJQUTzrHEspOXVVkauO8XNlmbl76zrFmWb69QBfFz1HaMwd5eCu38LbWVoKuuyLXDFpCl8tCvnAp/OgWaOJV33wf4JdPJLb5sWqlDk/VcFzH2Pan1ly1GIwZMoglb53+sgYv5yzipd5Z1iJEwJ9hDogurB/2hXoJwqR+8trIzKHEneEWJbJA3Vq/JKBwhoMuBEXla/pD15xc72PFcXoP64DL9xKRN812Y6FgyBUPQtTMQTuMrk45YoYV2jhI9vliFkEeTNMYg361M4cfQ+ml2K3g+NCrhD97TbiALmzQzeK02ZhRluA+InX2s1TC8QxejdPlQFSVZvKiUz0DUkSsSTcJt5U40iIGn2Rfx2ZC6cC4klisY9za712828uJi3Tl6SEbdsrET6OGcMXYZGHqWmyefz1VD7FO2JxYdJ4aBS8CrR8DdTv1ngM69niQzb6vyqVq57YYOoJrClaatuiL3kK02dhCNYlOXELmRyu1Xkd/cgQV+Wuk7k4r0F6/h9zBSMv4klRv3itE2I='
+encrypted_data = os.environ["zhyd10086"]
 
 class Yd:
     def __init__(self, encrypted_data):
