@@ -33,16 +33,16 @@ context.options |= 0x4
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 adapter = SSLAdapter(ssl_context=context)
 
-encrypted_data = os.environ["zhyd10086"]
+decrypt_data = os.environ["zhyd10086"]
 
 class Yd:
-    def __init__(self, encrypted_data):
+    def __init__(self, decrypt_data):
         self.key = 'bAIgvwAuA4tbDr9d'
         self.key2 = 'GS7VelkJl5IT1uwQ'# 响应体秘钥
         self.iv = '9791027341711819'
-        self.my_data = self.aes_cbc_decrypt(self.key, self.iv, encrypted_data)
-        self.my_dict = json.loads(self.my_data)
-        print(self.my_dict)
+        # self.my_data = self.aes_cbc_decrypt(self.key, self.iv, encrypted_data)
+        # self.test = '{"ak":"F4AA34B89513F0D087CA0EF11A3277469DC74905","appKey":"00000159","baseFrameVersion":"0.0.1","cid":"Ac3elAP8ZcjTQUlgJ5CVF2iIr6d0HCTfSFzcZBVsCewA+v4QudX9ZP7zoabY2RKs/sbb8hdo4aoQHVJ6r6Yi/w==","city":"0512","componentID":"BI2021SA000055","componentVersion":"2.0.0","ctid":"Ac3elAP8ZcjTQUlgJ5CVF2iIr6d0HCTfSFzcZBVsCewA+v4QudX9ZP7zoabY2RKs/sbb8hdo4aoQHVJ6r6Yi/w==","cv":"12.0.2","en":"0","imei":"aaid:B8AF3E16B0CB441EAEC35A348B7A1D254bb3c6ae6a0cf7dcc122e17e1d80981e","nt":"3","packageName":"com.greenpoint.android.mc10086.activity","prov":"250","reqBody":{"cellNum":"FTH1UQxWGfUIrIirWbS47XyEHY2e9ixxmSzOP8+rUCCfFmbJmMRV4rfjQBsMzx23QB8KQMseFurbSlQobEWwBW/Ha3BENFwb5H0uUd68WydifxJa8+D9evtkXga9zBPoRvCAo83n4UcscQe2lb9WYRrar8v2BrC2uj0S2ZbaDDw=","channelId":"1","devToken":"692806ac8XZJhRITd4o94WGWSRvW8qft63GL6Kn3","imei":"aaid:B8AF3E16B0CB441EAEC35A348B7A1D254bb3c6ae6a0cf7dcc122e17e1d80981e","pageUrl":"ZF10000","reqSource":"init","sendSmsFlag":"0","sysTime":"1764231332422"},"sb":"OnePlus","sn":"PJZ110","sp":"1440x2944","st":"1","sv":"15","t":"","tel":"99999999999","xc":"A2160","xk":"0e5f5056418e8e5c3c4f4e7cfa66428cfd4e486683c3e035b774a5487fe62e8e136748e7"}'
+        self.my_dict = json.loads(decrypt_data)
         self.session = requests.Session()
         self.session.mount('https://', adapter)
         self.jsUrl = 'https://wap.js.10086.cn/nact/action.do'
@@ -451,10 +451,10 @@ class Yd:
         if self.autoLogin():
             self.getCmtokenid()
             self.doSign()
-            self.Ebean()
+           # self.Ebean()
         self.session.close()
 
 
 
-yd = Yd(encrypted_data)
+yd = Yd(decrypt_data)
 yd.main()
