@@ -29,13 +29,13 @@ from datetime import datetime,date
 from decimal import Decimal
 from notify import send
 
-cookie = 'PHPSESSID=409rspqv2un57n4fm1pldfqc91; sl-session=QS2BcNktSWkNwwsDBaqYUQ==' #zhou808080
+cookie = 'PHPSESSID=ls0dfolm534s9jpdfcor4ekp51; sl-session=yVHZGSIYUWnn5P4+7A0b3Q==' #zhou808080
 token = 'eD/rrPvm7dDgzG8JXTUcu792PQ/c8e08bx7J7IOldlgLA2k5w ACe6zFz4FaU9pQKk1fm3VfaGH8i9aZ67K1U7EePTGS2ndOeis7sY4en4X02vT0xcI1qT59cIjKQIJpdAdG/pLURTlC Ztmvg1SNJcuSxXn6tkhkYGfwKJssUU=;'
 
 class HaoZhu:
     def __init__(self, cookie):
         self.cookie = cookie # 调用haozhu_api后会延长cookie有效期
-        self.host = 'h5.haozhuyun.com'
+        self.host = 'h5.haozhuwang.com'
         self.RemoveLxfs = ["88888888888", "nezha77", "Szldh", "gzgfc"] # 查询项目时屏蔽的卡商ID
         self.use_quantity = 0
         self.use_money = Decimal('0')
@@ -54,12 +54,12 @@ class HaoZhu:
         }
         return headers
 
-    # 延长cookie时间        
+    # 刷新token，同样会延长cookie时间        
     def haozhu_api(self):
         url = f'https://{self.host}/api.php'
         response = requests.get(url, headers=self.headers(), allow_redirects=False)
         if response.status_code != 200:
-            print(f"请求失败，状态码：{response.status_code}")
+            print(f"刷新token请求失败，状态码：{response.status_code}")
             print("响应内容：", response.text)
             return False
         result = response.json()
@@ -74,11 +74,11 @@ class HaoZhu:
     def getSummary(self, token):
         url = f'https://api.haozhuwang.com/sms/?api=getSummary&token={token}'
         headers = {
-            'Host': 'api.haozhuwang.cn'
+            'Host': 'api.haozhuwang.com'
         }
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            print(f"请求失败，状态码：{response.status_code}")
+            print(f"查询余额请求失败，状态码：{response.status_code}")
             print("响应内容：", response.text)
             return False
         result = response.json()
