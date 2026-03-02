@@ -1,77 +1,148 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import requests
-import json
-import os
-import time
-import base64
-# ======== 配置项（确认SIGN_URL是抓包到的真实接口）========
-COOKIE = os.getenv("WJ_KC_COOKIE")
-SIGN_URL = "https://wj-kc.com/api/user/sign_use"  # 必须确认正确
-REQUEST_METHOD = "POST"  # 抓包的请求方法（GET/POST）
-SIGN_DATA = {}  # 抓包的请求参数，无则留空
-# ==============================================
-if not COOKIE:
-    print("❌ 未配置WJ_KC_COOKIE环境变量，请在青龙面板添加")
-    exit(1)
-# 最终版请求头（适配该网站）
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Cookie": COOKIE,
-    "Referer": "https://wj-kc.com/",
-    "Origin": "https://wj-kc.com/",
-    "X-Requested-With": "XMLHttpRequest",
-    "Accept": "application/json, text/plain, */*",
-    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-}
-def decode_base64(data):
-    """Base64解密（处理补位）"""
-    try:
-        missing_padding = len(data) % 4
-        if missing_padding:
-            data += "=" * (4 - missing_padding)
-        decoded_bytes = base64.b64decode(data)
-        return json.loads(decoded_bytes.decode("utf-8"))
-    except Exception as e:
-        print(f"⚠️ Base64解密失败：{str(e)}")
-        return None
-def sign_in():
-    """最终版签到逻辑（适配所有提示）"""
-    try:
-        session = requests.Session()
-        session.get("https://wj-kc.com", headers=HEADERS, timeout=10)
-        # 发送签到请求
-        if REQUEST_METHOD.upper() == "POST":
-            response = session.post(SIGN_URL, headers=HEADERS, data=SIGN_DATA, timeout=15, allow_redirects=False)
-        else:
-            response = session.get(SIGN_URL, headers=HEADERS, params=SIGN_DATA, timeout=15, allow_redirects=False)
-        # 解析响应
-        outer_result = response.json()
-        inner_data = decode_base64(outer_result["data"]) if "data" in outer_result else None
-        if not inner_data:
-            print("❌ 解密失败，原始响应：", response.text)
-            return
-        # 提取核心字段
-        code = inner_data.get("code")
-        msg = inner_data.get("msg", "")
-        add_traffic = inner_data.get("data", {}).get("addTraffic", 0) / 1024 / 1024  # 转MB
-        # 适配所有场景的判断逻辑
-        if code == 0 and msg == "SUCCESS":
-            print(f"✅ 签到成功！获得流量：{add_traffic:.2f} MB")
-        elif msg == "SIGN_USE_MULTY_TIMES" or "MULTY_TIMES" in msg or code == 1028:
-            print(f"ℹ️ 今日已签到，无需重复操作（提示：{msg}）")
-        elif code in [1, -1, 1000]:
-            print(f"❌ 签到失败：{msg}（错误码：{code}）")
-        else:
-            print(f"ℹ️ 签到结果：{msg}（错误码：{code}）")
-    except requests.exceptions.Timeout:
-        print("❌ 请求超时，请检查网络或网站可用性")
-    except json.JSONDecodeError:
-        print(f"❌ 响应格式异常：{response.text}")
-    except Exception as e:
-        print(f"❌ 签到异常：{str(e)}")
-if __name__ == "__main__":
-    print(f" 开始执行wj-kc.com签到脚本 - {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    sign_in()
-    print(f" 签到脚本执行完毕 - {time.strftime('%Y-%m-%d %H:%M:%S')}")
+import requests, json, base64, hashlib
 
+user_list = [
+    {"user_name": "inoyna@163.com", "passwd": "inoyna11"},
+    {"user_name": "", "passwd": ""},
+    {"user_name": "", "passwd": ""},
+    {"user_name": "", "passwd": ""},
+]
+#https://wxpusher.dingliqc.com/docs/#/ 创建app后获取apptoken，然后关注生成的二维码后获取UID
+wxpusher_config = {
+    "appToken": "",
+    "uid": ""
+}
+
+hosts = "https://wj-kc.com"
+user_api = "/api/user/userinfo"
+sign_api = "/api/user/sign_use"
+login_api = "/api/user/login"
+data = {"data": "e30="}
+
+
+def pushplus_bot(title: str, content: str) -> None:
+    """
+    通过 push+ 推送消息。
+    """
+    if not wxpusher_config.get("appToken"):
+        print("PUSHPLUS 服务的 appToken 未设置!!\n取消推送")
+        return
+    print("PUSHPLUS 服务启动")
+
+    url = "https://wxpusher.zjiecode.com/api/send/message"
+    data = {
+        "appToken": wxpusher_config.get("appToken"),
+        "content": content,
+        "contentType": 1,
+        "summary": title,
+        "uids": [wxpusher_config.get("uid")],
+    }
+    body = json.dumps(data).encode(encoding="utf-8")
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(url=url, data=body, headers=headers).json()
+
+    if response["code"] == 1000:
+        print("WxPusher 推送成功！")
+    else:
+        print("WxPusher 推送失败！,response:", response)
+
+
+def decode_data(base64_data):
+    if base64_data:
+        data = base64.b64decode(base64_data).decode('utf-8')
+        data = json.loads(data)
+        return data
+    else:
+        return base64_data
+
+
+def user_info(headers, data):
+    print("check auth ")
+    print(headers)
+
+    resp = requests.post(hosts + user_api, headers=headers, verify=False, json=data)
+    if resp.status_code == 200:
+        resp = resp.json()
+        base64_data = resp.get("data")
+        data = decode_data(base64_data)
+        print(data)
+        if isinstance(data, dict):
+            email = data.get("data").get("email")
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def sign(headers, data):
+    print("start sign ing")
+    resp = requests.post(hosts + sign_api, headers=headers, verify=False, json=data)
+    if resp.status_code == 200:
+        resp = resp.json()
+        base64_data = resp.get("data")
+        data = decode_data(base64_data)
+        if isinstance(data, dict):
+            if data.get("msg") in ["SUCCESS", "SIGN_USE_MULTY_TIMES"]:
+                msg = "签到成功"
+                print(msg)
+                return msg
+            else:
+                return ("签到失败！", data.get("msg"))
+        else:
+            return ("签到失败:解析响应失败:", data)
+    else:
+        return ("签到失败:请求错误", resp.content)
+
+
+def login(user_name, passwd):
+    print("start login")
+    login_data = {'email': user_name, 'password': hashlib.md5(passwd.encode()).hexdigest()}
+    encoded_login_data = base64.b64encode(json.dumps(login_data).encode()).decode()
+    print(encoded_login_data)
+    final_data = {'data': encoded_login_data}
+    resp = requests.post(hosts + login_api, json=final_data)
+    if resp.status_code == 200:
+        data = resp.json().get("data", "")
+        data = decode_data(data)
+        if data.get("msg", "") == "SUCCESS":
+            token = resp.headers.get("Set-Cookie")
+            token = token.split(";")[0].split("=")[1]
+            if token:
+                return token
+            else:
+                print("响应成功，获取token失败:", data)
+                return False
+        else:
+            print("响应成功，状态异常：", data)
+            return False
+    else:
+        print("请求异常:", resp.content.decode("utf-8"))
+        return False
+
+
+def run():
+    for i in user_list:
+        user_name = i["user_name"]
+        passwd = i["passwd"]
+        token = login(user_name, passwd)
+        is_push = True
+        title = "网际快车签到失败！"
+        content = ""
+        if token:
+            headers = {"Cookie": "token={}".format(token)}
+            if user_info(headers, data):
+                sign_result = sign(headers, data)
+                if sign_result == "签到成功":
+                    is_push = False
+                else:
+                    content = sign_result
+            else:
+                content = "用户身份校验异常"
+        else:
+            content = "登陆失败！"
+        if is_push:
+            pushplus_bot(title, content)
+
+
+if __name__ == '__main__':
+    run()
