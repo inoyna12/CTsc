@@ -13,6 +13,7 @@ def getid(name):
         'Cookie': haozhu_cookie
     }
     result = requests.get(url, headers=headers, allow_redirects=False).json()
-    print(result)
+    for i in result['data']:
+        print(i)
 
 getid(haozhu_projectname)
