@@ -361,7 +361,7 @@ class YeZiYun:
 
 if __name__ == '__main__':
     haozhu = HaoZhu(haozhu_cookie)
-    print(haozhu_projectdata)
+    print(haozhu_projectdata.cont)
     exit()
     for i in haozhu_projectdata:
         if i['haozhu']['zddj']:
