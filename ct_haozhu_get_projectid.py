@@ -1,5 +1,5 @@
 import requests
-import json,time
+import json,time,os
 
 HOST = 'h5.haozhuma.cn'
 haozhu_cookie = os.environ["haozhucookie"]
