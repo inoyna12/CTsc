@@ -56,7 +56,7 @@ class HaoZhu:
         self.cookie = cookie # 调用haozhu_api后会延长cookie有效期
         self.host = 'h5.haozhuma.cn'
         self.host2 = 'api.haozhuma.cn'
-        self.RemoveLxfs = ["88888888888", "nezha77", "Szldh", "zhgy888", "@cjang888", "cjang888", "@jings888", "jings888", "cocodou888", "yy2438"] # 查询项目时屏蔽的卡商ID
+        self.RemoveLxfs = ["88888888888", "nezha77", "Szldh", "zhgy888", "@cjang888", "cjang888", "@jings888", "jings888", "cocodou888", "yy2438", "smsgfc"] # 查询项目时屏蔽的卡商ID
         self.RemoveSheng = ["江西"] # 查询项目时屏蔽的省
         self.use_quantity = 0
         self.use_money = Decimal('0')
