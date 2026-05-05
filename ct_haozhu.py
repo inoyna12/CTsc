@@ -57,7 +57,7 @@ class HaoZhu:
         self.host = 'h5.haozhuma.cn'
         self.host2 = 'api.haozhuma.cn'
         self.RemoveLxfs = ["88888888888", "nezha77", "Szldh", "zhgy888", "@cjang888", "cjang888", "@jings888", "jings888", "cocodou888", "yy2438", "smsgfc", "ssn996"] # 查询项目时屏蔽的卡商ID
-        self.RemoveSheng = ["江西"] # 查询项目时屏蔽的省
+        self.RemoveSheng = [] # 查询项目时屏蔽的省
         self.use_quantity = 0
         self.use_money = Decimal('0')
         self.token = self.haozhu_api()
