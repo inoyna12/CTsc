@@ -121,7 +121,6 @@ class HaoZhu:
             if result['data'] is None:
                 break
             for item in result['data']:
-                print(item)
                 zx = int(item['zxky'].split('/')[0].split(':')[1])
                 ky = int(item['zxky'].split('/')[1].split(':')[1])
                 if item['djzt'] == '已对接' and ky > 0:
