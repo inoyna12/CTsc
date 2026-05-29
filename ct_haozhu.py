@@ -109,6 +109,7 @@ class HaoZhu:
     
     # 查询加入的对接码，并且状态是已对接的，自动删除可用数量不足的对接码
     def get_ydj(self) -> list[dict]:
+        unique_prefixes = set()
         page = 1
         data = []
         max_pages = 50  # 安全限制
@@ -121,6 +122,10 @@ class HaoZhu:
             if result['data'] is None:
                 break
             for item in result['data']:
+                resp = item['hd']
+                prefixes = [i for i in resp.split('|') if i]
+                unique_prefixes.update(prefixes)
+                
                 zx = int(item['zxky'].split('/')[0].split(':')[1])
                 ky = int(item['zxky'].split('/')[1].split(':')[1])
                 if item['djzt'] == '已对接' and ky > 0:
@@ -130,6 +135,8 @@ class HaoZhu:
                     print(f"删除对接码：{item['mc']}----{item['uid']}（{item['zxky']}，价格:{item['yhj']}）")
                     self.del_uid(item['uid'])
             page += 1
+        final_list = list(unique_prefixes)
+        print(final_list)
         return data
 
     # 删除对接码
