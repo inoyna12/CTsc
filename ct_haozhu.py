@@ -123,8 +123,9 @@ class HaoZhu:
                 break
             for item in result['data']:
                 resp = item['hd']
-                prefixes = [i for i in resp.split('|') if i]
-                unique_prefixes.update(prefixes)
+                if resp:
+                    prefixes = [i for i in resp.split('|') if i]
+                    unique_prefixes.update(prefixes)
                 
                 zx = int(item['zxky'].split('/')[0].split(':')[1])
                 ky = int(item['zxky'].split('/')[1].split(':')[1])
