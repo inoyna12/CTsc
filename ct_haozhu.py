@@ -45,7 +45,7 @@ request_count = 0
 def rts(url, method='GET', resp_type='json', **kwargs):
     global request_count
     request_count += 1
-    time.sleep(5)
+    time.sleep(2)
     try:
         r = requests.request(method.upper(), url, timeout=20, **kwargs)
         r.raise_for_status()
