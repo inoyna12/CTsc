@@ -34,23 +34,25 @@ from decimal import Decimal
 from notify import send
 
 # 豪猪配置
-haozhu_cookie = os.environ["haozhucookie"]
-haozhu_projectdata = GithubFile('豪猪/projectdata.json')
+cookie = os.environ["haozhucookie"]
+projectdata = GithubFile('豪猪/test.json')
+projectdata = projectdata.cont
+notAdd_lxfs = projectdata['notAdd_lxfs']
+notAdd_sheng = projectdata['notAdd_sheng']
 
-  
-token = 'eD/rrPvm7dDgzG8JXTUcu792PQ/c8e08bx7J7IOldlgLA2k5w ACe6zFz4FaU9pQKk1fm3VfaGH8i9aZ67K1U7EePTGS2ndOeis7sY4en4X02vT0xcI1qT59cIjKQIJpdAdG/pLURTlC Ztmvg1SNJcuSxXn6tkhkYGfwKJssUU=;'
 request_count = 0
 
 def rts(url, method='GET', resp_type='json', **kwargs):
     global request_count
     request_count += 1
-    time.sleep(2)
+    time.sleep(5)
     try:
-        r = requests.request(method.upper(), url, timeout=10, **kwargs)
+        r = requests.request(method.upper(), url, timeout=20, **kwargs)
         r.raise_for_status()
         return r.json() if resp_type == 'json' else r.text
     except Exception as e:
         print(f"Error: {e}")
+        print(url)
         return None
 
 class HaoZhu:
@@ -58,15 +60,14 @@ class HaoZhu:
         self.cookie = cookie # 调用haozhu_api后会延长cookie有效期
         self.host = 'h5.haozhuma.cn'
         self.host2 = 'api.haozhuma.cn'
-        self.RemoveLxfs = ["88888888888", "nezha77", "Szldh", "zhgy888", "@cjang888", "cjang888", "@jings888", "jings888", "cocodou888", "yy2438", "smsgfc", "ssn996"] # 查询项目时屏蔽的卡商ID
-        self.RemoveSheng = [] # 查询项目时屏蔽的省
         self.use_quantity = 0
         self.use_money = Decimal('0')
         self.token = self.haozhu_api()
         if self.token:
             self.getSummary(self.token) # 查询余额
             #self.get_expenses() # 查询当日消费记录
-            self.my_ydj: list[dict] = self.get_ydj() # 查询已对接的对接码(去除已暂停)
+            ydj: list[dict] = self.get_ydj() # 查询所有对接码
+            self.my_ydj = self.update_ydj(ydj) #处理对接码    
         else:
             exit()
             
@@ -107,9 +108,8 @@ class HaoZhu:
         else:
             print(result)
     
-    # 查询加入的对接码，并且状态是已对接的，自动删除可用数量不足的对接码
+    # 查询加入的对接码
     def get_ydj(self) -> list[dict]:
-        unique_prefixes = set()
         page = 1
         data = []
         max_pages = 50  # 安全限制
@@ -121,23 +121,22 @@ class HaoZhu:
                 exit()
             if result['data'] is None:
                 break
-            for item in result['data']:
-                resp = item['hd']
-                if resp:
-                    prefixes = [i for i in resp.split('|') if i]
-                    unique_prefixes.update(prefixes)
-                
-                zx = int(item['zxky'].split('/')[0].split(':')[1])
-                ky = int(item['zxky'].split('/')[1].split(':')[1])
-                if item['djzt'] == '已对接' and ky > 0:
-                    data.append(item)
-                    continue
-                if item['djzt'] == '已对接' and ky == 0:
-                    print(f"删除对接码：{item['mc']}----{item['uid']}（{item['zxky']}，价格:{item['yhj']}）")
-                    self.del_uid(item['uid'])
+            data.extend(result['data'])  #追加到data列表末尾中
             page += 1
-        final_list = list(unique_prefixes)
-        print(final_list)
+        return data
+
+    # 更新已对接的对接码
+    def update_ydj(self, ydj):
+        data = []
+        for i in ydj:
+            zx = int(i['zxky'].split('/')[0].split(':')[1])
+            ky = int(i['zxky'].split('/')[1].split(':')[1])
+            if i['djzt'] == '已对接' and ky > 0:
+                data.append(i)
+                continue
+            if i['djzt'] == '已对接' and ky == 0:
+                print(f"删除对接码：{i['mc']}----{i['uid']}（{i['zxky']}，价格:{i['yhj']}）")
+                self.del_uid(i['uid'])
         return data
 
     # 删除对接码
@@ -151,7 +150,7 @@ class HaoZhu:
         print(f"{'-'*40}")
     
     # 搜索项目公开对接码
-    def get_project_uid(self, sid, sim_type):
+    def get_project_uid(self, sid, not_hd_list):
         url = f'https://{self.host}/api.php?type=8&sid={sid}'
         headers = self.headers()
         result = rts(url, headers=headers)
@@ -165,13 +164,14 @@ class HaoZhu:
         for item in result['data']:
             zx = int(item['zxky'].split('/')[0].split(':')[1])
             ky = int(item['zxky'].split('/')[1].split(':')[1])
+            hd_list = item['hd'].strip('|').split('|')
             if ky <= 10 or (ky / zx) <= 0.2: # 如果 ky（可用数量）小于等于 10，或者（or） ky / zx 的比例小于等于 0.2，就跳过这条数据。
                 continue
-            if not any(s in item['yyy'] for s in sim_type): # 遍历 sim_type（比如 ['移动', '联通']），检查 item['yyy'] 里有没有包含它们。如果一个都没包含（not any），就跳过这条数据。
+            if set(hd_list).issubset(set(not_hd_list)): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
-            if any(s in item['sheng'] for s in self.RemoveSheng): # 遍历黑名单 self.RemoveSheng（比如 ['北京', '上海']），只要发现 item['sheng'] 中包含了黑名单里的任何一个省份（any），就跳过这条数据。
+            if any(s in item['sheng'] for s in notAdd_sheng): # 遍历黑名单 self.RemoveSheng（比如 ['北京', '上海']），只要发现 item['sheng'] 中包含了黑名单里的任何一个省份（any），就跳过这条数据。
                 continue
-            if item['lxfs'] in self.RemoveLxfs: # item的卡商用户名存在于RemoveLxfs中，则运行
+            if item['lxfs'] in notAdd_lxfs: # item的卡商用户名存在于RemoveLxfs中，则运行
                 continue
             if item['hd'][0] != '1': # 号段开头不等于1，则运行
                 continue
@@ -251,7 +251,7 @@ class HaoZhu:
             return
         
         # 查询项目公开对接码
-        uids_data = self.get_project_uid(data['search_sid'], data['sim_type'])
+        uids_data = self.get_project_uid(data['search_sid'], data['notAdd_hd'])
 
         # 加入对接码，加入后添加到my_ydj中，直到满足配置文件中的要求为止
         for uids in uids_data:
@@ -319,63 +319,13 @@ class HaoZhu:
     def main(self, data: dict):
         self.zddj(self.my_ydj, data) # 自动对接
 
-class YeZiYun:
-    def __init__(self, token):
-        self.token = token
-        self.host = 'az.yezi56.com:90'
-        self.use_quantity = 0
-        self.use_money = Decimal(0)
-    
-    def headers(self):
-        headers = {
-            'Host': self.host,
-            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36 EdgA/132.0.0.0",
-            'Accept': "application/json, text/plain, */*",
-            'Accept-Encoding': "gzip, deflate",
-            'Origin': "http://h5.yezi66.net:90",
-            'X-Requested-With': "mark.via",
-            'Referer': "http://h5.yezi66.net:90/",
-            'Accept-Language': "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
-        return headers    
-                
-    # 获取消费记录
-    def get_expenditure(self):
-        url = f"http://{self.host}/api/get_expenditure"
-        index = 0
-        today_date = date.today()
-        stop_while = True
-        while stop_while:
-            payload = {
-                'token': f"{self.token}index={index}"
-            }
-            result = requests.post(url, headers=self.headers(), data=payload)
-            if result.status_code != 200:
-                return
-            result = result.json()
-            if result['data'] == []:
-                break 
-            for data in result['data']:
-                data_time = date.fromtimestamp(int(data['time']) - 28800)
-                if today_date == data_time:
-                    self.use_quantity += 1
-                    self.use_money -= Decimal(data['money'])
-                else:
-                    stop_while = False
-                    break
-            index += 40
-        print(f"椰子云：消费数量{self.use_quantity}\n椰子云：消费金额{self.use_money}")
-            
-    def main(self):
-        self.get_expenditure()
-
 if __name__ == '__main__':
-    haozhu = HaoZhu(haozhu_cookie)
-    for i in haozhu_projectdata.cont:
-        if i['haozhu']['zddj']:
-            haozhu.main(i['haozhu'])
+    haozhu = HaoZhu(cookie)
+    for item in projectdata['data']:
+        if item['zddj']:
+            haozhu.main(item)
         else:
-            print(f"{i['project_name']}：自动对接已关闭")
+            print(f"{item['project_name']}：自动对接已关闭")
             print(f"{'-'*40}")
     haozhu.process_and_print(haozhu.my_ydj) # 打印已对接的对接码
     print(f"总请求数量：{request_count}")
