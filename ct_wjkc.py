@@ -12,7 +12,7 @@ wxpusher_config = {
     "uid": ""
 }
 
-hosts = "https://wj-kc.com"
+hosts = "https://rp.wjkc.xyz"
 user_api = "/api/user/userinfo"
 sign_api = "/api/user/sign_use"
 login_api = "/api/user/login"
