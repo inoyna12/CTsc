@@ -35,7 +35,7 @@ from notify import send
 
 # 豪猪配置
 cookie = os.environ["haozhucookie"]
-projectdata = GithubFile('豪猪/test.json')
+projectdata = GithubFile('豪猪/data.json')
 projectdata = projectdata.cont
 notAdd_lxfs = projectdata['notAdd_lxfs']
 notAdd_sheng = projectdata['notAdd_sheng']
