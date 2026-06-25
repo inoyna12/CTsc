@@ -129,7 +129,7 @@ class HaoZhu:
     def update_ydj(self, ydj):
         data = []
         for i in ydj:
-            zx = int(i['zxky'].split('/')[0].split(':')[1])
+           # zx = int(i['zxky'].split('/')[0].split(':')[1])
             ky = int(i['zxky'].split('/')[1].split(':')[1])
             if i['djzt'] == '已对接' and ky > 0:
                 data.append(i)
@@ -162,11 +162,11 @@ class HaoZhu:
             exit()
         new_data = []
         for item in result['data']:
-            zx = int(item['zxky'].split('/')[0].split(':')[1])
+           # zx = int(item['zxky'].split('/')[0].split(':')[1])
             ky = int(item['zxky'].split('/')[1].split(':')[1])
             hd_list = item['hd'].strip('|').split('|')
-            if ky <= 10 or (ky / zx) <= 0.2: # 如果 ky（可用数量）小于等于 10，或者（or） ky / zx 的比例小于等于 0.2，就跳过这条数据。
-                continue
+           # if ky <= 10 or (ky / zx) <= 0.2: # 如果 ky（可用数量）小于等于 10，或者（or） ky / zx 的比例小于等于 0.2，就跳过这条数据。
+           #     continue
             if set(hd_list).issubset(set(not_hd_list)): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
             if any(s in item['sheng'] for s in notAdd_sheng): # 遍历黑名单 self.RemoveSheng（比如 ['北京', '上海']），只要发现 item['sheng'] 中包含了黑名单里的任何一个省份（any），就跳过这条数据。
