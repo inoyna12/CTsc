@@ -130,7 +130,7 @@ class HaoZhu:
         data = []
         for i in ydj:
            # zx = int(i['zxky'].split('/')[0].split(':')[1])
-            ky = int(i['zxky'].split('/')[1].split(':')[1])
+            ky = int(i['zxky'].split(':')[-1])
             if i['djzt'] == '已对接' and ky > 0:
                 data.append(i)
                 continue
@@ -163,7 +163,7 @@ class HaoZhu:
         new_data = []
         for item in result['data']:
            # zx = int(item['zxky'].split('/')[0].split(':')[1])
-            ky = int(item['zxky'].split('/')[1].split(':')[1])
+            ky = int(item['zxky'].split(':')[-1])
             hd_list = item['hd'].strip('|').split('|')
            # if ky <= 10 or (ky / zx) <= 0.2: # 如果 ky（可用数量）小于等于 10，或者（or） ky / zx 的比例小于等于 0.2，就跳过这条数据。
            #     continue
@@ -246,7 +246,7 @@ class HaoZhu:
             # 判断配置文件中的项目名称是否在已对接的对接码中，如果存在就把已对接的对接码数量和可用号码数量加起来
             if data['sid'] in item['mc']:
                 ydjsl += 1
-                kysl += int(item['zxky'].split('/')[1].split(':')[1])
+                kysl += int(item['zxky'].split(':')[-1])
 
         # 判断已对接的对接码数量和可用号码数量是否满足配置文件中的要求，如果满足就退出                
         if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
@@ -260,7 +260,7 @@ class HaoZhu:
             print(f"添加对接码：{uids['mc']}----{uids['uid']}（{uids['zxky']}，价格:{uids['yhj']}）")
             self.add_uid(uids['uid'])
             ydjsl += 1
-            kysl += int(uids['zxky'].split('/')[1].split(':')[1])
+            kysl += int(uids['zxky'].split(':')[-1])
             my_ydj.append(uids)
             if ydjsl >= data['ydjsl'] and kysl >= data['kysl']:
                 return
@@ -311,7 +311,8 @@ class HaoZhu:
                 print(f"{uid}（{zxky}，价格:{price}）")
                 
                 # 提取"可用"后面的数字进行累加
-                total_available += int(zxky.split('/')[1].split(':')[1])
+                total_available += int(zxky.split(':')[-1])
+                
 
             # 打印统计信息
             print(f"可用对接数量：{len(items)}，可用号码数量：{total_available}")
