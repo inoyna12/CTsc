@@ -167,7 +167,7 @@ class HaoZhu:
             hd_list = item['hd'].strip('|').split('|')
            # if ky <= 10 or (ky / zx) <= 0.2: # 如果 ky（可用数量）小于等于 10，或者（or） ky / zx 的比例小于等于 0.2，就跳过这条数据。
            #     continue
-            if ky <= 10:
+            if ky <= 20:
                 continue
             if set(hd_list).issubset(set(not_hd_list)): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
