@@ -75,6 +75,7 @@ def send_auth_code(phone_number: str):
         "purpose": "login",
         "locale": "en"
     }
+    print(payload)
 
     # 动态生成 uuid 作为请求标识，避免被服务器风控或去重
     request_id = str(uuid.uuid4())
@@ -100,8 +101,9 @@ def send_auth_code(phone_number: str):
     }
 
     # 使用 json 参数会自动进行 json.dumps 并设置 header
-    result = requests.post(url, json=payload, headers=headers).json()
-    print(f'发送验证码响应：{result}')
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
+
+    print(response.text)
 
 def login_by_auth_code(phone_number: str, auth_code: str, device_id: str = None):
  
@@ -180,10 +182,11 @@ if __name__ == '__main__':
     sifang_phone = GithubFile(f'四方/{SF_TOKEN}.txt', as_json=False).cont
     phone_lst = [line.strip() for line in sifang_phone.strip().split('\n') if line.strip()]
     for item in phone_lst:
-        phone = re.search(r'\d{11}', item)
+        phone = re.search(r'\d{11}', item).group()
         print(f'使用号码：{phone}')
         sifangID = get_id(SF_TOKEN)
         send_auth_code(phone)
+        exit()
         sifang_code = get_code(SF_TOKEN, CODE_TITLE, sifangID, phone)
         token = login_by_auth_code(phone, sifang_code)
         get_my_credits(token)
