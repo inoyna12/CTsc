@@ -12,7 +12,7 @@ import requests, json, re, time
 from tools.githubFile import GithubFile
 
 HOST = 'sms.szfangmm.com:3000'  #host
-token = 'neTgGKNHpBkQ7vcQKqXoGk'  #每个号码组对应的token
+TOKEN = 'neTgGKNHpBkQ7vcQKqXoGk'  #每个号码组对应的token
 CODE_TITLE = '生数科技'  #短信标题
 simnum = ''  #手机号
 MAX_POLLING_ATTEMPTS = 20  # 验证码轮询最大尝试次数（网络错误时也会继续轮询）
@@ -64,4 +64,3 @@ def get_code(token, title, simnum):
 
 if __name__ == '__main__':
     sifang_phone = GithubFile(f'四方/{TOKEN}.txt')
-
