@@ -1,18 +1,8 @@
-import json
+import logging
 
-filepath = "/ql/data/env/jlqc.json"
-with open(filepath, 'r') as f:
-    my_list = json.load(f)
+# 配置日志级别为 DEBUG（默认是 WARNING）
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-print(len(my_list))
-
-del_accounts = ['18501632796','19222699057','18501720352','18772451564','19222698894','19222698125','19270773419']
-new_my_list = []
-for i in my_list:
-    if i['phone'] not in del_accounts:
-        new_my_list.append(i)
-
-print(len(new_my_list))
-
-with open(filepath, 'w') as f:
-    json.dump(new_my_list, f, indent=2)
+logging.debug("这是 DEBUG 级别日志")
+logging.info("这是 INFO 级别日志")
+logging.warning("这是 WARNING 级别日志")
