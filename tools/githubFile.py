@@ -21,7 +21,9 @@ class GithubFile:
         :param repo_name: 仓库名称（格式：用户名/仓库名）
         :param github_token: GitHub Token，优先使用参数传入，其次从环境变量读取
         """
-        self.gh = Github(os.getenv("GITHUB_TOKEN"))  # 更通用的环境变量名
+        # 优先使用参数传入的 token，其次读取环境变量
+        token = github_token or os.getenv("GITHUB_TOKEN")
+        self.gh = Github(token)
         self.repo = self.gh.get_repo(repo_name)
         self.file_path = file_path
         self.file_info: Optional[ContentFile] = None
@@ -33,6 +35,25 @@ class GithubFile:
             print(f"初始化失败: {e}")
             raise  # 抛出异常由调用者处理
 
+    def _parse_content(self, content_bytes: bytes) -> list:
+        """
+        安全地解析字节流内容为 JSON。
+        如果内容为空或解析失败，将返回一个空列表以防止程序崩溃。
+        """
+        if not content_bytes or content_bytes.strip() == b"":
+            return []
+        try:
+            parsed_data = json.loads(content_bytes.decode("utf-8"))
+            # 确保解析出来的数据是列表类型，以符合 self.cont 的期望类型
+            if isinstance(parsed_data, list):
+                return parsed_data
+            else:
+                # 如果解析出来的不是列表（例如字典），在这里也可以兼容返回
+                return parsed_data  # type: ignore
+        except json.JSONDecodeError:
+            print(f"警告：文件 {self.file_path} 内容不是合法的 JSON 格式，已重置为空列表")
+            return []
+
     def _refresh_file_info(self) -> None:
         """刷新文件信息，可能抛出异常"""
         try:
@@ -42,8 +63,9 @@ class GithubFile:
                 raise ValueError(
                     f"文件 {self.file_path} 大小超过 {self.MAX_FILE_SIZE/1024/1024}MB 限制"
                 )
-                
-            self.cont = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            
+            # 使用安全解析函数处理文件内容
+            self.cont = self._parse_content(self.file_info.decoded_content)
             
         except GithubException as e:
             if e.status == 404:
@@ -80,7 +102,8 @@ class GithubFile:
             
             # 直接使用API返回的新内容更新本地信息
             self.file_info = update_result["content"]
-            self.cont = json.loads(self.file_info.decoded_content.decode("utf-8"))
+            # 同样使用安全解析函数进行同步
+            self.cont = self._parse_content(self.file_info.decoded_content)
             
             print(f"成功更新 {self.file_path}")
             
