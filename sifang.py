@@ -9,19 +9,20 @@
 
 
 import requests, json, re, time
+from tools.githubFile import GithubFile
 
-sfHost = 'sms.szfangmm.com:3000'  #host
-token = '4FwTXvFkiPt7ThU7NkPfS'  #每个号码组对应的token
-content_title = '迅游网络'  #短信标题
-simnum = '18531297207'  #手机号
-MAX_POLLING_ATTEMPTS = 60  # 验证码轮询最大尝试次数（网络错误时也会继续轮询）
+HOST = 'sms.szfangmm.com:3000'  #host
+token = 'neTgGKNHpBkQ7vcQKqXoGk'  #每个号码组对应的token
+CODE_TITLE = '生数科技'  #短信标题
+simnum = ''  #手机号
+MAX_POLLING_ATTEMPTS = 20  # 验证码轮询最大尝试次数（网络错误时也会继续轮询）
 POLL_INTERVAL_MS = 3000  # 轮询间隔时间（毫秒）
 
 # 获取id
-def get_id(host, token):
-    url = f'http://{host}/api/smslist?token={token}'
+def get_id(token):
+    url = f'http://{HOST}/api/smslist?token={token}'
     headers = {
-        'Host': host
+        'Host': HOST
     }
     result = requests.get(url, headers=headers).json()
     if len(result) > 0:
@@ -42,10 +43,10 @@ def extract_verification_code(text):
     return None
 
 # 获取验证码 
-def get_code(host, token, title, simnum):
-    url = f'http://{host}/api/smslist?token={token}'
+def get_code(token, title, simnum):
+    url = f'http://{HOST}/api/smslist?token={token}'
     headers = {
-        'Host': host
+        'Host': HOST
     }
     id = get_id(host, token)
     for i in range(MAX_POLLING_ATTEMPTS):
@@ -61,4 +62,6 @@ def get_code(host, token, title, simnum):
                 return
         time.sleep(POLL_INTERVAL_MS / 1000.0)
 
-get_code(sfHost, token, content_title, simnum)
+if __name__ == '__main__':
+    sifang_phone = GithubFile(f'四方/{TOKEN}.txt')
+
