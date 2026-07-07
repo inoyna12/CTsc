@@ -8,15 +8,17 @@
 '''
 
 
-import requests, json, re, time
+import requests, json, re, time, uuid
 from tools.githubFile import GithubFile
 
 HOST = 'sms.szfangmm.com:3000'  #host
-TOKEN = 'neTgGKNHpBkQ7vcQKqXoGk'  #每个号码组对应的token
+SF_TOKEN = 'neTgGKNHpBkQ7vcQKqXoGk'  #每个号码组对应的token
 CODE_TITLE = '生数科技'  #短信标题
 simnum = ''  #手机号
 MAX_POLLING_ATTEMPTS = 20  # 验证码轮询最大尝试次数（网络错误时也会继续轮询）
-POLL_INTERVAL_MS = 3000  # 轮询间隔时间（毫秒）
+POLL_INTERVAL_MS = 3  # 轮询间隔时间（秒）
+
+invite_code = "RICOMM"
 
 # 获取id
 def get_id(token):
@@ -43,12 +45,12 @@ def extract_verification_code(text):
     return None
 
 # 获取验证码 
-def get_code(token, title, simnum):
+def get_code(token, title, id, simnum):
     url = f'http://{HOST}/api/smslist?token={token}'
     headers = {
         'Host': HOST
     }
-    id = get_id(host, token)
+    # id = get_id(host, token)
     for i in range(MAX_POLLING_ATTEMPTS):
         result = requests.get(url, headers=headers).json()
         for item in result:
@@ -60,7 +62,127 @@ def get_code(token, title, simnum):
                 code = extract_verification_code(content)
                 print(code)
                 return
-        time.sleep(POLL_INTERVAL_MS / 1000.0)
+        time.sleep(POLL_INTERVAL_MS)
+
+
+def send_auth_code(phone_number: str):
+    url = "https://service.vidu.cn/iam/v1/users/send-auth-code"
+
+    payload = {
+        "channel": "sms",
+        "receiver": f'+86{phone_number}',
+        "purpose": "login",
+        "locale": "en"
+    }
+
+    # 动态生成 uuid 作为请求标识，避免被服务器风控或去重
+    request_id = str(uuid.uuid4())
+
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+        'Accept-Encoding': "gzip, deflate, br, zstd",
+        'Content-Type': "application/json",
+        'x-platform': "web",
+        'x-request-id': request_id,
+        'sec-ch-ua-platform': "\"Android\"",
+        'accept-language': "zh",
+        'sec-ch-ua': "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Android WebView\";v=\"150\"",
+        'sec-ch-ua-mobile': "?1",
+        'x-app-version': "-",
+        'origin': "https://www.vidu.cn",
+        'x-requested-with': "mark.via",
+        'sec-fetch-site': "same-site",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://www.vidu.cn/",
+        'priority': "u=1, i"
+    }
+
+    # 使用 json 参数会自动进行 json.dumps 并设置 header
+    result = requests.post(url, json=payload, headers=headers).json()
+    print(result)
+
+def login_by_auth_code(phone_number: str, auth_code: str, device_id: str = None):
+ 
+    url = "https://service.vidu.cn/iam/v1/users/login"
+
+
+    # 如果未指定 device_id，则动态生成一个符合格式要求的 ID
+    if not device_id:
+        device_id = f"DEVICE_{uuid.uuid4()}"
+
+    payload = {
+        "id_type": "phone",
+        "identity": f"+86{phone_number}",
+        "auth_type": "authcode",
+        "credential": str(auth_code).strip(),
+        "device_id": device_id,
+        "invite_code": invite_code,
+        "team_invite_code": "",
+        "receive_marketing_msg": False
+    }
+
+    # 动态生成本次请求的唯一的 x-request-id
+    request_id = str(uuid.uuid4())
+
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+        'Accept-Encoding': "gzip, deflate, br, zstd",
+        'Content-Type': "application/json",
+        'x-platform': "web",
+        'x-request-id': request_id,
+        'sec-ch-ua-platform': "\"Android\"",
+        'accept-language': "zh",
+        'sec-ch-ua': "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Android WebView\";v=\"150\"",
+        'sec-ch-ua-mobile': "?1",
+        'x-app-version': "-",
+        'origin': "https://www.vidu.cn",
+        'x-requested-with': "mark.via",
+        'sec-fetch-site': "same-site",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://www.vidu.cn/",
+        'priority': "u=1, i"
+    }
+
+    result = requests.post(url, json=payload, headers=headers).json()
+    print(result)
+    return result['token']
+
+def get_my_credits(jwt_token: str):
+    url = "https://service.vidu.cn/credit/v1/credits/me"
+
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+        'Accept-Encoding': "gzip, deflate, br, zstd",
+        'x-platform': "web",
+        'sec-ch-ua-platform': "\"Android\"",
+        'x-app-version': "-",
+        'accept-language': "zh",
+        'sec-ch-ua': "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Android WebView\";v=\"150\"",
+        'sec-ch-ua-mobile': "?1",
+        'origin': "https://www.vidu.cn",
+        'x-requested-with': "mark.via",
+        'sec-fetch-site': "same-site",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://www.vidu.cn/",
+        'priority': "u=1, i",
+        # 动态拼接传入的 JWT Token 到 Cookie 中
+        'Cookie': f"JWT={jwt_token.strip()}"
+    }
+
+    result = requests.get(url, headers=headers).json()
+    print(result)
 
 if __name__ == '__main__':
-    sifang_phone = GithubFile(f'四方/{TOKEN}.txt')
+    sifang_phone = GithubFile(f'四方/{SF_TOKEN}.txt', as_json=False).cont
+    phone_lst = [line.strip() for line in sifang_phone.strip().split('\n') if line.strip()]
+    for item in phone_lst:
+        phone = re.search(r'\d{11}', item)
+        sifangID = get_id(SF_TOKEN)
+        send_auth_code(phone)
+        sifang_code = get_code(SF_TOKEN, CODE_TITLE, sifangID, phone)
+        token = login_by_auth_code(phone, sifang_code)
+        get_my_credits(token)
+        exit()
