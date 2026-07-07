@@ -12,7 +12,8 @@ class GithubFile:
         self, 
         file_path: str,
         repo_name: str = "inoyna12/updateTeam",  # 参数化仓库名称
-        github_token: Optional[str] = None
+        github_token: Optional[str] = None,
+        as_json: Optional[bool] = None  # 新增：显式指定文件类型。True为JSON，False为纯文本，None为自动识别
     ):
         """
         初始化GitHub文件操作类
@@ -20,14 +21,16 @@ class GithubFile:
         :param file_path: 文件在仓库中的路径
         :param repo_name: 仓库名称（格式：用户名/仓库名）
         :param github_token: GitHub Token，优先使用参数传入，其次从环境变量读取
+        :param as_json: 是否作为JSON处理。若为None，则根据后缀或内容自动识别
         """
-        # 优先使用参数传入的 token，其次读取环境变量
         token = github_token or os.getenv("GITHUB_TOKEN")
         self.gh = Github(token)
         self.repo = self.gh.get_repo(repo_name)
         self.file_path = file_path
         self.file_info: Optional[ContentFile] = None
-        self.cont: Optional[list] = None
+        
+        self.as_json = as_json
+        self.cont: Any = None  # JSON模式下为 list/dict，文本模式下为 str
         
         try:
             self._refresh_file_info()
@@ -35,24 +38,39 @@ class GithubFile:
             print(f"初始化失败: {e}")
             raise  # 抛出异常由调用者处理
 
-    def _parse_content(self, content_bytes: bytes) -> list:
+    def _parse_content(self, content_bytes: bytes) -> Any:
         """
-        安全地解析字节流内容为 JSON。
-        如果内容为空或解析失败，将返回一个空列表以防止程序崩溃。
+        解析文件内容。根据 self.as_json 的设定或自动识别，解析为 JSON 对象或纯文本字符串。
         """
-        if not content_bytes or content_bytes.strip() == b"":
-            return []
-        try:
-            parsed_data = json.loads(content_bytes.decode("utf-8"))
-            # 确保解析出来的数据是列表类型，以符合 self.cont 的期望类型
-            if isinstance(parsed_data, list):
-                return parsed_data
-            else:
-                # 如果解析出来的不是列表（例如字典），在这里也可以兼容返回
-                return parsed_data  # type: ignore
-        except json.JSONDecodeError:
-            print(f"警告：文件 {self.file_path} 内容不是合法的 JSON 格式，已重置为空列表")
-            return []
+        raw_str = content_bytes.decode("utf-8") if content_bytes else ""
+        
+        # 1. 如果显式指定为 JSON，或者未指定但文件以 .json 结尾
+        if self.as_json is True or (self.as_json is None and self.file_path.lower().endswith('.json')):
+            self.as_json = True
+            if not raw_str.strip():
+                return []  # 空白文件默认初始化为空列表
+            try:
+                return json.loads(raw_str)
+            except json.JSONDecodeError:
+                print(f"警告：文件 {self.file_path} 预期为 JSON，但解析失败，重置为空列表")
+                return []
+
+        # 2. 如果未显式指定，尝试自动识别：先尝试解析为 JSON
+        if self.as_json is None:
+            if raw_str.strip():
+                try:
+                    parsed_data = json.loads(raw_str)
+                    self.as_json = True  # 成功解析，后续也以 JSON 模式处理
+                    return parsed_data
+                except json.JSONDecodeError:
+                    pass
+            
+            # 解析 JSON 失败或文件为空，且没有 .json 后缀，则视作纯文本处理
+            self.as_json = False
+            return raw_str
+
+        # 3. 显式指定为纯文本 (self.as_json is False)
+        return raw_str
 
     def _refresh_file_info(self) -> None:
         """刷新文件信息，可能抛出异常"""
@@ -64,7 +82,7 @@ class GithubFile:
                     f"文件 {self.file_path} 大小超过 {self.MAX_FILE_SIZE/1024/1024}MB 限制"
                 )
             
-            # 使用安全解析函数处理文件内容
+            # 使用统一的安全解析函数
             self.cont = self._parse_content(self.file_info.decoded_content)
             
         except GithubException as e:
@@ -72,16 +90,30 @@ class GithubFile:
                 raise FileNotFoundError(f"文件 {self.file_path} 不存在") from e
             raise RuntimeError(f"GitHub API错误: {e}") from e
 
-    def update(self, new_lst: Any) -> None:
+    def update(self, new_data: Any) -> None:
         """
         更新文件内容并确保本地数据同步
         
-        :param new_lst: 需要写入的新数据（必须可JSON序列化）
+        :param new_data: 需要写入的新数据。
+                         如果是 JSON 模式，可以是 dict/list 等可序列化对象；
+                         如果是文本模式，可以是字符串，也可以是列表（列表会被按行写入）。
         """
-        try:
-            encoded_content = json.dumps(new_lst, indent=2).encode("utf-8")
-        except TypeError as e:
-            raise ValueError("数据无法序列化为JSON格式") from e
+        # 确保我们在提交前知道最新的类型状态
+        self._refresh_file_info()
+
+        if self.as_json:
+            try:
+                # ensure_ascii=False 可以保证中文（如“四方”）不会被转义为 \u 格式
+                encoded_content = json.dumps(new_data, indent=2, ensure_ascii=False).encode("utf-8")
+            except TypeError as e:
+                raise ValueError("数据无法序列化为JSON格式") from e
+        else:
+            # 文本模式：如果传入的是列表/元组，自动用换行符拼接成多行文本
+            if isinstance(new_data, (list, tuple)):
+                txt_content = "\n".join(map(str, new_data))
+            else:
+                txt_content = str(new_data)
+            encoded_content = txt_content.encode("utf-8")
 
         commit_message = (
             f"Updated {self.file_path}\n"
@@ -89,9 +121,6 @@ class GithubFile:
         )
 
         try:
-            # 提交前必须刷新SHA，避免冲突
-            self._refresh_file_info()
-            
             # 提交更新并获取返回结果
             update_result: Dict = self.repo.update_file(
                 path=self.file_path,
@@ -100,9 +129,8 @@ class GithubFile:
                 sha=self.file_info.sha  # type: ignore
             )
             
-            # 直接使用API返回的新内容更新本地信息
+            # 直接使用 API 返回的新内容更新本地信息
             self.file_info = update_result["content"]
-            # 同样使用安全解析函数进行同步
             self.cont = self._parse_content(self.file_info.decoded_content)
             
             print(f"成功更新 {self.file_path}")
@@ -113,12 +141,21 @@ class GithubFile:
             raise RuntimeError(f"更新失败: {e}") from e
 
     def create(self, initial_data: Any = None) -> None:
-        """创建新文件（补充功能）"""
+        """创建新文件"""
         if initial_data is None:
-            initial_data = []
+            # 如果是 JSON 模式默认 []，文本模式默认空字符串
+            initial_data = [] if self.as_json is not False else ""
             
         try:
-            encoded_content = json.dumps(initial_data, indent=2).encode("utf-8")
+            if self.as_json is not False:
+                encoded_content = json.dumps(initial_data, indent=2, ensure_ascii=False).encode("utf-8")
+            else:
+                if isinstance(initial_data, (list, tuple)):
+                    txt_content = "\n".join(map(str, initial_data))
+                else:
+                    txt_content = str(initial_data)
+                encoded_content = txt_content.encode("utf-8")
+
             self.repo.create_file(
                 path=self.file_path,
                 message=f"Create {self.file_path}",
