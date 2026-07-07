@@ -29,9 +29,10 @@ def get_id(token):
     result = requests.get(url, headers=headers).json()
     if len(result) > 0:
         id = result[0]['id']
-        return id
     else:
-        return 0
+        id = 0
+    print(f'设置基准ID：{id}')
+    return id
 
 # 提取验证码
 def extract_verification_code(text):
@@ -100,7 +101,7 @@ def send_auth_code(phone_number: str):
 
     # 使用 json 参数会自动进行 json.dumps 并设置 header
     result = requests.post(url, json=payload, headers=headers).json()
-    print(result)
+    print(f'发送验证码响应：{result}')
 
 def login_by_auth_code(phone_number: str, auth_code: str, device_id: str = None):
  
@@ -180,6 +181,7 @@ if __name__ == '__main__':
     phone_lst = [line.strip() for line in sifang_phone.strip().split('\n') if line.strip()]
     for item in phone_lst:
         phone = re.search(r'\d{11}', item)
+        print(f'使用号码：{phone}')
         sifangID = get_id(SF_TOKEN)
         send_auth_code(phone)
         sifang_code = get_code(SF_TOKEN, CODE_TITLE, sifangID, phone)
