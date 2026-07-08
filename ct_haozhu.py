@@ -28,13 +28,10 @@ import requests
 import json
 import time
 import os
-import logging
 from tools.githubFile import GithubFile
 from datetime import datetime,date
 from decimal import Decimal
 from notify import send
-
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
 
 # 豪猪配置
 cookie = os.environ["haozhucookie"]
@@ -99,7 +96,7 @@ class HaoZhu:
         if result is None:
             exit()
         if result['code'] == 0:
-            logging.info(f"当前余额：{result['money']}")
+            print(f"当前余额：{result['money']}")
         else:
             print(result)
     
@@ -124,8 +121,7 @@ class HaoZhu:
     def update_ydj(self, ydj):
         data = []
         for i in ydj:
-            zx = int(i['zxky'].split('/')[0].split(':')[1])
-            ky = int(i['zxky'].split('/')[1].split(':')[1])
+            ky = int(i['zxky'].split(':')[-1])
             if i['djzt'] == '已对接' and ky > 0:
                 data.append(i)
                 continue
@@ -252,7 +248,7 @@ class HaoZhu:
         for uid_config in uid_config_list:
             print(f"添加对接码：{uid_config['mc']}----{uid_config['uid']}（{uid_config['zxky']}，价格:{uid_config['yhj']}）")
             self.add_uid(uid_config['uid'])
-            zxky = int(uids['zxky'].split(':')[-1])
+            zxky = int(uid_config['zxky'].split(':')[-1])
             ydjsl += 1
             kysl += zxky
             update_ydj_list.append(uid_config)
