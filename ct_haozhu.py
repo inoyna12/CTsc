@@ -125,7 +125,8 @@ class HaoZhu:
             if i['djzt'] == '已对接' and ky > 0:
                 data.append(i)
                 continue
-            if i['djzt'] == '已对接' and ky == 0:
+            if ky == 0:
+           # if i['djzt'] == '已对接' and ky == 0:
                 print(f"删除对接码：{i['mc']}----{i['uid']}（{i['zxky']}，价格:{i['yhj']}）")
                 self.del_uid(i['uid'])
         return data
