@@ -320,7 +320,7 @@ if __name__ == '__main__':
         
     for item in hz_config['data']:
         if item['zddj']:
-            project_ydj_list = [d for d in update_ydj_list if item['sid'] in d['mc']]
+            project_ydj_list = [d for d in update_ydj_list if item['sid'] in d['mc']] # 把同一个项目名的对接数据放到一个列表中
             haozhu.main(project_ydj_list, item)
         else:
             print(f"{item['project_name']}：自动对接已关闭")
