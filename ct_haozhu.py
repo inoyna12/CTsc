@@ -287,6 +287,9 @@ class HaoZhu:
     def check_hd(self, ydj_list, not_hd_list):
         new_ydj_list = []
         for d in ydj_list:
+            if d['hd'] is None:
+                new_ydj_list.append(d)
+                continue
             hd_list = d['hd'].strip('|').split('|')
             
             # 判断hd_list的任意一个元素是否不存在于not_hd_list，如果有一个不存在，则返回true
