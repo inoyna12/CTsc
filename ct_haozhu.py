@@ -95,6 +95,7 @@ class HaoZhu:
             return data
         else:
             print(result)
+            print(url)
             exit()
 
     # 更新已对接的对接码
