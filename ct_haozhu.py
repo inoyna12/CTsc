@@ -325,6 +325,7 @@ class HaoZhu:
           
         for d in ydj_list:
             if d not in list1:
+                print(f"删除多余{d['mc']}对接码")
                 self.del_uid(d['uid'])
                 
 
