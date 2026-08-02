@@ -310,7 +310,7 @@ class HaoZhu:
                     print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
                     self.add_uid(d['uid'])
                 else:
-                    print(f"{d['uid']}：已对接里已存在相同价格的对接码，不添加")
+                    print(f"{d['uid']}：已存在相同价格的对接码，不添加")
                     continue
             zxky = int(d['zxky'].split(':')[-1])
             ydjsl += 1
