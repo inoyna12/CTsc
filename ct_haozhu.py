@@ -1,26 +1,6 @@
 '''
-sms对接价格最低的对接码
-
-已对接的对接码信息  列表A
-可对接的对接码信息  列表B
-合并AB变成C  从小到大排序
-
-初始化：已对接数量0 已对接号码0
-
-for循环C判断对接
-
-    判断已对接数量和已对接号码数量是否足够
-
-    如果已对接：
-        删除列表A中的已对接元素
-   如果未对接：
-        启动对接
-
-   数量加上 
-
-for循环A列表取消对接
-{'uid': '21283-8C0J0UW2E1', 'mc': '[21283]鹰角网络', 'yhj': '1.1000', 'ksj': '1.0000', 'djzt': '已对接', 'zxky': '在线:53/可用:53', 'yyy': '联通|电信|', 'sheng': '|河北|浙江|辽宁|黑龙江', 'haoduan': '虚拟号段', 'hd': '171|162|', 'lxfs': '未留', 'minute': '2037-10-22 10:43:08'}
-{'uid': '21129-Z12XSLOSYP', 'mc': '[21129]雷神', 'yhj': '0.3300', 'ksj': '0.3000', 'djzt': '已对接', 'zxky': '在线:224/可用:203', 'yyy': '移动|', 'sheng': '广东', 'haoduan': '正常号段', 'hd': '138|136|135|', 'lxfs': 'tonghua66', 'minute': '2026-05-29 13:53:20'}
+{'sid': '76980', 'mc': '[76980]海马云', 'uid': '76980-3BLHWSGDGM', 'yhj': '0.330', 'zxky': '可用数量:147', 'yyy': '电信|移动|', 'sheng': '|广东', 'haoduan': '正常号段', 'hd': '199|191|190|189|181|136|135|', 'lxfs': 'tonghua66', 'minute': None, 'open': '0', 'time': '2025-05-25 18:11:50', 'zd': '1'}
+{'sid': '76980', 'mc': '[76980]海马云', 'uid': '76980-WIIB6H70AG', 'yhj': '11.000', 'zxky': '可用数量:61', 'yyy': '移动|', 'sheng': '广东', 'haoduan': '正常号段', 'hd': '198|188|158|157|150|139|138|137|136|135|134|', 'lxfs': '未留', 'minute': None, 'open': '0', 'time': '2026-02-04 21:33:28', 'zd': '0'}
         
 '''
 
@@ -35,7 +15,7 @@ from notify import send
 
 # 豪猪配置
 cookie = os.environ["haozhucookie"]
-hz_config = GithubFile('豪猪/config.json').cont
+hz_config = GithubFile('豪猪/confng.json').cont
 notAdd_lxfs = hz_config['notAdd_lxfs']
 notAdd_sheng = hz_config['notAdd_sheng']
 
@@ -52,6 +32,7 @@ def rts(url, method='GET', resp_type='json', **kwargs):
     except Exception as e:
         print(f"Error: {e}")
         print(url)
+        exit()
         return None
 
 class HaoZhu:
@@ -101,21 +82,20 @@ class HaoZhu:
             print(result)
     
     # 查询加入的对接码
-    def get_ydj(self) -> list[dict]:
-        page = 1
+    def get_ydj(self, gic, page=1) -> list[dict]:
         data = []
-        max_pages = 50  # 安全限制
         headers = self.headers()
-        while page <= max_pages:
-            url = f'https://{self.host}/api.php?type=3&gjc=&page={page}'
+        for i in range(page):
+            url = f'https://{self.host}/api.php?type=3&gjc={gic}&page={i+1}'
             result = rts(url, headers=headers)
-            if result is None:
-                exit()
             if result['data'] is None:
                 break
             data.extend(result['data'])  #追加到data列表末尾中
-            page += 1
-        return data
+        if len(data) > 0:
+            return data
+        else:
+            print(result)
+            exit()
 
     # 更新已对接的对接码
     def update_ydj(self, ydj):
@@ -138,6 +118,7 @@ class HaoZhu:
         result = rts(url, headers=headers)
         if result is None:
             exit()
+        print(f"删除对接码：{uid}")
         print(result['msg'])
         print(f"{'-'*40}")
     
@@ -146,9 +127,7 @@ class HaoZhu:
         url = f'https://{self.host}/api.php?type=8&sid={sid}'
         headers = self.headers()
         result = rts(url, headers=headers)
-        if result is None:
-            exit()
-        if result['code'] != 1:
+        if result['data'] is None:
             print(url)
             print(result)
             exit()
@@ -228,31 +207,26 @@ class HaoZhu:
         print(f"{'-'*40}")
 
     # 自动对接（config为自动对接的配置参数，my_ydj为已对接的对接码）
-    def zddj(self, ydj_list, config):
+    def zddj_1(self, ydj_list, config):
         ydjsl = 0 # 已对接的对接码数量
         kysl = 0 # 已对接的可用号码数量
-        for item in ydj_list:
-            # 判断配置文件中的项目sid是否在已对接的对接码中，如果存在就把已对接的对接码数量和可用号码数量加起来
-            if config['sid'] in item['mc']:
-                zxky = int(item['zxky'].split(':')[-1])
-                ydjsl += 1
-                kysl += zxky
-
-        # 判断已对接的对接码数量和可用号码数量是否满足配置文件中的要求，如果满足就退出                
-        if ydjsl >= config['ydjsl'] and kysl >= config['kysl']:
-            return
         
-        # 查询项目公开对接码
-        uid_config_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
-
-        # 加入对接码，加入后添加到my_ydj中，直到满足配置文件中的要求为止
-        for uid_config in uid_config_list:
-            print(f"添加对接码：{uid_config['mc']}----{uid_config['uid']}（{uid_config['zxky']}，价格:{uid_config['yhj']}）")
-            self.add_uid(uid_config['uid'])
-            zxky = int(uid_config['zxky'].split(':')[-1])
+        for d in ydj_list:
+            zxky = int(d['zxky'].split(':')[-1])
             ydjsl += 1
             kysl += zxky
-            update_ydj_list.append(uid_config)
+            all_ydj.append(d)
+            if ydjsl >= config['ydjsl'] and kysl >= config['kysl']:
+                return
+                
+        uid_config_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
+        for dd in uid_config_list:
+            print(f"添加对接码：{dd['mc']}----{dd['uid']}（{dd['zxky']}，价格:{dd['yhj']}）")
+            self.add_uid(dd['uid'])
+            zxky = int(dd['zxky'].split(':')[-1])
+            ydjsl += 1
+            kysl += zxky
+            all_ydj.append(dd)
             if ydjsl >= config['ydjsl'] and kysl >= config['kysl']:
                 return
 
@@ -308,22 +282,74 @@ class HaoZhu:
             print(f"可用对接数量：{len(items)}，可用号码数量：{total_available}")
             print(f"\n{'-'*40}")   
 
-    # 主线程                    
-    def main(self, ydj_list, config: dict):
-        self.zddj(ydj_list, config) # 自动对接
 
+        
+    def check_hd(self, ydj_list, not_hd_list):
+        new_ydj_list = []
+        for d in ydj_list:
+            hd_list = d['hd'].strip('|').split('|')
+            
+            # 判断hd_list的任意一个元素是否不存在于not_hd_list，如果有一个不存在，则返回true
+            if any(i not in not_hd_list for i in hd_list):
+                new_ydj_list.append(d)
+            else:
+                print(f"{d['uid']}：{d['hd']}")
+                print("号段不符合，删除")
+                self.del_uid(d['uid'])
+        return new_ydj_list
+        
+    def zddj_2(self, ydj_list, config):
+        ydjsl = 0 # 已对接的对接码数量
+        kysl = 0 # 已对接的可用号码数量
+        list1 = []
+        
+        get_project_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
+        get_project_list.extend(ydj_list) # 把ydj_list 元素合并到project_config_list
+        project_list = sorted(get_project_list, key=lambda x: float(x['yhj']))
+        
+        for d in project_list:
+            if d not in ydj_list:
+                print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
+                self.add_uid(d['uid'])
+  
+            zxky = int(d['zxky'].split(':')[-1])
+            ydjsl += 1
+            kysl += zxky
+            list1.append(d)
+            all_ydj.append(d)
+            if ydjsl >= config['ydjsl'] and kysl >= config['kysl']:
+                break
+          
+        for d in ydj_list:
+            if d not in list1:
+                self.del_uid(d['uid'])
+                
+
+        # 主线程                    
+    def main(self, config):
+        if config['zddj'] == "0":
+            print(f"{config['project_name']}：自动对接已关闭")
+            print(f"{'-'*40}")
+            return
+        
+        var = self.get_ydj(config['sid'])
+        project_ydj = self.update_ydj(var)
+        if len(project_ydj) > 0:
+            project_ydj = self.check_hd(project_ydj, config['notAdd_hd'])
+        
+        if config['zddj'] == "1":
+            self.zddj_1(project_ydj, config)
+        elif config['zddj'] == "2":
+            self.zddj_2(project_ydj, config)
+            
+           
 if __name__ == '__main__':
     haozhu = HaoZhu(cookie)
     haozhu.getSummary(haozhu.token)
-    account_ydj = haozhu.get_ydj()
-    update_ydj_list = haozhu.update_ydj(account_ydj)
-        
-    for item in hz_config['data']:
-        if item['zddj']:
-            project_ydj_list = [d for d in update_ydj_list if item['sid'] in d['mc']] # 把同一个项目名的对接数据放到一个列表中
-            haozhu.main(project_ydj_list, item)
-        else:
-            print(f"{item['project_name']}：自动对接已关闭")
-            print(f"{'-'*40}")
-    haozhu.process_and_print(update_ydj_list) # 打印已对接的对接码
+    all_ydj = []
+    
+    for d in hz_config['data']:
+        haozhu.main(d)
+    
+    haozhu.process_and_print(all_ydj) # 打印已对接的对接码
     print(f"总请求数量：{request_count}")
