@@ -91,12 +91,7 @@ class HaoZhu:
             if result['data'] is None:
                 break
             data.extend(result['data'])  #追加到data列表末尾中
-        if len(data) > 0:
-            return data
-        else:
-            print(result)
-            print(url)
-            exit()
+        return data
 
     # 更新已对接的对接码
     def update_ydj(self, ydj):
@@ -121,7 +116,6 @@ class HaoZhu:
             exit()
         print(f"删除对接码：{uid}")
         print(result['msg'])
-        print(f"{'-'*40}")
     
     # 搜索项目公开对接码
     def get_project_uid(self, sid, not_hd_list):
@@ -158,7 +152,6 @@ class HaoZhu:
         if result is None:
             exit()
         print(result['msg']) 
-        print(f"{'-'*40}")
            
     # 查询当日消费记录
     def get_expenses(self):
@@ -193,7 +186,6 @@ class HaoZhu:
             time.sleep(2)
         
         print(f"消费数量：{self.use_quantity}，消费金额：{self.use_money}")
-        print(f"{'-'*40}")
 
         for mc, data in stats.items():
             result_list.append({
@@ -332,9 +324,10 @@ class HaoZhu:
 
         # 主线程                    
     def main(self, config):
+        print(f"{'-'*40}")
+        print(f"config['project_name']}：")
         if config['zddj'] == "0":
-            print(f"{config['project_name']}：自动对接已关闭")
-            print(f"{'-'*40}")
+            print("自动对接已关闭")
             return
         
         var = self.get_ydj(config['sid'])
