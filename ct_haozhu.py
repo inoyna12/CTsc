@@ -325,7 +325,7 @@ class HaoZhu:
         # 主线程                    
     def main(self, config):
         print(f"{'-'*40}")
-        print(f"config['project_name']}：")
+        print(f"{config['project_name']}：")
         if config['zddj'] == "0":
             print("自动对接已关闭")
             return
