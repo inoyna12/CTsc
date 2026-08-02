@@ -307,6 +307,8 @@ class HaoZhu:
         for d in project_list:
             if d not in ydj_list:
                 if d['yhj'] not in list2:
+                    print('d_yhj', d['yhj'])
+                    print('list2', list2)
                     print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
                     self.add_uid(d['uid'])
                 else:
