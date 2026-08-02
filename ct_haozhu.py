@@ -302,13 +302,11 @@ class HaoZhu:
         get_project_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
         get_project_list.extend(ydj_list) # 把ydj_list 元素合并到project_config_list
         project_list = sorted(get_project_list, key=lambda x: float(x['yhj']))
-        list2 = [i['yhj'] for i in ydj_list]
+        list2 = [float(i['yhj']) for i in ydj_list]
         
         for d in project_list:
             if d not in ydj_list:
-                if d['yhj'] not in list2:
-                    print('d_yhj', d['yhj'])
-                    print('list2', list2)
+                if float(d['yhj']) not in list2:
                     print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
                     self.add_uid(d['uid'])
                 else:
