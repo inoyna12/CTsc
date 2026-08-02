@@ -299,30 +299,53 @@ class HaoZhu:
         kysl = 0 # 已对接的可用号码数量
         list1 = []
         
-        get_project_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
-        get_project_list.extend(ydj_list) # 把ydj_list 元素合并到project_config_list
-        project_list = sorted(get_project_list, key=lambda x: float(x['yhj']))
-        list2 = [float(i['yhj']) for i in ydj_list]
+        # 1. 提取已有对接码的 uid 集合
+        ydj_uids = {d['uid'] for d in ydj_list}
         
+        # 2. 获取候选项目列表
+        get_project_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
+        
+        # 3. 将已对接的和候选的合并（按 uid 去重）
+        all_projects_dict = {d['uid']: d for d in ydj_list}
+        for d in get_project_list:
+            if d['uid'] not in all_projects_dict:
+                all_projects_dict[d['uid']] = d
+                
+        # 4. 【核心改动】多级排序逻辑：
+        #   - 权重 1: float(x['yhj'])           -> 价格越低越靠前
+        #   - 权重 2: 0 if is_docked else 1      -> 同价格下，已对接的(0)排在未对接的(1)前面
+        #   - 权重 3: str(x['uid'])              -> 同价格且状态相同下，按 UID 固定排序，保证结果稳定
+        project_list = sorted(
+            all_projects_dict.values(),
+            key=lambda x: (
+                float(x['yhj']), 
+                0 if x['uid'] in ydj_uids else 1, 
+                str(x['uid'])
+            )
+        )
+        
+        # 5. 遍历挑选
         for d in project_list:
-            if d not in ydj_list:
-                if float(d['yhj']) not in list2:
-                    print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
-                    self.add_uid(d['uid'])
-                else:
-                    print(f"{d['uid']}：已存在相同价格的对接码，不添加")
-                    continue
+            # 如果没对接过，执行添加
+            if d['uid'] not in ydj_uids:
+                print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
+                self.add_uid(d['uid'])
+                ydj_uids.add(d['uid'])
+            
             zxky = int(d['zxky'].split(':')[-1])
             ydjsl += 1
             kysl += zxky
             list1.append(d)
             all_ydj.append(d)
+            
             if ydjsl >= config['ydjsl'] and kysl >= config['kysl']:
                 break
           
+        # 6. 删除多余/被淘汰的对接码
+        selected_uids = {d['uid'] for d in list1}
         for d in ydj_list:
-            if d not in list1:
-                print(f"删除多余{d['mc']}对接码")
+            if d['uid'] not in selected_uids:
+                print(f"删除多余/高价{d['mc']}对接码")
                 self.del_uid(d['uid'])
                 
 
