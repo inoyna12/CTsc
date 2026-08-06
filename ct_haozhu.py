@@ -15,7 +15,7 @@ from notify import send
 
 # 豪猪配置
 cookie = os.environ["haozhucookie"]
-hz_config = GithubFile('豪猪/test.json').cont
+hz_config = GithubFile('豪猪/config.json').cont
 notAdd_lxfs = hz_config['notAdd_lxfs']
 notAdd_sheng = hz_config['notAdd_sheng']
 
