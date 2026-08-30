@@ -130,7 +130,7 @@ class HaoZhu:
         for item in result['data']:
             ky = int(item['zxky'].split(':')[-1])
             hd_list = item['hd'].strip('|').split('|')
-            if ky <= 30: #可用数量不足跳过
+            if ky <= 50: #可用数量不足跳过
                 continue
             if set(hd_list).issubset(set(not_hd_list)): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
