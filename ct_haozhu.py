@@ -140,7 +140,7 @@ class HaoZhu:
                 continue
             if set(hd_list).issubset(not_hd_list): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
-            if set(provinces).issubset(notAdd_sheng): # 判断对接码的列表地区元素是否全部存在于notAdd_sheng列表中，如果全部存在则跳过
+            if set(item['provinces']).issubset(notAdd_sheng): # 判断对接码的列表地区元素是否全部存在于notAdd_sheng列表中，如果全部存在则跳过
                 continue
             if item['contact'] in notAdd_lxfs: # item的卡商用户名存在于RemoveLxfs中，则运行
                 continue
