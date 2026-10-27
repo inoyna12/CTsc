@@ -104,7 +104,7 @@ class HaoZhu:
                 data.append(i)
                 continue
             #if ky == 0:
-            if i['status'] == 'joined' and ky == 0:
+            if i['status'] == 'joined' and i['available'] == 0:
                 print(f"删除对接码：{i['projectName']}----{i['code']}（{i['available']}，价格:{i['price']}）")
                 self.del_uid(i['code'])
         return data
