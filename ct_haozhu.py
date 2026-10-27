@@ -224,7 +224,7 @@ class HaoZhu:
         uid_config_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
         for dd in uid_config_list:
             print(f"添加对接码：{dd['projectName']}----{dd['code']}（{dd['available']}，价格:{dd['price']}）")
-            self.add_uid(dd['uid'])
+            self.add_uid(dd['code'])
             zxky = dd['available']
             ydjsl += 1
             kysl += zxky
