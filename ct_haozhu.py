@@ -119,7 +119,7 @@ class HaoZhu:
         "codes": codes
         }
         headers = self.headers()
-        result = rts(method='POST', url, data=json.dumps(payload), headers=headers)
+        result = rts(url, method='POST', data=json.dumps(payload), headers=headers)
         print(f"删除对接码：{uids}")
         print(result['message'])
     
@@ -157,7 +157,7 @@ class HaoZhu:
           "codes": codes
         }
         headers = self.headers()
-        result = rts(method='POST', url, data=json.dumps(payload), headers=headers)
+        result = rts(url, method='POST', data=json.dumps(payload), headers=headers)
         if result['code'] == 0:
         for i in result['data']['results']:
             print(f"{i['code']}：{i['message']}")
