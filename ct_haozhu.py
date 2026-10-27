@@ -150,7 +150,7 @@ class HaoZhu:
     
     # 加入对接码
     def add_uid(self, code):
-        url = f'https://{self.host}/api.php?type=4&djm={djm}'
+        url = f'https://{self.host}/v1/bindings'
         codes = []
         codes.append(code)
         payload = {
