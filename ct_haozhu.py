@@ -159,8 +159,8 @@ class HaoZhu:
         headers = self.headers()
         result = rts(url, method='POST', data=json.dumps(payload), headers=headers)
         if result['code'] == 0:
-        for i in result['data']['results']:
-            print(f"{i['code']}：{i['message']}")
+            for i in result['data']['results']:
+                print(f"{i['code']}：{i['message']}")
            
     # 查询当日消费记录
     def get_expenses(self):
