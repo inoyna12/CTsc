@@ -120,7 +120,7 @@ class HaoZhu:
         }
         headers = self.headers()
         result = rts(url, method='POST', data=json.dumps(payload), headers=headers)
-        print(f"删除对接码：{uids}")
+        print(f"删除对接码：{code}")
         print(result['message'])
     
     # 搜索项目公开对接码
