@@ -1,6 +1,5 @@
 '''
-{'sid': '76980', 'mc': '[76980]海马云', 'uid': '76980-3BLHWSGDGM', 'yhj': '0.330', 'zxky': '可用数量:147', 'yyy': '电信|移动|', 'sheng': '|广东', 'haoduan': '正常号段', 'hd': '199|191|190|189|181|136|135|', 'lxfs': 'tonghua66', 'minute': None, 'open': '0', 'time': '2025-05-25 18:11:50', 'zd': '1'}
-{'sid': '76980', 'mc': '[76980]海马云', 'uid': '76980-WIIB6H70AG', 'yhj': '11.000', 'zxky': '可用数量:61', 'yyy': '移动|', 'sheng': '广东', 'haoduan': '正常号段', 'hd': '198|188|158|157|150|139|138|137|136|135|134|', 'lxfs': '未留', 'minute': None, 'open': '0', 'time': '2026-02-04 21:33:28', 'zd': '0'}
+{"code":0,"message":"ok","data":{"list":[{"code":"76980-MNKOZACSVE","projectId":"76980","projectName":"海马云","price":"0.330","available":40,"operators":["虚拟运营商"],"provinces":["吉林","四川","安徽","广东","河南","辽宁","重庆","黑龙江"],"prefixes":["171","170","167","165"],"segmentType":"虚拟号段","contact":"未留","lastUsedAt":"2026-10-22T11:25:02Z","status":"joined"}],"total":1,"page":1,"size":20}}
         
 '''
 
@@ -14,7 +13,7 @@ from decimal import Decimal
 from notify import send
 
 # 豪猪配置
-cookie = os.environ["haozhucookie"]
+token = os.environ["haozhutoken"]
 hz_config = GithubFile('豪猪/config.json').cont
 notAdd_lxfs = hz_config['notAdd_lxfs']
 notAdd_sheng = hz_config['notAdd_sheng']
@@ -36,19 +35,28 @@ def rts(url, method='GET', resp_type='json', **kwargs):
         return None
 
 class HaoZhu:
-    def __init__(self, cookie):
-        self.cookie = cookie # 调用haozhu_api后会延长cookie有效期
-        self.host = 'h5.haozhuma.cn'
+    def __init__(self, token):
+        self.token = token
+        self.host = 'api.veeto.cn'
         self.host2 = 'api.haozhuma.cn'
         self.use_quantity = 0
         self.use_money = Decimal('0')
-        self.token = self.haozhu_api()
             
     def headers(self):
         headers = {
-            'Host': self.host,
-            'User-Agent':'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36',
-            'Cookie': self.cookie
+        'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+        'Accept': "application/json, text/plain, */*",
+        'Accept-Encoding': "gzip, deflate, br, zstd",
+        'sec-ch-ua-platform': "\"Windows\"",
+        'Authorization': f"Bearer {self.token}",
+        'sec-ch-ua': "\"Microsoft Edge\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+        'sec-ch-ua-mobile': "?0",
+        'Origin': "https://h5.haozhuma.cn",
+        'Sec-Fetch-Site': "cross-site",
+        'Sec-Fetch-Mode': "cors",
+        'Sec-Fetch-Dest': "empty",
+        'Referer': "https://h5.haozhuma.cn/",
+        'Accept-Language': "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"
         }
         return headers
 
@@ -67,91 +75,92 @@ class HaoZhu:
             exit()
 
     # 查询余额     
-    def getSummary(self, token):
-        url = f'https://{self.host2}/sms/?api=getSummary&token={token}'
-        headers = {
-            'Host': self.host2,
-            'User-Agent':'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36'
-        }
+    def getSummary(self):
+        url = f'https://{self.host}/v1/me'
+        headers = self.headers()
         result = rts(url, headers=headers)
-        if result is None:
-            exit()
         if result['code'] == 0:
-            print(f"当前余额：{result['money']}")
+            print(f"当前余额：{result['data']['balance']}")
         else:
             print(result)
+            exit()
     
     # 查询加入的对接码
-    def get_ydj(self, gic, page=1) -> list[dict]:
+    def get_ydj(self, projectId, page=1) -> list[dict]:
         data = []
         headers = self.headers()
         for i in range(page):
-            url = f'https://{self.host}/api.php?type=3&gjc={gic}&page={i+1}'
+            url = f'https://{self.host}/v1/bindings?keyword={projectId}&page={i+1}&size=20'
             result = rts(url, headers=headers)
-            if result['data'] is None:
-                break
-            data.extend(result['data'])  #追加到data列表末尾中
+            if result['code'] == 0:
+                data.extend(result['data']['list'])  #追加到data列表末尾中
         return data
 
     # 更新已对接的对接码
     def update_ydj(self, ydj):
         data = []
         for i in ydj:
-            ky = int(i['zxky'].split(':')[-1])
-            if i['djzt'] == '已对接' and ky > 0:
+            if i['status'] == 'joined' and i['available'] > 0:
                 data.append(i)
                 continue
             #if ky == 0:
-            if i['djzt'] == '已对接' and ky == 0:
-                print(f"删除对接码：{i['mc']}----{i['uid']}（{i['zxky']}，价格:{i['yhj']}）")
-                self.del_uid(i['uid'])
+            if i['status'] == 'joined' and ky == 0:
+                print(f"删除对接码：{i['projectName']}----{i['code']}（{i['available']}，价格:{i['price']}）")
+                self.del_uid(i['code'])
         return data
 
     # 删除对接码
-    def del_uid(self, uid):
-        url = f'https://{self.host}/api.php?type=41&open=del&uid={uid}'
+    def del_uid(self, code):
+        url = f'https://{self.host}/v1/bindings/batch'
+        codes = []
+        codes.append(code)
+        payload = {
+        "action": "delete",
+        "codes": codes
+        }
         headers = self.headers()
-        result = rts(url, headers=headers)
-        if result is None:
-            exit()
-        print(f"删除对接码：{uid}")
-        print(result['msg'])
+        result = rts(method='POST', url, data=json.dumps(payload), headers=headers)
+        print(f"删除对接码：{uids}")
+        print(result['message'])
     
     # 搜索项目公开对接码
     def get_project_uid(self, sid, not_hd_list):
-        url = f'https://{self.host}/api.php?type=8&sid={sid}'
+        url = f'https://{self.host}/v1/projects/{sid}/public-codes'
         headers = self.headers()
         result = rts(url, headers=headers)
-        if result['data'] is None:
+        if result['code'] != 0 or result['code'] is None:
             print(url)
             print(result)
             exit()
         new_data = []
         for item in result['data']:
-            ky = int(item['zxky'].split(':')[-1])
-            hd_list = item['hd'].strip('|').split('|')
+            ky = item['available']
+            hd_list = item['prefixes']
             if ky <= 50: #可用数量不足跳过
                 continue
-            if set(hd_list).issubset(set(not_hd_list)): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
+            if set(hd_list).issubset(not_hd_list): # 判断对接码的列表号段元素是否全部存在于not_hd_list列表中，如果全部存在则跳过
                 continue
-            if any(s in item['sheng'] for s in notAdd_sheng): # 遍历黑名单 self.RemoveSheng（比如 ['北京', '上海']），只要发现 item['sheng'] 中包含了黑名单里的任何一个省份（any），就跳过这条数据。
+            if set(provinces).issubset(notAdd_sheng): # 判断对接码的列表地区元素是否全部存在于notAdd_sheng列表中，如果全部存在则跳过
                 continue
-            if item['lxfs'] in notAdd_lxfs: # item的卡商用户名存在于RemoveLxfs中，则运行
-                continue
-            if item['hd'][0] != '1': # 号段开头不等于1，则运行
+            if item['contact'] in notAdd_lxfs: # item的卡商用户名存在于RemoveLxfs中，则运行
                 continue
             new_data.append(item)
-        sorted_data = sorted(new_data, key=lambda x: float(x['yhj']))
+        sorted_data = sorted(new_data, key=lambda x: float(x['price']))
         return sorted_data
     
     # 加入对接码
-    def add_uid(self, djm):
+    def add_uid(self, code):
         url = f'https://{self.host}/api.php?type=4&djm={djm}'
+        codes = []
+        codes.append(code)
+        payload = {
+          "codes": codes
+        }
         headers = self.headers()
-        result = rts(url, headers=headers)
-        if result is None:
-            exit()
-        print(result['msg']) 
+        result = rts(method='POST', url, data=json.dumps(payload), headers=headers)
+        if result['code'] == 0:
+        for i in result['data']['results']:
+            print(f"{i['code']}：{i['message']}")
            
     # 查询当日消费记录
     def get_expenses(self):
@@ -205,7 +214,7 @@ class HaoZhu:
         kysl = 0 # 已对接的可用号码数量
         
         for d in ydj_list:
-            zxky = int(d['zxky'].split(':')[-1])
+            zxky = d['available']
             ydjsl += 1
             kysl += zxky
             all_ydj.append(d)
@@ -214,9 +223,9 @@ class HaoZhu:
                 
         uid_config_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
         for dd in uid_config_list:
-            print(f"添加对接码：{dd['mc']}----{dd['uid']}（{dd['zxky']}，价格:{dd['yhj']}）")
+            print(f"添加对接码：{dd['projectName']}----{dd['code']}（{dd['available']}，价格:{dd['price']}）")
             self.add_uid(dd['uid'])
-            zxky = int(dd['zxky'].split(':')[-1])
+            zxky = dd['available']
             ydjsl += 1
             kysl += zxky
             all_ydj.append(dd)
@@ -228,7 +237,7 @@ class HaoZhu:
         # 1. 分组：将数据按名称 (mc) 归类
         grouped_data = {}
         for item in data:
-            name = item['mc']
+            name = item['projectName']
             if name not in grouped_data:
                 grouped_data[name] = []
             grouped_data[name].append(item)
@@ -239,10 +248,10 @@ class HaoZhu:
 
         for name, items in grouped_data.items():
             # 先对组内的项目按价格降序排序
-            items.sort(key=lambda x: float(x['yhj']), reverse=True)
+            items.sort(key=lambda x: float(x['price']), reverse=True)
             
             # 获取该组中最高的一个价格，用于组与组之间的排序
-            max_price = float(items[0]['yhj']) if items else 0
+            max_price = float(items[0]['price']) if items else 0
             
             sorted_groups.append({
                 'name': name,
@@ -261,15 +270,15 @@ class HaoZhu:
             items = group['items']
             
             for item in items:
-                uid = item['uid']
-                zxky = item['zxky']
-                price = item['yhj']
+                uid = item['code']
+                zxky = item['available']
+                price = item['price']
                 
                 # 打印单行详情
                 print(f"{uid}（{zxky}，价格:{price}）")
                 
                 # 提取"可用"后面的数字进行累加
-                total_available += int(zxky.split(':')[-1])
+                total_available += zxky
 
             # 打印统计信息
             print(f"可用对接数量：{len(items)}，可用号码数量：{total_available}")
@@ -300,16 +309,16 @@ class HaoZhu:
         list1 = []
         
         # 1. 提取已有对接码的 uid 集合
-        ydj_uids = {d['uid'] for d in ydj_list}
+        ydj_uids = {d['code'] for d in ydj_list}
         
         # 2. 获取候选项目列表
         get_project_list = self.get_project_uid(config['search_sid'], config['notAdd_hd'])
         
         # 3. 将已对接的和候选的合并（按 uid 去重）
-        all_projects_dict = {d['uid']: d for d in ydj_list}
+        all_projects_dict = {d['code']: d for d in ydj_list}
         for d in get_project_list:
-            if d['uid'] not in all_projects_dict:
-                all_projects_dict[d['uid']] = d
+            if d['code'] not in all_projects_dict:
+                all_projects_dict[d['code']] = d
                 
         # 4. 【核心改动】多级排序逻辑：
         #   - 权重 1: float(x['yhj'])           -> 价格越低越靠前
@@ -318,21 +327,21 @@ class HaoZhu:
         project_list = sorted(
             all_projects_dict.values(),
             key=lambda x: (
-                float(x['yhj']), 
-                0 if x['uid'] in ydj_uids else 1, 
-                str(x['uid'])
+                float(x['price']), 
+                0 if x['code'] in ydj_uids else 1, 
+                str(x['code'])
             )
         )
         
         # 5. 遍历挑选
         for d in project_list:
             # 如果没对接过，执行添加
-            if d['uid'] not in ydj_uids:
-                print(f"添加对接码：{d['mc']}----{d['uid']}（{d['zxky']}，价格:{d['yhj']}）")
-                self.add_uid(d['uid'])
-                ydj_uids.add(d['uid'])
+            if d['code'] not in ydj_uids:
+                print(f"添加对接码：{d['projectName']}----{d['code']}（{d['available']}，价格:{d['price']}）")
+                self.add_uid(d['code'])
+                ydj_uids.add(d['code'])
             
-            zxky = int(d['zxky'].split(':')[-1])
+            zxky = d['available']
             ydjsl += 1
             kysl += zxky
             list1.append(d)
@@ -342,11 +351,11 @@ class HaoZhu:
                 break
           
         # 6. 删除多余/被淘汰的对接码
-        selected_uids = {d['uid'] for d in list1}
+        selected_uids = {d['code'] for d in list1}
         for d in ydj_list:
-            if d['uid'] not in selected_uids:
-                print(f"删除多余/高价{d['mc']}对接码")
-                self.del_uid(d['uid'])
+            if d['code'] not in selected_uids:
+                print(f"删除多余/高价{d['projectName']}对接码")
+                self.del_uid(d['code'])
                 
 
         # 主线程                    
@@ -360,7 +369,8 @@ class HaoZhu:
         var = self.get_ydj(config['sid'])
         project_ydj = self.update_ydj(var)
         if len(project_ydj) > 0:
-            project_ydj = self.check_hd(project_ydj, config['notAdd_hd'])
+            pass
+           # project_ydj = self.check_hd(project_ydj, config['notAdd_hd'])
         
         if config['zddj'] == "1":
             self.zddj_1(project_ydj, config)
@@ -369,8 +379,8 @@ class HaoZhu:
             
            
 if __name__ == '__main__':
-    haozhu = HaoZhu(cookie)
-    haozhu.getSummary(haozhu.token)
+    haozhu = HaoZhu(token)
+    haozhu.getSummary()
     all_ydj = []
     
     for d in hz_config['data']:
